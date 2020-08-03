@@ -48,10 +48,10 @@ RM = /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/thalevi/Documents/research/PRFs/code/codesrc/secretsharinglocal
+CMAKE_SOURCE_DIR = /Users/thalevi/Documents/research/PRFs/git/PseudoRandomFunction/src/secretsharing
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/thalevi/Documents/research/PRFs/code/codesrc/secretsharinglocal/cmake-build-debug
+CMAKE_BINARY_DIR = /Users/thalevi/Documents/research/PRFs/git/PseudoRandomFunction/src/secretsharing/cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/thalevi/Documents/research/PRFs/code/codesrc/secretsharinglocal/cmake-build-debug/CMakeFiles /Users/thalevi/Documents/research/PRFs/code/codesrc/secretsharinglocal/cmake-build-debug/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/thalevi/Documents/research/PRFs/git/PseudoRandomFunction/src/secretsharing/cmake-build-debug/CMakeFiles /Users/thalevi/Documents/research/PRFs/git/PseudoRandomFunction/src/secretsharing/cmake-build-debug/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/thalevi/Documents/research/PRFs/code/codesrc/secretsharinglocal/cmake-build-debug/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/thalevi/Documents/research/PRFs/git/PseudoRandomFunction/src/secretsharing/cmake-build-debug/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -111,17 +111,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named secretsharinglocal
+# Target rules for targets named secretsharing
 
 # Build rule for target.
-secretsharinglocal: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 secretsharinglocal
-.PHONY : secretsharinglocal
+secretsharing: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 secretsharing
+.PHONY : secretsharing
 
 # fast build rule for target.
-secretsharinglocal/fast:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/build
-.PHONY : secretsharinglocal/fast
+secretsharing/fast:
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/build
+.PHONY : secretsharing/fast
 
 dmweakPRF.o: dmweakPRF.cpp.o
 
@@ -129,7 +129,7 @@ dmweakPRF.o: dmweakPRF.cpp.o
 
 # target to build an object file
 dmweakPRF.cpp.o:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/dmweakPRF.cpp.o
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/dmweakPRF.cpp.o
 .PHONY : dmweakPRF.cpp.o
 
 dmweakPRF.i: dmweakPRF.cpp.i
@@ -138,7 +138,7 @@ dmweakPRF.i: dmweakPRF.cpp.i
 
 # target to preprocess a source file
 dmweakPRF.cpp.i:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/dmweakPRF.cpp.i
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/dmweakPRF.cpp.i
 .PHONY : dmweakPRF.cpp.i
 
 dmweakPRF.s: dmweakPRF.cpp.s
@@ -147,7 +147,7 @@ dmweakPRF.s: dmweakPRF.cpp.s
 
 # target to generate assembly for a file
 dmweakPRF.cpp.s:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/dmweakPRF.cpp.s
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/dmweakPRF.cpp.s
 .PHONY : dmweakPRF.cpp.s
 
 dmweakPRFpacked.o: dmweakPRFpacked.cpp.o
@@ -156,7 +156,7 @@ dmweakPRFpacked.o: dmweakPRFpacked.cpp.o
 
 # target to build an object file
 dmweakPRFpacked.cpp.o:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/dmweakPRFpacked.cpp.o
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/dmweakPRFpacked.cpp.o
 .PHONY : dmweakPRFpacked.cpp.o
 
 dmweakPRFpacked.i: dmweakPRFpacked.cpp.i
@@ -165,7 +165,7 @@ dmweakPRFpacked.i: dmweakPRFpacked.cpp.i
 
 # target to preprocess a source file
 dmweakPRFpacked.cpp.i:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/dmweakPRFpacked.cpp.i
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/dmweakPRFpacked.cpp.i
 .PHONY : dmweakPRFpacked.cpp.i
 
 dmweakPRFpacked.s: dmweakPRFpacked.cpp.s
@@ -174,7 +174,7 @@ dmweakPRFpacked.s: dmweakPRFpacked.cpp.s
 
 # target to generate assembly for a file
 dmweakPRFpacked.cpp.s:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/dmweakPRFpacked.cpp.s
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/dmweakPRFpacked.cpp.s
 .PHONY : dmweakPRFpacked.cpp.s
 
 pi23prot.o: pi23prot.cpp.o
@@ -183,7 +183,7 @@ pi23prot.o: pi23prot.cpp.o
 
 # target to build an object file
 pi23prot.cpp.o:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/pi23prot.cpp.o
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/pi23prot.cpp.o
 .PHONY : pi23prot.cpp.o
 
 pi23prot.i: pi23prot.cpp.i
@@ -192,7 +192,7 @@ pi23prot.i: pi23prot.cpp.i
 
 # target to preprocess a source file
 pi23prot.cpp.i:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/pi23prot.cpp.i
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/pi23prot.cpp.i
 .PHONY : pi23prot.cpp.i
 
 pi23prot.s: pi23prot.cpp.s
@@ -201,7 +201,7 @@ pi23prot.s: pi23prot.cpp.s
 
 # target to generate assembly for a file
 pi23prot.cpp.s:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/pi23prot.cpp.s
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/pi23prot.cpp.s
 .PHONY : pi23prot.cpp.s
 
 pi23protpacked.o: pi23protpacked.cpp.o
@@ -210,7 +210,7 @@ pi23protpacked.o: pi23protpacked.cpp.o
 
 # target to build an object file
 pi23protpacked.cpp.o:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/pi23protpacked.cpp.o
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/pi23protpacked.cpp.o
 .PHONY : pi23protpacked.cpp.o
 
 pi23protpacked.i: pi23protpacked.cpp.i
@@ -219,7 +219,7 @@ pi23protpacked.i: pi23protpacked.cpp.i
 
 # target to preprocess a source file
 pi23protpacked.cpp.i:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/pi23protpacked.cpp.i
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/pi23protpacked.cpp.i
 .PHONY : pi23protpacked.cpp.i
 
 pi23protpacked.s: pi23protpacked.cpp.s
@@ -228,7 +228,7 @@ pi23protpacked.s: pi23protpacked.cpp.s
 
 # target to generate assembly for a file
 pi23protpacked.cpp.s:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/pi23protpacked.cpp.s
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/pi23protpacked.cpp.s
 .PHONY : pi23protpacked.cpp.s
 
 pi_unit_test.o: pi_unit_test.cpp.o
@@ -237,7 +237,7 @@ pi_unit_test.o: pi_unit_test.cpp.o
 
 # target to build an object file
 pi_unit_test.cpp.o:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/pi_unit_test.cpp.o
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/pi_unit_test.cpp.o
 .PHONY : pi_unit_test.cpp.o
 
 pi_unit_test.i: pi_unit_test.cpp.i
@@ -246,7 +246,7 @@ pi_unit_test.i: pi_unit_test.cpp.i
 
 # target to preprocess a source file
 pi_unit_test.cpp.i:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/pi_unit_test.cpp.i
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/pi_unit_test.cpp.i
 .PHONY : pi_unit_test.cpp.i
 
 pi_unit_test.s: pi_unit_test.cpp.s
@@ -255,7 +255,7 @@ pi_unit_test.s: pi_unit_test.cpp.s
 
 # target to generate assembly for a file
 pi_unit_test.cpp.s:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/pi_unit_test.cpp.s
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/pi_unit_test.cpp.s
 .PHONY : pi_unit_test.cpp.s
 
 piprot_test.o: piprot_test.cpp.o
@@ -264,7 +264,7 @@ piprot_test.o: piprot_test.cpp.o
 
 # target to build an object file
 piprot_test.cpp.o:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/piprot_test.cpp.o
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/piprot_test.cpp.o
 .PHONY : piprot_test.cpp.o
 
 piprot_test.i: piprot_test.cpp.i
@@ -273,7 +273,7 @@ piprot_test.i: piprot_test.cpp.i
 
 # target to preprocess a source file
 piprot_test.cpp.i:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/piprot_test.cpp.i
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/piprot_test.cpp.i
 .PHONY : piprot_test.cpp.i
 
 piprot_test.s: piprot_test.cpp.s
@@ -282,7 +282,7 @@ piprot_test.s: piprot_test.cpp.s
 
 # target to generate assembly for a file
 piprot_test.cpp.s:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/piprot_test.cpp.s
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/piprot_test.cpp.s
 .PHONY : piprot_test.cpp.s
 
 secShareTiming.o: secShareTiming.cpp.o
@@ -291,7 +291,7 @@ secShareTiming.o: secShareTiming.cpp.o
 
 # target to build an object file
 secShareTiming.cpp.o:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/secShareTiming.cpp.o
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/secShareTiming.cpp.o
 .PHONY : secShareTiming.cpp.o
 
 secShareTiming.i: secShareTiming.cpp.i
@@ -300,7 +300,7 @@ secShareTiming.i: secShareTiming.cpp.i
 
 # target to preprocess a source file
 secShareTiming.cpp.i:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/secShareTiming.cpp.i
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/secShareTiming.cpp.i
 .PHONY : secShareTiming.cpp.i
 
 secShareTiming.s: secShareTiming.cpp.s
@@ -309,7 +309,7 @@ secShareTiming.s: secShareTiming.cpp.s
 
 # target to generate assembly for a file
 secShareTiming.cpp.s:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/secShareTiming.cpp.s
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/secShareTiming.cpp.s
 .PHONY : secShareTiming.cpp.s
 
 secShareTimingpacked.o: secShareTimingpacked.cpp.o
@@ -318,7 +318,7 @@ secShareTimingpacked.o: secShareTimingpacked.cpp.o
 
 # target to build an object file
 secShareTimingpacked.cpp.o:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/secShareTimingpacked.cpp.o
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/secShareTimingpacked.cpp.o
 .PHONY : secShareTimingpacked.cpp.o
 
 secShareTimingpacked.i: secShareTimingpacked.cpp.i
@@ -327,7 +327,7 @@ secShareTimingpacked.i: secShareTimingpacked.cpp.i
 
 # target to preprocess a source file
 secShareTimingpacked.cpp.i:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/secShareTimingpacked.cpp.i
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/secShareTimingpacked.cpp.i
 .PHONY : secShareTimingpacked.cpp.i
 
 secShareTimingpacked.s: secShareTimingpacked.cpp.s
@@ -336,7 +336,7 @@ secShareTimingpacked.s: secShareTimingpacked.cpp.s
 
 # target to generate assembly for a file
 secShareTimingpacked.cpp.s:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/secShareTimingpacked.cpp.s
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/secShareTimingpacked.cpp.s
 .PHONY : secShareTimingpacked.cpp.s
 
 utils.o: utils.cpp.o
@@ -345,7 +345,7 @@ utils.o: utils.cpp.o
 
 # target to build an object file
 utils.cpp.o:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/utils.cpp.o
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/utils.cpp.o
 .PHONY : utils.cpp.o
 
 utils.i: utils.cpp.i
@@ -354,7 +354,7 @@ utils.i: utils.cpp.i
 
 # target to preprocess a source file
 utils.cpp.i:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/utils.cpp.i
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/utils.cpp.i
 .PHONY : utils.cpp.i
 
 utils.s: utils.cpp.s
@@ -363,8 +363,35 @@ utils.s: utils.cpp.s
 
 # target to generate assembly for a file
 utils.cpp.s:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/utils.cpp.s
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/utils.cpp.s
 .PHONY : utils.cpp.s
+
+utilspacked.o: utilspacked.cpp.o
+
+.PHONY : utilspacked.o
+
+# target to build an object file
+utilspacked.cpp.o:
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/utilspacked.cpp.o
+.PHONY : utilspacked.cpp.o
+
+utilspacked.i: utilspacked.cpp.i
+
+.PHONY : utilspacked.i
+
+# target to preprocess a source file
+utilspacked.cpp.i:
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/utilspacked.cpp.i
+.PHONY : utilspacked.cpp.i
+
+utilspacked.s: utilspacked.cpp.s
+
+.PHONY : utilspacked.s
+
+# target to generate assembly for a file
+utilspacked.cpp.s:
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/utilspacked.cpp.s
+.PHONY : utilspacked.cpp.s
 
 # Help Target
 help:
@@ -374,7 +401,7 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
-	@echo "... secretsharinglocal"
+	@echo "... secretsharing"
 	@echo "... dmweakPRF.o"
 	@echo "... dmweakPRF.i"
 	@echo "... dmweakPRF.s"
@@ -402,6 +429,9 @@ help:
 	@echo "... utils.o"
 	@echo "... utils.i"
 	@echo "... utils.s"
+	@echo "... utilspacked.o"
+	@echo "... utilspacked.i"
+	@echo "... utilspacked.s"
 .PHONY : help
 
 

@@ -44,16 +44,16 @@ RM = /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/thalevi/Documents/research/PRFs/code/codesrc/secretsharinglocal
+CMAKE_SOURCE_DIR = /Users/thalevi/Documents/research/PRFs/git/PseudoRandomFunction/src/secretsharing
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/thalevi/Documents/research/PRFs/code/codesrc/secretsharinglocal/cmake-build-debug
+CMAKE_BINARY_DIR = /Users/thalevi/Documents/research/PRFs/git/PseudoRandomFunction/src/secretsharing/cmake-build-debug
 
 #=============================================================================
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/secretsharinglocal.dir/all
+all: CMakeFiles/secretsharing.dir/all
 
 .PHONY : all
 
@@ -63,36 +63,36 @@ preinstall:
 .PHONY : preinstall
 
 # The main recursive "clean" target.
-clean: CMakeFiles/secretsharinglocal.dir/clean
+clean: CMakeFiles/secretsharing.dir/clean
 
 .PHONY : clean
 
 #=============================================================================
-# Target rules for target CMakeFiles/secretsharinglocal.dir
+# Target rules for target CMakeFiles/secretsharing.dir
 
 # All Build rule for target.
-CMakeFiles/secretsharinglocal.dir/all:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/depend
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/thalevi/Documents/research/PRFs/code/codesrc/secretsharinglocal/cmake-build-debug/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10 "Built target secretsharinglocal"
-.PHONY : CMakeFiles/secretsharinglocal.dir/all
+CMakeFiles/secretsharing.dir/all:
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/depend
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/thalevi/Documents/research/PRFs/git/PseudoRandomFunction/src/secretsharing/cmake-build-debug/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11 "Built target secretsharing"
+.PHONY : CMakeFiles/secretsharing.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/secretsharinglocal.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/thalevi/Documents/research/PRFs/code/codesrc/secretsharinglocal/cmake-build-debug/CMakeFiles 10
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/secretsharinglocal.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/thalevi/Documents/research/PRFs/code/codesrc/secretsharinglocal/cmake-build-debug/CMakeFiles 0
-.PHONY : CMakeFiles/secretsharinglocal.dir/rule
+CMakeFiles/secretsharing.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/thalevi/Documents/research/PRFs/git/PseudoRandomFunction/src/secretsharing/cmake-build-debug/CMakeFiles 11
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/secretsharing.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/thalevi/Documents/research/PRFs/git/PseudoRandomFunction/src/secretsharing/cmake-build-debug/CMakeFiles 0
+.PHONY : CMakeFiles/secretsharing.dir/rule
 
 # Convenience name for target.
-secretsharinglocal: CMakeFiles/secretsharinglocal.dir/rule
+secretsharing: CMakeFiles/secretsharing.dir/rule
 
-.PHONY : secretsharinglocal
+.PHONY : secretsharing
 
 # clean rule for target.
-CMakeFiles/secretsharinglocal.dir/clean:
-	$(MAKE) -f CMakeFiles/secretsharinglocal.dir/build.make CMakeFiles/secretsharinglocal.dir/clean
-.PHONY : CMakeFiles/secretsharinglocal.dir/clean
+CMakeFiles/secretsharing.dir/clean:
+	$(MAKE) -f CMakeFiles/secretsharing.dir/build.make CMakeFiles/secretsharing.dir/clean
+.PHONY : CMakeFiles/secretsharing.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.
