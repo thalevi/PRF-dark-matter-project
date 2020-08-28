@@ -9,6 +9,7 @@
 #include "mains.hpp"
 #include "PRF.hpp"
 #include "OT.hpp"
+#include "Timing.hpp"
 
 using namespace std;
 
@@ -22,7 +23,7 @@ int main(int argc,char* argv[] )  {
         char *p;
         nRuns = strtol(argv[1], &p, 10);
     } else
-        nRuns=1;
+        nRuns=1000;
 
     if (argc > 2) {
         char *p;
@@ -34,9 +35,28 @@ int main(int argc,char* argv[] )  {
 
     PRF_DM(ntimes, nRuns, stepsToRun);
 
+    display_AXplusB_runtime();
+    display_SC_runtime();
+    display_Phase3_runtime();
+    display_PRF_runtime();
+
 }
 
 #endif
+
+void display_Phase3_runtime()
+{
+    cout<<endl<<"phase 3 timing "<<endl;
+    cout<< timer_phase3 <<endl;
+
+}
+void display_PRF_runtime()
+{
+    cout<<endl<<"PRFTimer= "<<endl;
+    cout << timerPRF <<endl;
+
+}
+
 
 
 /*
