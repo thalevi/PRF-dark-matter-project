@@ -361,7 +361,7 @@ void party2_round3(PackedZ3<81>& y2_z3,PackedZ3<N_SIZE>& r0z2,
 }
 
 //====================================Round 3 lookup implementation=======NEEDS DEBUGGING=========
-/*
+
 void party1_round3_lookup(PackedZ3<81>& y1_z3,PackedZ3<N_SIZE>& r0z1,
                           PackedZ3<N_SIZE>& r1z1, std::vector<PackedZ3<81> >& Rmat,PackedZ2<N_COLS>& w_mask)
 {
@@ -371,7 +371,9 @@ void party1_round3_lookup(PackedZ3<81>& y1_z3,PackedZ3<N_SIZE>& r0z1,
     PackedZ3<81> result_sum_lsb;
     PackedZ3<81> result_sum_msb;
     std::vector<uint64_t> lsb_input;
+    lsb_input.resize(16);
     std::vector<uint64_t> msb_input;
+    msb_input.resize(16);
     PackedZ2<256> temp_res_msb;
     PackedZ2<256> temp_res_lsb;
 
@@ -408,6 +410,8 @@ void party2_round3_lookup(PackedZ3<81>& y2_z3,PackedZ3<N_SIZE>& r0z2,
     std::vector<uint64_t> lsb_input;
     std::vector<uint64_t> msb_input;
 
+    lsb_input.resize(16);
+    msb_input.resize(16);
     std::chrono::time_point<std::chrono::system_clock> start_r3 = std::chrono::system_clock::now();
     //party 2 calculates the value of mux(w', r0z, r1z)
     PackedZ3<N_SIZE> res2;
@@ -428,7 +432,7 @@ void party2_round3_lookup(PackedZ3<81>& y2_z3,PackedZ3<N_SIZE>& r0z2,
     y2_z3 = result_sum_lsb;
     y2_z3.subtract(result_sum_msb);
     timer_round3 += (std::chrono::system_clock::now() - start_r3).count();
-}*/
+}
 //================================================================================
 
 void display_exec_timing()
@@ -464,6 +468,15 @@ void display_exec_timing()
     std::cout<<"Number of rounds per second for phase 1 "<<(1000/(timer_round1*time_unit_multiplier)*1000000)<<std::endl;
     std::cout<<"Number of rounds per second for phase 2 "<<(1000/(timer_round2*time_unit_multiplier)*1000000)<<std::endl;
     std::cout<<"Number of rounds per second for phase 3 "<<(1000/(timer_round3*time_unit_multiplier)*1000000)<<std::endl;
+    std::cout<<"=========================breaking down the timings==================================="<<std::endl;
+    std::cout<<"Time to execute phase 1 party 1: "<<(timer_round1_p1 * time_unit_multiplier)<<" microseconds"<<std::endl;
+    std::cout<<"Time to execute phase 1 party 2: "<<(timer_round1_p2 * time_unit_multiplier)<<" microseconds"<<std::endl;
+    std::cout<<"Time to execute phase 1 mask: "<<(timer_round1_mask * time_unit_multiplier)<<" microseconds"<<std::endl;
+    std::cout<<"Time to execute phase 2 party 1: "<<(timer_round2_p1 * time_unit_multiplier)<<" microseconds"<<std::endl;
+    std::cout<<"Time to execute phase 2 party 2: "<<(timer_round2_p2 * time_unit_multiplier)<<" microseconds"<<std::endl;
+    std::cout<<"Time to execute phase 2 mask: "<<(timer_round2_mask * time_unit_multiplier)<<" microseconds"<<std::endl;
+    std::cout<<"Time to execute phase 3 party 1: "<<(timer_round3_p1 * time_unit_multiplier)<<" microseconds"<<std::endl;
+    std::cout<<"Time to execute phase 3 party 2: "<<(timer_round3_p2 * time_unit_multiplier)<<" microseconds"<<std::endl;
 }
 
 /*
@@ -563,11 +576,12 @@ void PRF_new_protocol(std::vector<uint64_t>& K1, PackedZ2<N_COLS>& x1,
 #endif
 
         start_r3_p1 = std::chrono::system_clock::now();
-        party1_round3(y1_z3,r0z1,r1z1,Rmat,w_mask);
+        //party1_round3(y1_z3,r0z1,r1z1,Rmat,w_mask);
+        party1_round3_lookup(y1_z3,r0z1,r1z1,Rmat,w_mask);
         timer_round3_p1 += (std::chrono::system_clock::now() - start_r3_p1).count();
 
         start_r3_p2 = std::chrono::system_clock::now();
-        party2_round3(y2_z3,r0z2,r1z2,Rmat,w_mask);
+        party2_round3_lookup(y2_z3,r0z2,r1z2,Rmat,w_mask);
         timer_round3_p2 += (std::chrono::system_clock::now() - start_r3_p2).count();
 
         y1_z3_dummy += y1_z3;

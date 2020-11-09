@@ -31,10 +31,11 @@ TEST_PRF= 1, Distributed dark matter version, packed, no lookup table
 
 TEST_NP = 1, New protocol, packed, no lookup table
 
+TEST_NP_LOOKUP = 1, New protocol, packed, no lookup table
  */
 //#define TEST_PRF
-#define TEST_NP                 //runs the new protocol(full)
-
+//#define TEST_NP                 //runs the new protocol(full)
+#define TEST_NP_LOOKUP
 
 //#define TEST_PHASE1
 //#define TEST_PackedMod2
@@ -61,6 +62,10 @@ TEST_NP = 1, New protocol, packed, no lookup table
 
 
 #endif // _EXECUTION_HEADER_H
+
+#ifdef TEST_NP_LOOKUP
+#define TEST_NP
+#endif
 
 #ifdef UNITTEST_ROUND2
 #define TEST_NP
