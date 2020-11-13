@@ -16,16 +16,16 @@ long timerAxpBP1 = 0;
 long timerAxpBP2 = 0;
 
 // in Toeplitz-by-x.hpp
-// #define N_ROWS 256
-// #define N_COLS 256
+ #define N_ROWS 256
+ #define N_COLS 256
 
 uint64_t topelitzMask; // mask to remove extra bits in the rAs
 const unsigned int toeplitzWords = (N_ROWS+N_COLS-1+63)/64;
 
 // A place to store the results from pre-processing
-static std::vector< std::vector<uint64_t> > rAs;
-static std::vector< PackedZ2<N_ROWS> > rbs, rzs;
-static std::vector< PackedZ2<N_COLS> > rxs;
+std::vector< std::vector<uint64_t> > rAs;
+std::vector< PackedZ2<N_ROWS> > rbs, rzs;
+std::vector< PackedZ2<N_COLS> > rxs;
 
 
 static PackedPairZ2<N_SIZE> r0z, r1z;
