@@ -14,17 +14,19 @@
  * Decentralized implementation flags
  */
 
+//#define DEBUG
+
 //#define TEST_PRF              //runs the dark matter protocol
 //#define TEST_NP                 //runs the new protocol using MATBYVEC
 //#define TEST_NP_LOOKUP        //runs the new protocol using LOOKUP TABLE(only difference is in round 3 compared to new protocol)
-
+#define TEST_OPRF               //runs the packed distributed 2-3OPRF
 
 /*
  * UNIT TEST FLAGS
  */
 //#define UNIT_NP    //testing distributed new protocol, no lookup table
 //#define UNIT_NP_LOOKUP    //testing distributed new protocol with lookup table
-#define UNIT_DM     //test the distributed dark matter protocol, no lookup table PROBLEM!
+//#define UNIT_DM     //test the distributed dark matter protocol, no lookup table PROBLEM!
 
 //#define UNIT_LOOKUP           //tests the lookup table implementation
 
@@ -57,18 +59,8 @@ TEST_NP_LOOKUP = 1, New protocol, packed, no lookup table
  * DEBUGGING OPTIONS
  */
 //#define PRINT_VAL //used to print the intermediate values
-//#define DEBUG //used to set bits of intermediate values and print the values
-
-/*
- * Test Case 1: {TEST_NP_LOOKUP, [LOOKUP_TIME], [LOOKUP_DEBUG]}   ==> execute newprotocol implementation with lookup table
- * Test Case 2: {LOOKUP_TEST, [LOOKUP_TIME], [LOOKUP_DEBUG]}       ==> unit test of lookup table
- */
-
-//#define LOOKUP //implementation of the lookup table
-//#define LOOKUP_DEBUG //check the intermediate output of the LOOKUP table implementation
-//#define LOOKUP_TIME //times the lookup table for multiple run by calling PRF_centralised in a loop
-//#define LOOKUP_PRINT_VAL //prints the intermediate values
-//#define LOOKUP_TEST //enable to perform unit testing on LOOKUP table, IMPORTANT NOTE: LOOKUP and TEST_NP
+//#define DEBUG //used to set bits of intermediate values and print the values in new protocol
+//#define OPRF_PRINT_VAL    //enable to print intermediate values in 23OPRF
 
 
 #endif // _EXECUTION_HEADER_H
