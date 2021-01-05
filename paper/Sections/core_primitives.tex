@@ -1,12 +1,47 @@
 %!TEX root = ../main.tex
 
-\section{Core Primitives}
+\newpage
 
-\subsection{Overview of techniques}
+\section{Core 23-Primitives}
+\noindent \mahimna{This is very much a draft}
 
-\subsection{weak-PRF}
+\noindent In this section, we introduce our candidate weak pseudo-random function family and our candidate one-way function. 
 
-\subsection{OWF}
+\paragraph{Basic structure.}
+The basic technique for our constructions is to perform a mod-2 linear mapping on the input vector over $\Z_2$ followed by a public mod-3 linear mapping. For the weak PRF candidate, the mod-2 mapping is done using the secret key. For the OWF, the mod-2 mapping is also public. Following the mod-2 mapping, the resulting 0/1 vector is reinterpreted as a vector over $\Z_3$ after which the mod-3 mapping is applied. The final output is a vector over $\Z_3$.
+
+Our constructions are parameterized using the parameters $n, m$ and $t$. $n$ is the length of the input vector (over $\Z_2$), $m$ is the length of the intermediate stage (after the mod-2 mapping) and $t$ is the length of the output vector (over $\Z_3$). We require $m \geq n, m \geq t$ to prevent being able to easily invert the linear mappings (see Section~\ref{sec:cryptanalysis}). 
+
+The first stage of our construction maps an input $x \in \Z_2^n$ to an intermediate vector $w \in \Z_2^m$. This $w$ is now interpreted as a vector $\Z_3^m$ and is then mapped to the output vector $y \in \Z_3^t$ using a mod-3 linear mapping. To simply the notation for the mod-3 linear mapping which first interprets the intermediate $\Z_2$ vector as a vector over $\Z_3$, given a matrix $\mat{G} \in \Z_3^{t \times m}$, we define a function $\map{\mat{G}}: \bits^m \to \Z_3^t$ given by $w \mapsto \mat{G}w$ where $w$ is interpreted as a vector in $\Z_3^m$ for the matrix multiplication.
+
+Our candidate weak PRF construction is taken from Boneh et al.~\cite{boneh2018-darkmatter}. It uses a key in $\Z_2^{m \times n}$ and maps an input in $\Z_2^n$ to an output in $\Z_3^t$. This is detailed in Construction~\ref{construction:23-central-wprf}. Our candidate one-way function is defined similarly and maps an input in $\Z_2^n$ to an output in $\Z_3^t$. Construction~\ref{construction:23-owf} details our candidate OWF.
+
+\begin{construction}[Mod-2/Mod-3 wPRF Candidate~\cite{boneh2018-darkmatter}]
+Let $\secparam$ be the security parameter and define PRF parameters $n, m, t$ as functions of $\secparam$ such that $m \geq n, m \geq t$. The weak PRF candidate is a family of functions $\PRFfunc : \Z_2^{m \times n} \times \Z_2^n \to \Z_3^t$ with key-space $\keyspace_\secparam = \Z_2^{m \times n}$, input space $\inspace_\secparam = \Z_2^n$ and output space $\outspace_\secparam = \Z_3^t$. For a key $\mat{K} \in \keyspace_\secparam$, we define $\sfF_{\mat{K}}(x) = \PRFfunc(\mat{K}, x) = \map{\mat{G}}(\mat{K}x)$ where $\mat{G} \in \Z_3^{t \times m}$ is a fixed public matrix.
+\label{construction:23-central-wprf}
+\end{construction}
+
+\begin{construction}[Mod-2/Mod-3 OWF Candidate]
+Let $\secparam$ be the security parameter and define OWF parameters $n, m, t$ as functions of $\secparam$ such that $m \geq n$, $m \geq t$. Let $\mat{A} \in \Z_2^{m \times n}$ and $\mat{G} \in \Z_3^{t \times m}$ be two public matrices, chosen uniformly at random from the space of all full rank matrices. The OWF candidate is a function $\OWFfunc : \Z_2^n \to \Z_3^t$ with input space $\inspace_\secparam = \Z_2^n$ and output space $\outspace_\secparam = \Z_3^t$. We define $\sfF(x) = \OWFfunc(x) = \map{\mat{G}}(\mat{A}x)$.
+\label{construction:23-owf}
+\end{construction}
+
+\begin{remark}[Matrix rank]
+\mahimna{Itai's writeup mentions restricting to full rank matrices. Is this needed to prevent certain cryptanalysis attacks?}
+We restrict our linear maps to be of full rank (i.e., $\mat{A}, \mat{K}$ have rank $n$ and $\mat{G}$ has rank $t$)
+\end{remark}
+
+\begin{remark}[Structured keys]
+For the weak PRF candidate, rather than taking the key to be a random matrix in $\Z_3^{m \times n}$, we can use a random block-circulant matrix instead. This is useful for reducing the communication of our distributed protocols since the key can now be represented in $n$ bits rather than $mn$.
+\end{remark}
+
+
+
+% \subsection{Overview of techniques}
+
+% \subsection{weak-PRF}
+
+% \subsection{OWF}
 
 \subsection{Other constructions}
 e.g., PRG, commitments etc

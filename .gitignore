@@ -15,6 +15,7 @@
 *.bbl
 *.blg
 *blx.bib
+*.bcf
 
 ## Intermediate documents:
 *.dvi
