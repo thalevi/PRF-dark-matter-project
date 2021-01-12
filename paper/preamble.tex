@@ -14,6 +14,7 @@
 \usepackage{stmaryrd}
 \usepackage{graphicx}
 \usepackage{calc}
+\usepackage{multirow}
 %--------------------------------------------------------------%
 
 
@@ -32,6 +33,14 @@
 \newcommand{\abs}[1]{\left| {#1} \right|}
 
 \newcommand{\xor}{\oplus}
+
+\newcommand{\figref}[1]{Figure~\protect\ref{#1.fig}}
+
+\newcommand*\BitAnd{\mathbin{\&}}
+\newcommand*\BitOr{\mathbin{|}}
+\newcommand*\ShiftLeft{\ll}
+\newcommand*\ShiftRight{\gg}
+\newcommand*\BitNeg{\ensuremath{\mathord{\sim}}}
 
 % Crypto Notation
 \newcommand{\secparam}{\lambda}
