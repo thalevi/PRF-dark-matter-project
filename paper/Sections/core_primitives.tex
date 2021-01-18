@@ -3,45 +3,75 @@
 \newpage
 
 \section{Core 23-Primitives}
-\noindent \mahimna{This is very much a draft}
 
-\noindent In this section, we introduce our candidate weak pseudo-random function family and our candidate one-way function. 
+In this section, we introduce our suite of candidate 23-primitives. Specifically, our primary constructions include (1) a weak pseudo-random function family (wPRF) candidate; (2) a one-way function (OWF) candidate; (3) a pseudo-random generator (PRG) candidate; and (4) a commitment scheme candidate. Our primary constructions are rooted in the same mod-2/mod-3 techniques, consider inputs over $\Z_2$, with outputs being over $\Z_3$.
 
-\paragraph{Basic structure.}
-The basic technique for our constructions is to perform a mod-2 linear mapping on the input vector over $\Z_2$ followed by a public mod-3 linear mapping. For the weak PRF candidate, the mod-2 mapping is done using the secret key. For the OWF, the mod-2 mapping is also public. Following the mod-2 mapping, the resulting 0/1 vector is reinterpreted as a vector over $\Z_3$ after which the mod-3 mapping is applied. The final output is a vector over $\Z_3$.
+Motivated by cryptanalysis, as well as potential use cases, we also propose alternate constructions for some of the primitives. For instance, in some applications (see Section~\ref{sec:applications} for details), it is necessary for inputs and outputs to be over the same base field, and therefore, we propose an alternate candidate of this style.
 
-Our constructions are parameterized using the parameters $n, m$ and $t$. $n$ is the length of the input vector (over $\Z_2$), $m$ is the length of the intermediate stage (after the mod-2 mapping) and $t$ is the length of the output vector (over $\Z_3$). We require $m \geq n, m \geq t$ to prevent being able to easily invert the linear mappings (see Section~\ref{sec:cryptanalysis}). 
 
-The first stage of our construction maps an input $x \in \Z_2^n$ to an intermediate vector $w \in \Z_2^m$. This $w$ is now interpreted as a vector $\Z_3^m$ and is then mapped to the output vector $y \in \Z_3^t$ using a mod-3 linear mapping. To simply the notation for the mod-3 linear mapping which first interprets the intermediate $\Z_2$ vector as a vector over $\Z_3$, given a matrix $\mat{G} \in \Z_3^{t \times m}$, we define a function $\map{\mat{G}}: \bits^m \to \Z_3^t$ given by $w \mapsto \mat{G}w$ where $w$ is interpreted as a vector in $\Z_3^m$ for the matrix multiplication.
+\subsection{Basic Structure}
+Given the wide range of candidates we propose, we find it useful to find a clean way to describe the operations that are performed in our candidate constructions. For this, we take inspiration from the basic formalism of the function secret sharing (FSS) approach to MPC, first introduced by Boyle, Gilboa, and Ishai~\cite{boyle2019-fss-preprocess}. Abstractly, the key technique here is to represent an MPC functionality as a circuit, where each gate represents an operation to be performed in the distributed protocol. Inputs and outputs of each gate are secret shared and the gate operation is ``split'' using a function secret sharing (FSS) scheme. To evaluate the circuit in a distributed fashion, the dealer first shares a random mask for each input wire in the circuit, and possibly some more correlated randomness. Now, to compute a gate, the masked input is revealed to all parties, who can then locally compute shares of the output wire or the shares of the masked output.
 
-Our candidate weak PRF construction is taken from Boneh et al.~\cite{boneh2018-darkmatter}. It uses a key in $\Z_2^{m \times n}$ and maps an input in $\Z_2^n$ to an output in $\Z_3^t$. This is detailed in Construction~\ref{construction:23-central-wprf}. Our candidate one-way function is defined similarly and maps an input in $\Z_2^n$ to an output in $\Z_3^t$. Construction~\ref{construction:23-owf} details our candidate OWF.
+While we find it useful to use the formalism from~\cite{boyle2019-fss-preprocess} for representing the circuit to be computed, we do not explicitly require the FSS formalism for splitting the functionality of each gate. The individual operations are quite straightforward, and we instead chose to directly provide the distributed protocols that compute them. Further, by doing so, our protocols can make better use of correlated randomness to reduce the overall protocol cost as compared to the general techniques in~\cite{boyle2019-fss-preprocess}.
+
+
+\paragraph{Circuit gates.}
+We make use of just four basic operations, or ``gates,'' which we detail below. All our constructions can be succinctly represented using just these gates. In Section~\ref{sec:distributed_protocols}, we will provide distributed protocols to compute them.
+
+\begin{itemize}
+    \item \textbf{Public Linear Gate.} 
+    Given a public matrix $\mat{G} \in \Z_p^{s \times l}$, the gate $\LinMap_\mat{G}(x)$ computes $\mat{G}x$ for an input $x \in \Z_p^l$. 
+
+    \item \textbf{Bilinear Gate.}
+    The gate $\BiLinear(\mat{A}, x)$ computes $\mat{A}x$ given inputs $\mat{A} \in \Z_p^{s \times l}$ and $x \in \Z_p^l$. 
+    
+    \item \textbf{Conversion from $\Z_2$ to $\Z_3$.}
+    For an input vector $x \in \Z_2^l$, the gate $\Convert_{(2,3)}(x)$ returns the equivalent $x$ in $\Z_3^l$.
+
+    \item \textbf{Conversion from $\Z_3$ to $\Z_2$}
+    For an input vector $x \in \Z_3^l$, the gate $\Convert_{(3,2)}(x)$ computes the mapping of $x$ in $\Z_2^l$. For this, $0$ and $2$ are mapped to $0$ while $1$ is mapped to $1$ (i.e., each element is computed modulo 2).
+\end{itemize}
+
+\noindent Note that the difference between the $\LinMap$ and the $\BiLinear$ gates is that for the distributed protocol, the matrix $\mat{A}$ will be publicly available to all parties for $\LinMap$, while it will be secret shared for $\BiLinear$. Also note that although the $\Convert_{(2,3)}$ gate is effectively a no-op in a centralized evaluation, in the distributed setting, the gate will be used to convert an additive sharing over $\Z_2$ to an additive sharing over $\Z_3$.
+
+\paragraph{Primary constructions.}
+We start with our primary candidates that map inputs over $\Z_2$ to outputs over $\Z_3$. The common structure is to perform a mod-2 linear mapping on the input vector over $\Z_2$, followed by a mod-3 linear mapping. Following the mod-2 mapping, the resulting 0/1 vector is reinterpreted as a vector over $\Z_3$ after which the mod-3 mapping is applied. The final output is a vector over $\Z_3$. The mod-2 linear map is done using the (shared) secret key for keyed primitives (e.g., wPRF) while it is done with a public matrix for unkeyed primitives (e.g., OWF). The final mod-3 mapping is always done with a public matrix.
+
+Our constructions are parameterized by 3 parameters: $n$, $m$, and $t$, which are functions of the security parameter $\secparam$. $n$ denotes the length of the input vector (over $\Z_2$), $m$ denotes the length of the intermediate vector, and $t$ denotes the length of the output vector (over $\Z_3$). We require $m \geq n$ and $m \geq t$ to prevent being able to easily invert the linear mappings (see Section~\ref{sec:cryptanalysis}). Our primary constructions are detailed in Figure~\ref{fig:primary-constructions}.
+
+
+\begin{figure}[h]
+
+\protbox{Primary Mod-2/Mod-3 constructions}{
+
+\textbf{Parameters.} Let $\secparam$ be the security parameter and define parameters $n, m, t$ as functions of $\secparam$ such that $m \geq n, m \geq t$.
+
+\textbf{Public values.}
+Let $\mat{A} \in \Z_2^{m \times n}$ and $\mat{G} \in \Z_3^{t \times m}$ be fixed public matrices chosen uniformly at random.
 
 \begin{construction}[Mod-2/Mod-3 wPRF Candidate~\cite{boneh2018-darkmatter}]
-Let $\secparam$ be the security parameter and define PRF parameters $n, m, t$ as functions of $\secparam$ such that $m \geq n, m \geq t$. The weak PRF candidate is a family of functions $\PRFfunc : \Z_2^{m \times n} \times \Z_2^n \to \Z_3^t$ with key-space $\keyspace_\secparam = \Z_2^{m \times n}$, input space $\inspace_\secparam = \Z_2^n$ and output space $\outspace_\secparam = \Z_3^t$. For a key $\mat{K} \in \keyspace_\secparam$, we define $\sfF_{\mat{K}}(x) = \PRFfunc(\mat{K}, x) = \map{\mat{G}}(\mat{K}x)$ where $\mat{G} \in \Z_3^{t \times m}$ is a fixed public matrix.
+The wPRF candidate is a family of functions $\PRFfunc : \Z_2^{m \times n} \times \Z_2^n \to \Z_3^t$ with key-space $\keyspace_\secparam = \Z_2^{m \times n}$, input space $\inspace_\secparam = \Z_2^n$ and output space $\outspace_\secparam = \Z_3^t$. For a key $\mat{K} \in \keyspace_\secparam$, we define $\sfF_{\mat{K}}(x) = \PRFfunc(\mat{K}, x)$ as follows:
+
+\begin{enumerate}[topsep=0pt]
+    \item On input $x \in \Z_2^n$, first compute $w = \BiLinear(\mat{K}, x) = \mat{K}x$.
+    \item Output $y = \LinMap_{\mat{G}}\left(\Convert_{(2,3)}(w)\right)$. That is, view $w$ as a vector over $\Z_3$ and then output $y = \mat{G}w$. 
+\end{enumerate}
 \label{construction:23-central-wprf}
 \end{construction}
 
 \begin{construction}[Mod-2/Mod-3 OWF Candidate]
-Let $\secparam$ be the security parameter and define OWF parameters $n, m, t$ as functions of $\secparam$ such that $m \geq n$, $m \geq t$. Let $\mat{A} \in \Z_2^{m \times n}$ and $\mat{G} \in \Z_3^{t \times m}$ be two public matrices, chosen uniformly at random from the space of all full rank matrices. The OWF candidate is a function $\OWFfunc : \Z_2^n \to \Z_3^t$ with input space $\inspace_\secparam = \Z_2^n$ and output space $\outspace_\secparam = \Z_3^t$. We define $\sfF(x) = \OWFfunc(x) = \map{\mat{G}}(\mat{A}x)$.
+The OWF candidate is a function $\OWFfunc : \Z_2^n \to \Z_3^t$ with input space $\inspace_\secparam = \Z_2^n$ and output space $\outspace_\secparam = \Z_3^t$. We define $\sfF(x) = \OWFfunc(x)$ as follows:
+
+\begin{enumerate}[topsep=0pt]
+    \item On input $x \in \Z_2^n$, first compute $w = \LinMap_{\mat{A}}(x) = \mat{A}x$.
+    \item Output $y = \LinMap_{\mat{G}}\left(\Convert_{(2,3)}(w)\right)$. That is, view $w$ as a vector over $\Z_3$ and then output $y = \mat{G}w$.
+\end{enumerate}
+
 \label{construction:23-owf}
 \end{construction}
+}
+\caption{Primary Mod-2/Mod-3 constructions}
+\label{fig:primary-constructions}
+\end{figure}
 
-\begin{remark}[Matrix rank]
-\mahimna{Itai's writeup mentions restricting to full rank matrices. Is this needed to prevent certain cryptanalysis attacks?}
-We restrict our linear maps to be of full rank (i.e., $\mat{A}, \mat{K}$ have rank $n$ and $\mat{G}$ has rank $t$)
-\end{remark}
-
-\begin{remark}[Structured keys]
-For the weak PRF candidate, rather than taking the key to be a random matrix in $\Z_3^{m \times n}$, we can use a random block-circulant matrix instead. This is useful for reducing the communication of our distributed protocols since the key can now be represented in $n$ bits rather than $mn$.
-\end{remark}
-
-
-
-% \subsection{Overview of techniques}
-
-% \subsection{weak-PRF}
-
-% \subsection{OWF}
-
-\subsection{Other constructions}
-e.g., PRG, commitments etc
+\paragraph{Alternate constructions.}
