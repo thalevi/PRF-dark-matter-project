@@ -72,13 +72,19 @@ For the protocol $\prot_{\Convert}^{(3,2)}$, each $\party_i$ will hold additive 
 \mahimna{todo}
 
 
-\subsection{2-party Distributed Evaluation in the Preprocessing Model}
-Equipped with our technical overview, we proceed to describe our 2-party distributed protocols in the preprocessing model. 
+\subsection{Distributed Evaluation in the Preprocessing Model}
+Equipped with our technical overview, we proceed to describe our distributed protocols in the preprocessing model. We focus primarily on the 2-party semi-honest setting but comment that our protocols can easily be generalized to $n$ parties. We use $\pzero$ and $\pone$ to denote the 2 parties.
 
-\subsection{3-party Distributed Evaluation}
+\subsubsection{2-party wPRF evaluation.}
+We start with a 2-party distributed protocol to evaluate our primary mod-2/mod-3 wPRF candidate from Construction~\ref{construction:23-central-wprf}. In this setting, the two parties hold additive shares of a key $\mat{K} \in \Z_2^{m \times n}$, and an input $x \in \Z_2^n$. The goal is to compute an additive sharing of the wPRF output $y = \LinMap_\mat{G}(\mat{K}x)$ where $\mat{G} \in \Z_3^{t \times m}$ is a publicly known matrix. 
 
-\subsection{Fully Distributed $n$-party Evaluation in the Preprocessing Model}
+\mahimna{Work in progress}
+
+
+\paragraph{$n$-party distributed evaluation.}
 
 \subsection{2-party Public Input Evaluation}
+
+\subsection{3-party Distributed Evaluation}
 
 \subsection{Oblivious PRF Evaluation}
