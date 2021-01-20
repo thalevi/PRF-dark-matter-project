@@ -3,7 +3,7 @@
 %--------------------------------------------------------------%
 %-----------------------Common Packages------------------------%
 %--------------------------------------------------------------%
-\usepackage{xcolor}
+\usepackage[dvipsnames]{xcolor}
 \usepackage{amsfonts,amssymb,amsmath,amsthm}
 \usepackage{enumitem}
 \usepackage[style=alphabetic,backend=bibtex,maxnames=4,minnames=3,maxbibnames=99]{biblatex}
@@ -101,8 +101,10 @@
 % Comments: Add your name as necessary
 \ifcomments
     \newcommand{\mahimna}[1]{\textsf{\color{blue}{[Mahimna: {#1}]}}}
+    \newcommand{\greg}[1]{\textsf{\color{ForestGreen}{[Greg: {#1}]}}}
 \else
     \newcommand{\mahimna}[1]{}
+    \newcommand{\greg}[1]{}
 \fi
 
 % Environments
