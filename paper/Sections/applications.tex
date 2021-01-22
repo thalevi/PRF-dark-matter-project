@@ -1,5 +1,6 @@
 %!TEX root = ../main.tex
 
+\newcommand{\secpar}{\kappa}
 \newcommand{\aux}{\textsf{aux}}
 \newcommand{\com}{\textsf{com}}
 \newcommand{\CCC}{\mathcal{C}}
@@ -10,7 +11,7 @@
 \newcommand{\seed}{\textsf{seed}}
 \newcommand{\msgs}{\textsf{msgs}}
 \newcommand{\Msg}{\textsf{Msg}}
-\newcommand{\Expand}{\textsf{Msg}}
+\newcommand{\Expand}{\textsf{Expand}}
 \newcommand{\algcomment}[1]{{\color{Gray}{\qquad//#1}}}
 
  \newtcolorbox{titlebox}[5]{
@@ -153,21 +154,15 @@ then localy computes $[y] = G[z]$. All parties broadcast $[y]$ and reconstruct t
 In this step each party broadcasts $t$ values in $\Z_3$.
 \end{enumerate}
 
-\paragraph{Correctness} The protocol correctly computes the (2,3)-OWF. \greg{TODO: explain why this works correctly}
-
-\greg{\paragraph{Possible optimization} (not sure about this yet, getting late
-here ;)). Trying to avoid communicating the MPC inputs $x' = x + R_x$. 
-  Instead of computing $w' = Ax + s$ from $x' = x + R_x$, can we just
-have the parties compute $[w'] = A[v] + [s]$, where $[v]$ are random shares
-from the tapes.  This gives $w'= Av + \aux + \sum_{i=1}^{N-1}[s]_{i} $ and the
-prover knows all values so he can choose $\aux$ such that $w' = Ax + s$ as
-required. However, now preprocessing depends on the witness, so now we can't
-cut-and-choose to ensure that $\aux$ is correct (as in KKW).  But if the prover
-just ``injects'' $\aux$ in this way, can we check it's corect in some other
-way?  This was our approach in the Banquet scheme.  One direction: For two
-repetitions, $w_1' - w_2' = s_1 - s_2$ (since $Ax$ is fixed) and $s_1-s_2$ is
-linear and must be consistent with the seeds/tapes.
-}
+\paragraph{Correctness} The protocol correctly computes the (2,3)-OWF.  The
+first step computes $w = Ax$, while keeping it masked with a random $w'$,
+updating the public value $\hat{x} = x + x'$ with $\hat{w} = w + w'$.  The
+second step is where the bits of $w$ are cast from $\Z_2$ to $\Z_3$.  The
+parties have sharings of $w'$ and $1-w'$ mod 3. Now, the key observation is
+that when $\hat{w} = 0$, then $w$ and $w'$ are the same, and when $\hat{w} =
+1$, $w$ and $w'$ are different. So in the first case we set the shares of $ z =
+w \mod 3$ to the shares of $[w'] \mod 3$, and when $\hat{w} = 1$, we set the
+shares of $z$ to the complement of $w'$.
 
 \paragraph{Communication Costs}
 Here we quantify the cost of communication for the $\aux$ values and the broadcast $\msgs$ of one party,
@@ -178,8 +173,10 @@ $\log_2(3) \approx 1.58$. \greg{TODO: crossref.  I'm assuming the details of
 this will be somewhere in the paper? I don't know them :)}   The size of the
 $\aux$ information is $m\ell_3$, the MPC input value has size $n$ bits, 
 and the broadcast values have size $m + t\ell_3$ bits (per party). 
-The total is thus 
-\[\textsf{size(MPC)} = m(\ell_3 + 1) + n + t\ell_3 \]
+The total in bits is thus 
+\begin{equation} \label{eqn:sizeMPC}
+|\textsf{MPC}(n,m,t)| = m(\ell_3 + 1) + n + t\ell_3 
+\end{equation}
 which is $2.58m + n + 1.58t$ when $\ell_3 = 1.58$. 
 For the parameters $(n,m,t) = (256, 256, 81)$ the total is 1045 bits for
 $(n,m,t) = (256, 256, 160)$ the total is 1170 bits, and for
@@ -189,7 +186,137 @@ and $\msgs$ when LowMC uses a full S-box layer, and 1200 bits when LowMC
 uses a partial S-box layer~\cite{TCHES:KalZav20}. 
 
 \subsubsection{Signature Scheme Details}
-The signature scheme is given in \cref{fig:23-picnic}.
+Given the MPC protocol above, we can compute the values $\hat{x}$, $\aux$ and
+$\msgs$ for the (2,3)-OWF and neatly drop it into the KKW proof system used in
+Picnic.  The signature generation and verification algorithms for the
+$(2,3)$-OWF signature scheme are given in \cref{fig:23-picnic}.
+
+\paragraph{Parameters} Let $\secpar$ be a security parameter.  The
+$(2,3)$-OWF parameters are denoted $(n, m, t)$.  The KKW parameters $(N, M,
+\tau)$ denote the number of parties $N$, the total number of MPC instances $M$,
+and the number $\tau$ of MPC instances where the verifier checks the online
+phase of simulation. 
+We use a cryptographic hash function $\hash: \{0,1\}^*\to \{0,1\}^{2\secpar}$
+for computing commitments, and the function $\Expand$ takes as input a random $2\secpar$-bit string
+and derives a challenge having the form $(\CCC, \PPP)$ where $\CCC$ is a subset of $[M]$
+of size $\tau$, and $\PPP$ is a list of length $\tau$, with entries in $[N]$. 
+The challenge $(\CCC, \PPP)$ defines $\tau$ pairs $(c,p_c)$ where $c$ is the
+index of  an MPC instance for which the verifier will check the online phase,
+and $p_c$ is the index of the party that will remain unopened. 
+
+\paragraph{Key generation} The signer chooses a random $x \in \Z_2^n$ as a
+secret key, and a random seed $s_A \in \{0,1\}^{\secpar}$ such that $s_A$
+expands to a matrix $A \in \Z_2^{m\times n}$ that is full rank (using a suitable cryptographic
+function, such as the SHAKE extendable output function~\cite{sp800-185}).  We
+use a unique $A$ per signer in order to avoid multi-target attacks against $F$.
+Compute $y = F(x)$ and set $(y, s_A)$ as the public key.  \greg{We could
+generate the public matrix $G$ from $s_A$ as well, or we could fix it once for
+all signers. Is there a security reason to go with per-signer $G$? Question for
+Itai.}
+
+\paragraph{Signature generation and verification} Here we give an overview of
+signature generation, for details see \cref{fig:23-picnic}. The structure of
+the signature follows a three-move $\Sigma$-protocol. In the commit phase, the
+prover simulates the preprocessing phase for all $M$ MPC instances, and commits
+to the output (the seeds and auxiliary values).  She then simulates the online
+phase for all $M$ instances and commits to the inputs, and broadcast messages.
+Then a challenge is computed by hashing all commitments, together with the
+message to be signed.  The challenge selects $\tau$ of the $M$ MPC instances.
+The verifier will check the simulation of the online phase for these instances,
+by re-computing all values as the prover did for $N-1$ of the parties, and for
+remaining unopened party, the prover will provide $\msgs$ and a commitment to
+the seed so that the verifier may complete the simulation and recompute all
+commitments. 
+For the $M-\tau$ instances not chosen by the challege, the verifier will check
+the preprocessing phase only -- here the prover provides the random seeds of
+all $N$ parties and the verifier can recompute the prover's commitment to the
+preprocessing, in particular the verifier checks that the auxiliary values are
+correct.
+
+\paragraph{Optimizations and simplifications}
+For ease of presentation, \cref{fig:23-picnic} omits some optimizations that
+are essential for efficiency, but are not unique to the $(2,3)$-signature schemes, 
+they are exactly as in Picnic. All random seeds in a signature are derived from
+a single random root seed, using a binary tree construction. First we derive
+$M$ initial seeds, once for each MPC instance, then from from the initial seed
+we derive the $N$ per-party seeds. This allows the signer to reveal the seeds
+of $N-1$ parties by revealing only $\log_2(N)$ intermediate seeds, similarly, 
+the initial seeds for $M-\tau$ of $M$ instances may be revealed by communicating
+only $(\tau)\log_2(M/\tau)$ $\secpar$-bit seeds.
+
+For the commitments $h'^{(k)}$ to the online execution, $\tau$ are recomputed
+by the verifier, and the prover provides the missing $M-\tau$.  Here we compute
+the $h'^{(k)}$ as the leaves of a Merkle tree,  so that the prover can provide
+the missing commitments by sending only $\tau\log_2(M/\tau)$ $2\secpar$-bit
+digests. 
+
+Finally, we omit a random salt, included in each signature, as well as counter
+inputs to the hash functions to prevent multi-target
+attacks~\cite{EC:DinNad19}. Also, hashing the public key when computing the
+challenge, and prefixing the inputs to $\hash$ in each use for domain
+separation should also be done, as in~\cite{picnic-spec}. 
+
+\newcommand{\textunderbrace}[2]{{%
+  \underbrace{#1}_{\text{#2}}
+}}
+
+\paragraph{Parameter selection and signature size}
+The size of the signature in bits is:
+\begin{align*}
+\textunderbrace{\secpar\tau\log_2\left(\frac{M}{\tau}\right)}{initial seeds} + 
+\textunderbrace{2\secpar\tau\log_2\left(\frac{M}{\tau}\right)}{Merkle tree commitments} + 
+\tau\left( 
+     \textunderbrace{\secpar\log_2N}{per-party seeds}  + 
+     \textunderbrace{|\textsf{MPC}(n,m,t)|}{one MPC instance, \cref{eqn:sizeMPC}} 
+\right)
+\end{align*} 
+and we note that the direct contribution of OWF choice is limited to
+$|\textsf{MPC}(n,m,t)|$\footnote{The size $|\textsf{MPC}(n,m,t)|$ is a slight
+overestimate since for $1/N$ instances we don't have to send $\aux$, if the
+last party is unopened. In \cref{table:sig-sizes} our estimates include this,
+but it's a very small difference as $\tau$ is quite small. }.  However, the
+size of this term can impact the choice of $(N,M,\tau)$.  The Picnic parameters
+$(N, M, \tau)$ must be chosen so that the soundness error, 
+\begin{equation*} \label{eqn:soundness}
+    \epsilon(N,M,\tau) = \max_{M-\tau \le k \le M} \left\lbrace  \frac{\binom{k}{M-\tau} }{\binom{M}{M-\tau} N^{k-M+\tau} } \right\rbrace\,.
+\end{equation*}
+is less than $2^{-\secpar}$.
+There are two time/size tradeoffs, both exponential (i.e., a small decrease in
+size costs a large increase in time).  The first is increasing $N$, which
+reduces $\tau$ slightly, but requires a large amount of computation to
+implement the MPC simulation for all parties (in particular the hashing
+required to derive seeds, compute commitments and compute random tapes is the
+most expensive, and independent of the OWF).  So we fix $N = 16$. 
+Next we can reduce $\tau$, but only by increasing $M$ significantly,
+intuitively, when there are fewer only instances checked by the verifier, we
+need greater assurance in each one, and so we must audit more preprocessing
+instances. 
+
+By searching the parameter space for fixed $N$ and various options for $M,
+\tau$, we get a curve, and choose from the combinations in the ``sweet spot'',
+near the bend of the curve with moderate computation costs.  \cref{table:sig-sizes}
+gives some options. \greg{TODO: highlight one row as being the one we'd choose}
+
+\begin{table} \label{table:sig-sizes}
+\begin{tabular}{l|l|l}
+OWF Params      & KKW params        & signature size (KB)\\
+$(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
+$(128,400,81)$  & $(16, 150, 51)$   & 15.06 \\
+                & $(16, 168, 45)$   & 14.03 \\ 
+                & $(16, 218, 38)$   & 12.99 \\ 
+                & $(16, 250, 36)$   & 12.78 \\
+                & $(16, 303, 34)$   & 12.66 \\ 
+                & $(16, 352, 33)$   & 12.70 \\
+Picnic3-L1      & $(16, 250, 36)$   & 12.60 \\ \hline
+$(128,400,81)$  & $(64, 149, 46)$   & 15.54 \\
+                & $(64, 209, 34)$   & 13.00 \\ 
+                & $(64, 246, 31)$   & 12.41 \\
+                & $(64, 343, 27)$   & 11.69 \\
+Picnic2-L1      & $(64, 343, 27)$   & 12.36 \\
+\end{tabular}
+\end{table}
+
+
 \paragraph{Random notes} \greg{These should be worked into the text as appropriate}
 \begin{itemize}
 \item OWF vs. PRF: for the OWF I don't think there is any performance advantage to
@@ -199,35 +326,17 @@ fully random ones.
 \item The parameters above need review.  I'm pretty sure $(128, 400, 81)$ is supported
 by the analysis in Itai's document but the others may not be. 
 
-\item Key generation: Choose random $x$ as a secret key, and a seed $s_A$ such that
-$s_A$ expands to a matrix $A$ that is full rank.  We use a unique $A$ per
-signer in order to avoid multi-target attacks against $F$. Compute $y = F(x)$
-and set $(y, s_A)$ as the public key.  \greg{We could generate the public matrix $G$ 
-from $s_A$ as well, or we could fix it once for all signers. Is there a security reason to go one with random $G$?}
-
-\item The rest of this section briefly recalls KKW, explains that we choose
-parameters ($(M, N, \tau)$ the number of MPC instances $M$, the number of
-parties $N$, and the number of online instances $\tau$) in the same way as
-Picncic, shows the signature size formula (given $(M, N, \tau)$) and gives some
-concrete example siganture sizes at the L1 level. 
-
 \item Optionally we may compare the NIST L5 level (AES-256 equivalent, i.e., 256-bit
 classical, 128-bit quantum secure), in case the security of the (2,3)-OWF
 scales better than LowMC. 
 \end{itemize}
 
 
-Given the MPC protocol above, We can compute the values $\hat{x}$, $\aux$ and $\msgs$ for the (2,3)-OWF 
-and neatly drop it into the KKW proof system of Picnic. 
-
-
 \begin{figure}[p]
-% \begin{adjustbox}{center,raise={8ex}{\height}} % for LNCS
-%	\begin{adjustbox}{max width=\textwidth,center}
  \begin{minipage}[t]{1.1\textwidth}
  \begin{protocolbox}{(2,3)-OWF Signatures}
  \begin{description}
-    \item[Inputs] Both signer and verifier have $y = F(x)$, the
+    \item[Inputs] Both signer and verifier have $F$, $y = F(x)$, the
         message to be signed $\Msg$, and the signer has the secret key $x$.  The
             parmeters of the protocol $(M, N, \tau)$ are described in the text.
     \item[Commit] For each MPC instance $k\in[M]$, the signer does the following.
@@ -250,24 +359,15 @@ and neatly drop it into the KKW proof system of Picnic.
     
     \item[Challenge] 
     The signer computes $\ch = \hash(h_1, \ldots h_M, h_1', \ldots, h_M',
-    \Msg)$, then expands $\ch$ to the challenge $(\CCC, \PPP) := \Expand(\ch)$,
-    where $\CCC$ is a $\tau$-sized subset of $[M]$ and $\PPP = (p_k)_{k \in
-    \CCC}$ is a list of length $\tau$.  The function $\Expand$ is based on $\hash$, is deterministic and
-    outputs uniformly random values. 
-    For each MPC instance in $k\in\CCC$, $p_k$ represents the index of the party that remains unopened. 
+    \Msg)$, then expands $\ch$ to the challenge $(\CCC, \PPP) := \Expand(\ch)$, as described in the text. 
     
     \item[Signature output]
-%The signer outputs $\ch$, and the following values.
-%    For each $k \in [M]\setminus \CCC$, the signer outputs $\seed^{(k)}$ and $h^{(k)}$.
-%    For each $k \in \CCC$, the signer outputs 
-%        $\com^{(k)}_{p_k}$, $(\state^{(k)}_{i})_{i \neq p_k}$, 
-%        $\hat{x}^{(k)}$ and $\msgs_{p_k}^{(k)}$.
-The signature $\sigma$ on $\Msg$ is 
-\[
-\sigma = (\ch, 
-          ((\seed^{(k)}, h^{(k)} )_{k\not\in\CCC}, 
-          ( \com^{(k)}_{p_k}, (\state^{(k)}_{i})_{i\neq p_k}, \hat{x}^{(k)}, \msgs_{p_k}^{(k)} )_{k\in\CCC})_{k\in[M]})
-\]
+    The signature $\sigma$ on $\Msg$ is 
+    \[
+    \sigma = (\ch, 
+              ((\seed^{(k)}, h^{(k)} )_{k\not\in\CCC}, 
+              ( \com^{(k)}_{p_k}, (\state^{(k)}_{i})_{i\neq p_k}, \hat{x}^{(k)}, \msgs_{p_k}^{(k)} )_{k\in\CCC})_{k\in[M]})
+    \]
     
     \item[Verification] The verifier parses $\sigma$ as above, and does the following.  
     \begin{enumerate}
@@ -277,7 +377,6 @@ The signature $\sigma$ on $\Msg$ is
             the signer did, then computes $h'^{(k)} = \hash(\com^{(k)}_{1},\ldots,\com^{(k)}_{N})$ using 
             the value $\com^{(k)}_{p_k}$ from $\sigma$. 
         \item If $k\not\in\CCC$: the verifier uses $\seed^{(k)}$ to compute $h'^{(k)}$ as the signer did.
-%        \item Finally, the verifier computes $h_\off = \hash(h'^{(1)}, \ldots, h'^{(M)})$
         \end{enumerate} 
         
         \item Check the online phase:
@@ -285,14 +384,12 @@ The signature $\sigma$ on $\Msg$ is
             \item For each $k \in \CCC$ the verifier simulates the online phase using $(\state^{(k)}_{i})_{i \neq p_k}$,  
                 masked witness $\hat{x}$ and $\msgs^{(k)}_{p_k}$ to compute $(\msgs_i)_{i \neq p_k}$. 
                 Then compute $h^{(k)}$ as the signer did. The verifier outputs `invalid' if the output of the MPC simulation is not equal to $y$.
-%            \item The verifier computes $h_\on = \hash(h^{(1)}, \ldots, h^{(M)})$ using the received $h^{(k)}$ for $k \in [M] \setminus \CCC$. 
         \end{enumerate}
     \item The verifier computes $\ch' = \hash(h_1, \ldots h_M, h_1', \ldots, h_M', \Msg)$ and outputs `valid' if $\ch' = \ch$ and `invalid' otherwise. 
     \end{enumerate}
  \end{description}
  \end{protocolbox}
  \end{minipage}
-% \end{adjustbox}
 	\vspace*{-10pt}
 	\caption{\label{fig:23-picnic}Picnic-like signature scheme using the (2,3)-OWF and the KKW proof sytem.} 
 \end{figure}
