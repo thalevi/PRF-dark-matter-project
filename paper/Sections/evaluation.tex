@@ -17,6 +17,77 @@ e.g., preprocessing table, bit packing etc.
 \fi
 
 
+\newpage
+\section{Implementation and Evaluation}
+\label{sec:implementation_and_eval}
+We implemented our 2-party 23-wPRF (Construction~\ref{construction:23-central-wprf}) and 23-OPRF (Construction~\ref{construction:23-owf}) constructions in C++. For the constructions, we used the parameters $n = m = 256$ and $t = 81$. In other words, the implemented 23-constructions use a circulant matrix in $\Z_2^{256 \times 256}$ as the key, take as input a vector in $\Z_2^{256}$ and output a vector in $\Z_3^{81}$. The correlated randomness was implemented as if provided by a trusted third party.
+
+\subsection{Optimizations}
+\label{subsec:implementation_opt}
+We start with a centralized implementation of the 23-wPRF. We find optimizations that provide 5x better performance over a na\"ive implementation, which we detail below. Later, in Table~\ref{table:optimization_benchmarks}, we compare the performance gain from these optimizations.
+\paragraph{Vector packing.}
+\paragraph{Bit slicing.}
+\paragraph{Lookup table for matrix multiplication.}
+
+
+\subsection{Performance Benchmarks}
+\paragraph{Experimental setup.}
+We ran all our experiments on a t2.medium AWS EC2 instance with 4GiB RAM \mahimna{Also include processor specs} running Ubuntu 18.04. The performance benchmarks and timing results we provide are averaged over 1000 runs. For the distributed construction benchmarks, both parties were run on the same instance. We separately report the computational runtime for the parties, and provide an estimate of the communication costs.
+
+\paragraph{Optimization results.}
+We start with benchmarks for the different optimization techniques detailed in Section~\ref{subsec:implementation_opt}. Table~\ref{table:optimization_benchmarks} contains timing results for our centralized implementation of the 23-wPRF construction using these optimizations.
+
+\begin{table}[h]
+{
+\centering
+\begin{tabular}{|c|c|c|c|c|}
+
+\hline
+\multicolumn{3}{|c|}{Optimization} & \multirow{2}{*}{Evaluations / sec} & \multirow{2}{*}{Memory Usage}\\
+Packing & Bit Slicing & Lookup Table &  & \\
+\hline\hline
+\multicolumn{3}{|c|}{Baseline implementation} & & -\\
+\hline
+\checkmark & & & & \\
+\checkmark & \checkmark & \checkmark & & \\
+\hline
+\end{tabular}
+\caption{Centralized 23-wPRF benchmarks using different optimization techniques. Packing was done into 64-bit sized words (for both $\Z_2$ and $\Z_3$ vectors). For the lookup table optimization, an $(m=256)$-column matrix was partitioned into 16 slices of 16 columns each.}
+\label{table:optimization_benchmarks}
+}
+\mahimna{It would be nice to get benchmarks for performance gain using each optimization independently. If possible, it might also be nice to get the numbers for different sized lookup tables. We could also estimate this analytically.}
+\end{table}
+
+\paragraph{Distributed wPRF evaluation.}
+
+
+\paragraph{OPRF evaluation.}
+In Table~\ref{table:oprf_comparison}, we provide performance benchmarks for our 23-OPRF construction while also comparing it with other constructions. For our timing results, we report both the server and client runtimes (averages over 1000 runs). For each construction, we also include the output size, the size of the preprocessed correlated randomness, and the online communication cost. All constructions are parameterized appropriately to provide 128-bit security.
+
+For the comparison with the DDH-based OPRF construction in~\cite{naor1999-oprf}, we use the libsodium library~\cite{LibSodium} for the elliptic curve scalar multiplication operation. We use the Curve25519 elliptic curve, which has a 256-bit key size, and provides 128 bits of security.
+
+\begin{table}[h]
+{
+\centering
+\begin{tabular}{|c|c|c|c|c|c|}
+
+\hline
+\multirow{2}{*}{Protocol} & \multicolumn{2}{c|}{Runtime} & \multirow{2}{*}{\makecell{Output \\ Size}} & \multirow{2}{*}{Preprocessing} & \multirow{2}{*}{Communication}\\
+& Server & Client & & & \\
+\hline\hline
+23-OPRF & & & & &\\
+DDH-based OPRF~\cite{naor1999-oprf} & & & & &\\
+\hline
+\end{tabular}
+\caption{Comparison of protocols for (semi-honest) OPRF evaluation in the preprocessing model.}
+\label{table:oprf_comparison}
+}
+\mahimna{Include more comparisons as necessary}
+\end{table}
+
+
+
+\newpage
 \section{Implementation}
 \label{sec:technical_overview}
 
