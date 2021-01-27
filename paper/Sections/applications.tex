@@ -13,6 +13,9 @@
 \newcommand{\Msg}{\textsf{Msg}}
 \newcommand{\Expand}{\textsf{Expand}}
 \newcommand{\algcomment}[1]{{\color{Gray}{\qquad//#1}}}
+\newcommand{\bmat}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\matA}{\bmat{A}}
+\newcommand{\matB}{\bmat{B}}
 
  \newtcolorbox{titlebox}[5]{
     enhanced,
@@ -78,9 +81,9 @@ requires far less precomputed constants, and has a simpler implementation.
 \paragraph{OWF Description}
 Recall that the OWF is defined as $y = F(x)$ where $x \in \Z_2^{n}$ and $y\in \Z_3^{t}$, and is computed as follows: 
 \begin{enumerate}
-\item Compute $w = Ax \in \Z_2^{m}$, where $A$ is a public, randomly chosen matrix of full rank in $\Z_2^{m\times n}$
+\item Compute $w = \matA x \in \Z_2^{m}$, where $\matA$ is a public, randomly chosen matrix of full rank in $\Z_2^{m\times n}$
 \item Let $z\in\Z_3^{m}$ be $w$, where entries are intepreted as values mod 3
-\item Compute and output $y = Gz$, where $G \in \Z_3^{m\times t}$ is public and randomly chosen as $A$ was. 
+\item Compute and output $y = \matB z$, where $\matB \in \Z_3^{m\times t}$ is public and randomly chosen as $\matA$ was. 
 \end{enumerate}
 
 
@@ -139,9 +142,9 @@ $[\overline{r}] = -[r]$.  Then observe that
 The public input to the online phase is $\hat{x} = x + x'$. 
 \begin{enumerate}
 
-\item The parties locally compute $[u] = A[x'] - [w']$ and broadcast it, 
-then sum the received values to get $u = Ax' - w'$.  Then they locally compute
-$\hat{w} = A\hat{x} - u = Ax + w'$, where $\hat{w} \in \Z_2^{m}$. Each party broadcasts $m$ bits in this step. 
+\item The parties locally compute $[u] = \matA[x'] - [w']$ and broadcast it, 
+then sum the received values to get $u = \matA x' - w'$.  Then they locally compute
+$\hat{w} = \matA\hat{x} - u = \matA x + w'$, where $\hat{w} \in \Z_2^{m}$. Each party broadcasts $m$ bits in this step. 
 
 \item Let $z$ be a vector in $\Z_3^m$ and let $z_i$ denote the $i$-th component. Each party defines 
 \[
@@ -150,12 +153,12 @@ $\hat{w} = A\hat{x} - u = Ax + w'$, where $\hat{w} \in \Z_2^{m}$. Each party bro
                 [\overline{r}_i]  & \text{if $\hat{w}_i = 1$} \algcomment{\text{Note that $[\overline{r}_i] = [1- w_i']$}}\\
             \end{cases}
 \]
-then localy computes $[y] = G[z]$. All parties broadcast $[y]$ and reconstruct the output $y\in\Z_{3}^t$. 
+then localy computes $[y] = \matB[z]$. All parties broadcast $[y]$ and reconstruct the output $y\in\Z_{3}^t$. 
 In this step each party broadcasts $t$ values in $\Z_3$.
 \end{enumerate}
 
 \paragraph{Correctness} The protocol correctly computes the (2,3)-OWF.  The
-first step computes $w = Ax$, while keeping it masked with a random $w'$,
+first step computes $w = \matA x$, while keeping it masked with a random $w'$,
 updating the public value $\hat{x} = x + x'$ with $\hat{w} = w + w'$.  The
 second step is where the bits of $w$ are cast from $\Z_2$ to $\Z_3$.  The
 parties have sharings of $w'$ and $1-w'$ mod 3. Now, the key observation is
@@ -206,12 +209,12 @@ and $p_c$ is the index of the party that will remain unopened.
 
 \paragraph{Key generation} The signer chooses a random $x \in \Z_2^n$ as a
 secret key, and a random seed $s_A \in \{0,1\}^{\secpar}$ such that $s_A$
-expands to a matrix $A \in \Z_2^{m\times n}$ that is full rank (using a suitable cryptographic
+expands to a matrix $\matA \in \Z_2^{m\times n}$ that is full rank (using a suitable cryptographic
 function, such as the SHAKE extendable output function~\cite{sp800-185}).  We
-use a unique $A$ per signer in order to avoid multi-target attacks against $F$.
+use a unique $\matA$ per signer in order to avoid multi-target attacks against $F$.
 Compute $y = F(x)$ and set $(y, s_A)$ as the public key.  \greg{We could
-generate the public matrix $G$ from $s_A$ as well, or we could fix it once for
-all signers. Is there a security reason to go with per-signer $G$? Question for
+generate the public matrix $\matB$ from $s_A$ as well, or we could fix it once for
+all signers. Is there a security reason to go with per-signer $\matB$? Question for
 Itai.}
 
 \paragraph{Signature generation and verification} Here we give an overview of
@@ -349,7 +352,7 @@ scales better than LowMC.
         \com^{(k)}_{i} = \hash(\state^{(k)}_i) \text{ for all } i\in [N], \quad 
         h^{(k)} = \hash(\com^{(k)}_{1},\ldots,\com^{(k)}_{N}).
         \end{align*}						
-        \item Compute MPC input $\hat{x}^{(k)} = x + x'^{(k)}$ based on the secret key $x$ and the random values $x'^(k)$ defined by preprocessing.
+        \item Compute MPC input $\hat{x}^{(k)} = x + x'^{(k)}$ based on the secret key $x$ and the random values $x'^{(k)}$ defined by preprocessing.
         \item Simulate the online phase of the MPC protocol, producing $(\msgs^{(k)}_i)_{i \in [N]}$.			
         \item Commit to the online phase:
         $
