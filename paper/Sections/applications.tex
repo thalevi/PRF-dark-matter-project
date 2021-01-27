@@ -16,6 +16,7 @@
 \newcommand{\bmat}[1]{\ensuremath{\mathbf{#1}}}
 \newcommand{\matA}{\bmat{A}}
 \newcommand{\matB}{\bmat{B}}
+\newcommand{\ttOWF}{$(2,3)$-OWF}
 
  \newtcolorbox{titlebox}[5]{
     enhanced,
@@ -49,7 +50,7 @@
 \label{sec:applications}
 
 \subsection{A Signature Scheme}
-Here we describe a signature scheme using the (2,3)-OWF.  Abstractly, a
+Here we describe a signature scheme using the \ttOWF.  Abstractly, a
 signature scheme can be built from any OWF that has an MPC protocol to
 evaluatue it, by setting the public key to $y = F(x)$ for a random secret $x$,
 and then proving knowledge of $x$, using a proof system based on the
@@ -62,24 +63,24 @@ Concretely, our design follows the Picnic signature scheme~\cite{CCS:CDGORR17},
 specifically the variant instantiated with the KKW proof
 system~\cite{CCS:KatKolWan18} (named Picnic2 and Picnic3).  We chose to use the
 KKW, rather than ZKB++ proof system since our MPC protocol to evaluate the
-(2,3)-OWF is most efficient with a pre-processing phase, and KKW generally
+\ttOWF is most efficient with a pre-processing phase, and KKW generally
 produces shorter signatures.  We replace the OWF in Picnic, the LowMC block cipher~\cite{EC:ARSTZ15}, 
-with the (2,3)-OWF, and make the corresponding changes to the MPC protocol. 
+with the \ttOWF, and make the corresponding changes to the MPC protocol. 
 
 \greg{Need some motivation here for why this is interesting. Rough ideas: 
 \begin{itemize}
 \item No existing
-signature scheme based on the (2,3)-OWF or similar assumption.  
+signature scheme based on the \ttOWF or similar assumption.  
 \item Alternative
-structure of the (2,3)-OWF may be easier to analyze than LowMC, which follows a
+structure of the \ttOWF may be easier to analyze than LowMC, which follows a
 more traditional block cipher design.  
-\item The (2,3)-OWF is conceptually much simpler
+\item The \ttOWF is conceptually much simpler
 requires far less precomputed constants, and has a simpler implementation. 
 \item Potential advantages in implementation performance
 \end{itemize} }
 
-\paragraph{OWF Description}
-Recall that the OWF is defined as $y = F(x)$ where $x \in \Z_2^{n}$ and $y\in \Z_3^{t}$, and is computed as follows: 
+\paragraph{\ttOWF Description}
+Recall that the \ttOWF is defined as $y = F(x)$ where $x \in \Z_2^{n}$ and $y\in \Z_3^{t}$, and is computed as follows: 
 \begin{enumerate}
 \item Compute $w = \matA x \in \Z_2^{m}$, where $\matA$ is a public, randomly chosen matrix of full rank in $\Z_2^{m\times n}$
 \item Let $z\in\Z_3^{m}$ be $w$, where entries are intepreted as values mod 3
@@ -157,7 +158,7 @@ then localy computes $[y] = \matB[z]$. All parties broadcast $[y]$ and reconstru
 In this step each party broadcasts $t$ values in $\Z_3$.
 \end{enumerate}
 
-\paragraph{Correctness} The protocol correctly computes the (2,3)-OWF.  The
+\paragraph{Correctness} The protocol correctly computes the \ttOWF.  The
 first step computes $w = \matA x$, while keeping it masked with a random $w'$,
 updating the public value $\hat{x} = x + x'$ with $\hat{w} = w + w'$.  The
 second step is where the bits of $w$ are cast from $\Z_2$ to $\Z_3$.  The
@@ -190,12 +191,12 @@ uses a partial S-box layer~\cite{TCHES:KalZav20}.
 
 \subsubsection{Signature Scheme Details}
 Given the MPC protocol above, we can compute the values $\hat{x}$, $\aux$ and
-$\msgs$ for the (2,3)-OWF and neatly drop it into the KKW proof system used in
+$\msgs$ for the \ttOWF and neatly drop it into the KKW proof system used in
 Picnic.  The signature generation and verification algorithms for the
-$(2,3)$-OWF signature scheme are given in \cref{fig:23-picnic}.
+\ttOWF  signature scheme are given in \cref{fig:23-picnic}.
 
 \paragraph{Parameters} Let $\secpar$ be a security parameter.  The
-$(2,3)$-OWF parameters are denoted $(n, m, t)$.  The KKW parameters $(N, M,
+\ttOWF parameters are denoted $(n, m, t)$.  The KKW parameters $(N, M,
 \tau)$ denote the number of parties $N$, the total number of MPC instances $M$,
 and the number $\tau$ of MPC instances where the verifier checks the online
 phase of simulation. 
@@ -300,7 +301,8 @@ By searching the parameter space for fixed $N$ and various options for $M,
 near the bend of the curve with moderate computation costs.  \cref{table:sig-sizes}
 gives some options. \greg{TODO: highlight one row as being the one we'd choose}
 
-\begin{table} \label{table:sig-sizes}
+\begin{table}
+\begin{centering}
 \begin{tabular}{l|l|l}
 OWF Params      & KKW params        & signature size (KB)\\
 $(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
@@ -317,6 +319,8 @@ $(128,400,81)$  & $(64, 149, 46)$   & 15.54 \\
                 & $(64, 343, 27)$   & 11.69 \\
 Picnic2-L1      & $(64, 343, 27)$   & 12.36 \\
 \end{tabular}
+\caption{ \label{table:sig-sizes}Signature sizes for Picnic using the \ttOWF, compared to Picnic using LowMC. }
+\end{centering}
 \end{table}
 
 
@@ -337,7 +341,7 @@ scales better than LowMC.
 
 \begin{figure}[p]
  \begin{minipage}[t]{1.1\textwidth}
- \begin{protocolbox}{(2,3)-OWF Signatures}
+ \begin{protocolbox}{\ttOWF Signatures}
  \begin{description}
     \item[Inputs] Both signer and verifier have $F$, $y = F(x)$, the
         message to be signed $\Msg$, and the signer has the secret key $x$.  The
@@ -394,7 +398,7 @@ scales better than LowMC.
  \end{protocolbox}
  \end{minipage}
 	\vspace*{-10pt}
-	\caption{\label{fig:23-picnic}Picnic-like signature scheme using the (2,3)-OWF and the KKW proof sytem.} 
+	\caption{\label{fig:23-picnic}Picnic-like signature scheme using the \ttOWF and the KKW proof sytem.} 
 \end{figure}
 
 
