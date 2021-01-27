@@ -69,22 +69,22 @@ For the comparison with the DDH-based OPRF construction in~\cite{naor1999-oprf},
 \begin{table}[h]
 {
 \centering
-\begin{tabular}{|c|c|c|c|c|c|}
+\begin{tabular}{|cc|c|c|c|c|c|c|}
 
 \hline
-\multirow{2}{*}{Protocol} & \multicolumn{2}{c|}{Runtime} & \multirow{2}{*}{\makecell{Output \\ Size}} & \multirow{2}{*}{Preprocessing} & \multirow{2}{*}{Communication}\\
-& Server & Client & & & \\
+\multirow{2}{*}{Protocol} & & \multicolumn{3}{c|}{Runtime} & \multirow{2}{*}{\makecell{Output \\ Size}} & \multirow{2}{*}{Preprocessing} & \multirow{2}{*}{Comm.}\\
+& & Server & Client & Parallel & & &\\
 \hline\hline
-23-OPRF & & & & &\\
-DDH-based OPRF~\cite{naor1999-oprf} & & & & &\\
+\multirow{2}{*}{23-OPRF} & Key Update & 0.65 & - & - &  &  & \\
+& Evaluation & 9.45 & 9.13 & & & &\\
+DDH-based OPRF & & & & & & &\\
 \hline
 \end{tabular}
-\caption{Comparison of protocols for (semi-honest) OPRF evaluation in the preprocessing model.}
+\caption{Comparison of protocols for (semi-honest) OPRF evaluation in the preprocessing model. Runtimes are given in microseonds ($\mu$s).}
 \label{table:oprf_comparison}
 }
 \mahimna{Include more comparisons as necessary}
 \end{table}
-
 
 
 \newpage
