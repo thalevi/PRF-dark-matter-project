@@ -104,7 +104,7 @@ $r = \sum_{i=1}^N [r]_i$.  We use $[r]_i$ to denote party $i$'s share of $r$,
 or simply $[r]$ when the context makes the party's index clear.
 
 We must also be able to create a sharing mod 3, of a secret shared value mod 2.
-Let $w'\in\Z_2$ be secret shared.  Then to establish shares of $r = w' \pmod
+Let $\tilde{w}\in\Z_2$ be secret shared.  Then to establish shares of $r = \tilde{w} \pmod
 3$, the first $N-1$ parties sample a share $[r]$ from their random tapes. The
 $N$-th party's share is chosen by the prover, so that the sum of the shares is
 $r$.  We refer to the last party's share as an \emph{auxiliary value}, since
@@ -116,10 +116,10 @@ tape, and for the $N$-th party the state is the seed value plus the list of
 auxiliary values, denoted $\aux$. 
 
 After pre-processing, the parties enter the \emph{online} phase of the protocol. 
-The prover computes $\hat{x}= x + x'$, where $x'$ is a random value, established during
-preprocessing so that each party has a share $[x']$. 
+The prover computes $\hat{x}= x + \tilde{x}$, where $\tilde{x}$ is a random value, established during
+preprocessing so that each party has a share $[\tilde{x}]$. 
 The parties can then compute the OWF using the homomorphic properties of the secret sharing, 
-and a share conversion gadget (to convert shares mod 2 to mod 3, used when computing $z$)
+and a share conversion gadget (to convert shares mod 2 to mod 3, used when computing~$z$)
 setup during preprocessing that we describe below. 
 During the online phase, parties broadcast values to all other parties and we write $\msgs_i$
 to denote the broadcast messages of party $i$. 
@@ -128,10 +128,10 @@ to denote the broadcast messages of party $i$.
 
 \paragraph{Preprocessing phase} Preprocessing establishes random seeds of all parties and shares of 
 \begin{enumerate}
-\item $x'$: a random vector in $\Z_2^{n}$,\algcomment{Sampled from random tapes}
-\item $w'$: a random vector in $\Z_2^{m}$, \algcomment{Sampled from random tapes}
-\item $r$: a sharing of $w' \mod 3$, shares in $\Z_3^m$,  \algcomment{Tapes + one $\aux$ value}
-\item $\overline{r}$: a sharing of $1-w' \mod 3$, shares in $\Z_3^m$. \algcomment{Computed from shares of $r$}
+\item $\tilde{x}$: a random vector in $\Z_2^{n}$,\algcomment{Sampled from random tapes}
+\item $\tilde{w}$: a random vector in $\Z_2^{m}$, \algcomment{Sampled from random tapes}
+\item $r$: a sharing of $\tilde{w} \mod 3$, shares in $\Z_3^m$,  \algcomment{Tapes + one $\aux$ value}
+\item $\overline{r}$: a sharing of $1-\tilde{w} \mod 3$, shares in $\Z_3^m$. \algcomment{Computed from shares of $r$}
 \end{enumerate}
 The shares of $\overline{r}$ are computed from shares of $r$ as follows (all arithmetic in $\Z_3^m$): the first
 party computes $[\overline{r}] = 1 - [r]$, then the remaining parties compute
@@ -140,12 +140,12 @@ $[\overline{r}] = -[r]$.  Then observe that
  as required. 
 
 \paragraph{Online phase}
-The public input to the online phase is $\hat{x} = x + x'$. 
+The public input to the online phase is $\hat{x} = x + \tilde{x}$. 
 \begin{enumerate}
 
-\item The parties locally compute $[u] = \matA[x'] - [w']$ and broadcast it, 
-then sum the received values to get $u = \matA x' - w'$.  Then they locally compute
-$\hat{w} = \matA\hat{x} - u = \matA x + w'$, where $\hat{w} \in \Z_2^{m}$. Each party broadcasts $m$ bits in this step. 
+\item The parties locally compute $[u] = \matA[\tilde{x}] - [\tilde{w}]$ and broadcast it, 
+then sum the received values to get $u = \matA \tilde{x} - \tilde{w}$.  Then they locally compute
+$\hat{w} = \matA\hat{x} - u = \matA x + \tilde{w}$, where $\hat{w} \in \Z_2^{m}$. Each party broadcasts $m$ bits in this step. 
 
 \item Let $z$ be a vector in $\Z_3^m$ and let $z_i$ denote the $i$-th component. Each party defines 
 \[
@@ -159,14 +159,14 @@ In this step each party broadcasts $t$ values in $\Z_3$.
 \end{enumerate}
 
 \paragraph{Correctness} The protocol correctly computes the \ttOWF.  The
-first step computes $w = \matA x$, while keeping it masked with a random $w'$,
-updating the public value $\hat{x} = x + x'$ with $\hat{w} = w + w'$.  The
-second step is where the bits of $w$ are cast from $\Z_2$ to $\Z_3$.  The
-parties have sharings of $w'$ and $1-w'$ mod 3. Now, the key observation is
-that when $\hat{w} = 0$, then $w$ and $w'$ are the same, and when $\hat{w} =
-1$, $w$ and $w'$ are different. So in the first case we set the shares of $ z =
-w \mod 3$ to the shares of $[w'] \mod 3$, and when $\hat{w} = 1$, we set the
-shares of $z$ to the complement of $w'$.
+first step computes $w = \matA x$, while keeping it masked with a random $\tilde{w}$,
+updating the public value $\hat{x} = x + x'$ with $\hat{w} = w + \tilde{w}$.  The
+second step is where the bits of $w$ are cast from $\Z_2$ to $\Z_3$.  The 
+parties have sharings of $\tilde{w}$ and $1-\tilde{w}$ mod 3 (we focus on a single bit here, for simplicity). The key observation is
+that when $\hat{w} = 0$, then $w$ and $\tilde{w}$ are the same, and when $\hat{w} =
+1$, $w$ and $\tilde{w}$ are different. So in the first case we set the shares of $ z =
+w \mod 3$ to the shares of $[\tilde{w}] \mod 3$, and when $\hat{w} = 1$, we set the
+shares of $z$ to the complement of $\tilde{w}$.
 
 \paragraph{Communication Costs}
 Here we quantify the cost of communication for the $\aux$ values and the broadcast $\msgs$ of one party,
@@ -356,7 +356,7 @@ scales better than LowMC.
         \com^{(k)}_{i} = \hash(\state^{(k)}_i) \text{ for all } i\in [N], \quad 
         h^{(k)} = \hash(\com^{(k)}_{1},\ldots,\com^{(k)}_{N}).
         \end{align*}						
-        \item Compute MPC input $\hat{x}^{(k)} = x + x'^{(k)}$ based on the secret key $x$ and the random values $x'^{(k)}$ defined by preprocessing.
+        \item Compute MPC input $\hat{x}^{(k)} = x + \tilde{x}^{(k)}$ based on the secret key $x$ and the random values $\tilde{x}^{(k)}$ defined by preprocessing.
         \item Simulate the online phase of the MPC protocol, producing $(\msgs^{(k)}_i)_{i \in [N]}$.			
         \item Commit to the online phase:
         $
