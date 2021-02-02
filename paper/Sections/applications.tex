@@ -169,12 +169,12 @@ w \mod 3$ to the shares of $[\tilde{w}] \mod 3$, and when $\hat{w} = 1$, we set 
 shares of $z$ to the complement of $\tilde{w}$.
 
 \paragraph{Communication Costs}
-Here we quantify the cost of communication for the $\aux$ values and the broadcast $\msgs$ of one party,
+Here we quantify the cost of communication for the MPC inputs, the $\aux$ values and the broadcast $\msgs$ of one party,
 as this will directly contribute to the signature size in the following section. 
 Let $\ell_3$ be the bitlength of an element in $\Z_3$; the direct encoding has
 $\ell_3 = 2$, but with compression we can reudce $\ell_3$ to as little as
-$\log_2(3) \approx 1.58$. \greg{TODO: crossref.  I'm assuming the details of
-this will be somewhere in the paper? I don't know them :)}   The size of the
+$\log_2(3) \approx 1.58$. \footnote{To compress a vector $v\in\Z_3^{n}$, convert it to the integer it represents: $V = \sum_{i=0}^n v_i^{i}$
+and output the binary representation of $V$. \greg{TODO: If this appears elsewhere in the paper, just xref to it} }   The size of the
 $\aux$ information is $m\ell_3$, the MPC input value has size $n$ bits, 
 and the broadcast values have size $m + t\ell_3$ bits (per party). 
 The total in bits is thus 
@@ -182,12 +182,11 @@ The total in bits is thus
 |\textsf{MPC}(n,m,t)| = m(\ell_3 + 1) + n + t\ell_3 
 \end{equation}
 which is $2.58m + n + 1.58t$ when $\ell_3 = 1.58$. 
-For the parameters $(n,m,t) = (256, 256, 81)$ the total is 1045 bits for
-$(n,m,t) = (256, 256, 160)$ the total is 1170 bits, and for
-$(n,m,t)=(128, 400, 81)$ the total is 1288 bits.  This compares favorably to
-Picnic at the same security level, which communicates 1032 bits for the $\aux$
-and $\msgs$ when LowMC uses a full S-box layer, and 1200 bits when LowMC
-uses a partial S-box layer~\cite{TCHES:KalZav20}. 
+For the parameters 
+$(n,m,t)=(128, 453, 81)$ the total is 1425 bits (L1 security)
+and when $(n,m,t) = 256, 906, 162)$ the total is 2849 bits (L5 security).  This compares favorably to
+Picnic at the same security level, which communicates 1161--1328 bits at L1
+and 2295--2536 bits at L5, depending on whether LowMC uses a full or partial S-box layer~\cite{TCHES:KalZav20}.
 
 \subsubsection{Signature Scheme Details}
 Given the MPC protocol above, we can compute the values $\hat{x}$, $\aux$ and
@@ -209,14 +208,13 @@ index of  an MPC instance for which the verifier will check the online phase,
 and $p_c$ is the index of the party that will remain unopened. 
 
 \paragraph{Key generation} The signer chooses a random $x \in \Z_2^n$ as a
-secret key, and a random seed $s_A \in \{0,1\}^{\secpar}$ such that $s_A$
-expands to a matrix $\matA \in \Z_2^{m\times n}$ that is full rank (using a suitable cryptographic
+secret key, and a random seed $s \in \{0,1\}^{\secpar}$ such that $s$
+expands to matrices $\matA \in \Z_2^{m\times n}$ and $\matB\in \Z_3^{m\times t}$ that is full rank (using a suitable cryptographic
 function, such as the SHAKE extendable output function~\cite{sp800-185}).  We
-use a unique $\matA$ per signer in order to avoid multi-target attacks against $F$.
-Compute $y = F(x)$ and set $(y, s_A)$ as the public key.  \greg{We could
-generate the public matrix $\matB$ from $s_A$ as well, or we could fix it once for
-all signers. Is there a security reason to go with per-signer $\matB$? Question for
-Itai.}
+use unique $\matA$ and $\matB$ per signer in order to avoid multi-target attacks against $F$.
+Compute $y = F(x)$ and set $(y, s)$ as the public key.
+We specify the scheme using random matrices, however, it could also be instantiated
+with circulant matrices, which may improve the performance of sign and verify operations.
 
 \paragraph{Signature generation and verification} Here we give an overview of
 signature generation, for details see \cref{fig:23-picnic}. The structure of
@@ -306,37 +304,30 @@ gives some options. \greg{TODO: highlight one row as being the one we'd choose}
 \begin{tabular}{l|l|l}
 OWF Params      & KKW params        & Signature size (KB)\\
 $(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
-$(128,400,81)$  & $(16, 150, 51)$   & 15.06 \\
-                & $(16, 168, 45)$   & 14.03 \\ 
-                & $(16, 218, 38)$   & 12.99 \\ 
-                & $(16, 250, 36)$   & 12.78 \\
-                & $(16, 303, 34)$   & 12.66 \\ 
-                & $(16, 352, 33)$   & 12.70 \\
+$(128,453,81)$  & $(16, 150, 51)$   & 16.19 \\
+                & $(16, 168, 45)$   & 15.03 \\ 
+                & $(16, 250, 36)$   & 14.58 \\
+                & $(16, 303, 34)$   & 13.41 \\
 Picnic3-L1      & $(16, 250, 36)$   & 12.60 \\ \hline
-$(128,400,81)$  & $(64, 149, 46)$   & 15.54 \\
-                & $(64, 209, 34)$   & 13.00 \\ 
-                & $(64, 246, 31)$   & 12.41 \\
-                & $(64, 343, 27)$   & 11.69 \\
-Picnic2-L1      & $(64, 343, 27)$   & 12.36 \\
+$(128,453,81)$  & $(64, 151, 45)$   & 16.14 \\
+                & $(64, 209, 34)$   & 13.62 \\ 
+                & $(64, 343, 27)$   & 12.18 \\
+                & $(64, 515, 24)$   & 11.71 \\
+Picnic2-L1      & $(64, 343, 27)$   & 12.36 \\ \hline \hline
+$(256,906,162)$ & $(16, 324, 92)$   & 60.61 \\ 
+                & $(16, 400, 79)$   & 56.03 \\ 
+                & $(16, 604, 68)$   & 53.52 \\ 
+Picnic3-L5      & $(16, 604, 68)$   & 48.72 \\ \hline
+$(256,906,162)$ & $(64, 322, 82)$   & 60.51 \\
+                & $(64, 518, 60)$   & 50.83 \\ 
+                & $(64, 604, 57)$   & 49.91 \\
+Picnic2-L5      & $(64, 604, 58)$   & 46.18 \\ \hline
 \end{tabular}
-\caption{ \label{table:sig-sizes}Signature sizes for Picnic using the \ttOWF, compared to Picnic using LowMC. }
+\caption{ \label{table:sig-sizes}Signature sizes for Picnic using the \ttOWF, compared to Picnic using LowMC. 
+The first half of the table shows security level L1 with $N=16$ and $N=64$ parties, and the second
+half shows level L5.}
 \end{centering}
 \end{table}
-
-
-\paragraph{Random notes} \greg{These should be worked into the text as appropriate}
-\begin{itemize}
-\item OWF vs. PRF: for the OWF I don't think there is any performance advantage to
-using compressed matrices (circulant matrices). So better to use
-fully random ones. 
-
-\item The parameters above need review.  I'm pretty sure $(128, 400, 81)$ is supported
-by the analysis in Itai's document but the others may not be. 
-
-\item Optionally we may compare the NIST L5 level (AES-256 equivalent, i.e., 256-bit
-classical, 128-bit quantum secure), in case the security of the (2,3)-OWF
-scales better than LowMC. 
-\end{itemize}
 
 
 \begin{figure}[p]
