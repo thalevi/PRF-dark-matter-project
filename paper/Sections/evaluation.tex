@@ -36,7 +36,7 @@ Since in our implementation each key $\textbf{K}$  is of size $m \times n = 256 
 The last part of the dark matter function takes an intermediate vector viewed as a vector of $Z_3$ elements, which is then multiplied 
 by a matrix $R$ in $Z_3$ to produce the output vector in $Z_3$. We tried different methods for implementing this matrix-vector multiplication over $Z_3$.:	
 
-Bit slicing is implemented  by representing a vector over $Z_3$  as two binary vectors - one LSB's and one MSB's. The operations over this $Z_3$ vector - addition, subtraction, multiplication and MUX  - were implemented in a bitwise manner as shown in table \ref{tab:multicol}. We took advantage of the fact that when representing each vector as MSB and LSB, negation (which is the same as multiplying by two) is the same as swapping the most and least significant bits. 
+Bit slicing is implemented  by representing a vector over $Z_3$  as two binary vectors - one LSB's and one MSB's. Since each matrix has 81 columns, each vector is represented by two machine words, for a total of 4 words per $Z_3$ element. The operations over this $Z_3$ vector - addition, subtraction, multiplication and MUX  - were implemented in a bitwise manner as shown in table \ref{tab:multicol}. We took advantage of the fact that when representing each vector as MSB and LSB, negation (which is the same as multiplying by two) is the same as swapping the most and least significant bits. 
 
 \begin{table}[ht]
 	\caption{Operations in $Z_3$. input:   ${l_1}, {m_1}$ - LSB and MSB  of first trinary number, 
