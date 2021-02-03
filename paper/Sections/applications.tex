@@ -129,7 +129,7 @@ to denote the broadcast messages of party $i$.
 \paragraph{Preprocessing phase} Preprocessing establishes random seeds of all parties and shares of 
 \begin{enumerate}
 \item $\tilde{x}$: a random vector in $\Z_2^{n}$,\algcomment{Sampled from random tapes}
-\item $\tilde{w}$: a random vector in $\Z_2^{m}$, \algcomment{Sampled from random tapes}
+\item $\tilde{w}$: the vector $\matA \tilde{x}$ in $\Z_2^{m}$, 
 \item $r$: a sharing of $\tilde{w} \mod 3$, shares in $\Z_3^m$,  \algcomment{Tapes + one $\aux$ value}
 \item $\overline{r}$: a sharing of $1-\tilde{w} \mod 3$, shares in $\Z_3^m$. \algcomment{Computed from shares of $r$}
 \end{enumerate}
@@ -143,9 +143,10 @@ $[\overline{r}] = -[r]$.  Then observe that
 The public input to the online phase is $\hat{x} = x + \tilde{x}$. 
 \begin{enumerate}
 
-\item The parties locally compute $[u] = \matA[\tilde{x}] - [\tilde{w}]$ and broadcast it, 
-then sum the received values to get $u = \matA \tilde{x} - \tilde{w}$.  Then they locally compute
-$\hat{w} = \matA\hat{x} - u = \matA x + \tilde{w}$, where $\hat{w} \in \Z_2^{m}$. Each party broadcasts $m$ bits in this step. 
+%\item The parties locally compute $[u] = \matA[\tilde{x}] - [\tilde{w}]$ and broadcast it, 
+%then sum the received values to get $u = \matA \tilde{x} - \tilde{w}$.  Then they locally compute
+%$\hat{w} = \matA\hat{x} - u = \matA x + \tilde{w}$, where $\hat{w} \in \Z_2^{m}$. Each party broadcasts $m$ bits in this step. 
+\item The parties locally compute $\hat{w} \in \Z_2^{m}$ as $\hat{w} = \matA\hat{x}$ (since both $\hat{x}$ and $\matA$ are public). 
 
 \item Let $z$ be a vector in $\Z_3^m$ and let $z_i$ denote the $i$-th component. Each party defines 
 \[
@@ -159,7 +160,7 @@ In this step each party broadcasts $t$ values in $\Z_3$.
 \end{enumerate}
 
 \paragraph{Correctness} The protocol correctly computes the \ttOWF.  The
-first step computes $w = \matA x$, while keeping it masked with a random $\tilde{w}$,
+first step computes $w = \matA x$, 
 updating the public value $\hat{x} = x + x'$ with $\hat{w} = w + \tilde{w}$.  The
 second step is where the bits of $w$ are cast from $\Z_2$ to $\Z_3$.  The 
 parties have sharings of $\tilde{w}$ and $1-\tilde{w}$ mod 3 (we focus on a single bit here, for simplicity). The key observation is
@@ -176,15 +177,14 @@ $\ell_3 = 2$, but with compression we can reudce $\ell_3$ to as little as
 $\log_2(3) \approx 1.58$. \footnote{To compress a vector $v\in\Z_3^{n}$, convert it to the integer it represents: $V = \sum_{i=0}^n v_i^{i}$
 and output the binary representation of $V$. \greg{TODO: If this appears elsewhere in the paper, just xref to it} }   The size of the
 $\aux$ information is $m\ell_3$, the MPC input value has size $n$ bits, 
-and the broadcast values have size $m + t\ell_3$ bits (per party). 
+and the broadcast values have size $t\ell_3$ bits (per party). 
 The total in bits is thus 
 \begin{equation} \label{eqn:sizeMPC}
-|\textsf{MPC}(n,m,t)| = m(\ell_3 + 1) + n + t\ell_3 
+|\textsf{MPC}(n,m,t)| = m\ell_3 + n + t\ell_3\;.
 \end{equation}
-which is $2.58m + n + 1.58t$ when $\ell_3 = 1.58$. 
 For the parameters 
-$(n,m,t)=(128, 453, 81)$ the total is 1425 bits (L1 security)
-and when $(n,m,t) = 256, 906, 162)$ the total is 2849 bits (L5 security).  This compares favorably to
+$(n,m,t)=(128, 453, 81)$ the total is 972 bits (L1 security)
+and when $(n,m,t) = 256, 906, 162)$ the total is 1943 bits (L5 security).  This compares favorably to
 Picnic at the same security level, which communicates 1161--1328 bits at L1
 and 2295--2536 bits at L5, depending on whether LowMC uses a full or partial S-box layer~\cite{TCHES:KalZav20}.
 
@@ -297,33 +297,33 @@ instances.
 By searching the parameter space for fixed $N$ and various options for $M,
 \tau$, we get a curve, and choose from the combinations in the ``sweet spot'',
 near the bend of the curve with moderate computation costs.  \cref{table:sig-sizes}
-gives some options. \greg{TODO: highlight one row as being the one we'd choose}
-
+gives some options. The row with is nearly the same as for Picnic, and we highlight the signature
+size of the \ttOWF. Signatures using the \ttOWF are five to fifteen percent shorter than Picnic using LowMC. 
 \begin{table}
 \begin{centering}
 \begin{tabular}{l|l|l}
 OWF Params      & KKW params        & Signature size (KB)\\
 $(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
-$(128,453,81)$  & $(16, 150, 51)$   & 16.19 \\
-                & $(16, 168, 45)$   & 15.03 \\ 
-                & $(16, 250, 36)$   & 14.58 \\
-                & $(16, 303, 34)$   & 13.41 \\
+$(128,453,81)$  & $(16, 150, 51)$   & 13.30 \\
+                & $(16, 168, 45)$   & 12.48 \\ 
+                & $(16, 250, 36)$   & \textbf{11.54} \\
+                & $(16, 303, 34)$   & 11.49 \\
 Picnic3-L1      & $(16, 250, 36)$   & 12.60 \\ \hline
-$(128,453,81)$  & $(64, 151, 45)$   & 16.14 \\
-                & $(64, 209, 34)$   & 13.62 \\ 
-                & $(64, 343, 27)$   & 12.18 \\
-                & $(64, 515, 24)$   & 11.71 \\
+$(128,453,81)$  & $(64, 151, 45)$   & 13.59 \\
+                & $(64, 209, 34)$   & 11.70 \\ 
+                & $(64, 343, 27)$   & \textbf{10.66} \\
+                & $(64, 515, 24)$   & 10.35 \\
 Picnic2-L1      & $(64, 343, 27)$   & 12.36 \\ \hline \hline
-$(256,906,162)$ & $(16, 324, 92)$   & 60.61 \\ 
-                & $(16, 400, 79)$   & 56.03 \\ 
-                & $(16, 604, 68)$   & 53.52 \\ 
+$(256,906,162)$ & $(16, 324, 92)$   & 50.19 \\ 
+                & $(16, 400, 79)$   & 47.08 \\ 
+                & $(16, 604, 68)$   & \textbf{45.82} \\ 
 Picnic3-L5      & $(16, 604, 68)$   & 48.72 \\ \hline
-$(256,906,162)$ & $(64, 322, 82)$   & 60.51 \\
-                & $(64, 518, 60)$   & 50.83 \\ 
-                & $(64, 604, 57)$   & 49.91 \\
+$(256,906,162)$ & $(64, 322, 82)$   & 51.23 \\
+                & $(64, 518, 60)$   & 44.04 \\ 
+                & $(64, 604, 57)$   & \textbf{43.45} \\
 Picnic2-L5      & $(64, 604, 58)$   & 46.18 \\ \hline
 \end{tabular}
-\caption{ \label{table:sig-sizes}Signature sizes for Picnic using the \ttOWF, compared to Picnic using LowMC. 
+\caption{ \label{table:sig-sizes}Signature size estimates for Picnic using the \ttOWF, compared to Picnic using LowMC. 
 The first half of the table shows security level L1 with $N=16$ and $N=64$ parties, and the second
 half shows level L5.}
 \end{centering}

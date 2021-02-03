@@ -35,7 +35,7 @@ get_size_mod2mod3(M, N, t)=
   
     /* OWF parameters */
     n = 128;        /* Input size, bits */
-    m = 400;        /* Intermediate size, denoted m in the paper, bits */
+    m = 453;        /* Intermediate size, denoted m in the paper, bits */
     k = 81;         /* Output size, number of Z_3 elements */
     ell3 = 1.58;    /* Bits req'd to represent a Z_3 element */
 
@@ -49,7 +49,7 @@ get_size_mod2mod3(M, N, t)=
     aux = (N-1)/N * ell3*m;     /* Usually we have to send aux, but 1/N times nothing */
     msgs = m + ell3*k;
 \\    sizeMPC = inputs + aux + msgs;
-    sizeMPC = 1425;
+    sizeMPC = 972;
 
     treeM = t*log2(M/t);
     treeN = log2(N);
@@ -79,7 +79,7 @@ get_size_mod2mod3_L5(M, N, t)=
     hash = 2*secpar;    /* Digest length for commitments */     
     salt = 256;         /* Bitlength of salt, always 256 */
 
-    sizeMPC = 2849;
+    sizeMPC = 1943;
 
     treeM = t*log2(M/t);
     treeN = log2(N);
@@ -97,7 +97,27 @@ get_size_mod2mod3_L5(M, N, t)=
     return(KB);
 }
 
+table6()=
+{
+    print1("(16, 150, 51) & "); printf("%.02f\n", get_size_mod2mod3(150, 16, 51));
+    print1("(16, 168, 45) & "); printf("%.02f\n", get_size_mod2mod3(168, 16, 45));
+    print1("(16, 250, 36) & "); printf("%.02f\n", get_size_mod2mod3(250, 16, 36));
+    print1("(16, 303, 34) & "); printf("%.02f\n", get_size_mod2mod3(303, 16, 34));
+    print("------");
+    print1("(64, 151, 45) & "); printf("%.02f\n", get_size_mod2mod3(151, 64, 45));
+    print1("(64, 209, 34) & "); printf("%.02f\n", get_size_mod2mod3(209, 64, 34));
+    print1("(64, 343, 27) & "); printf("%.02f\n", get_size_mod2mod3(343, 64, 27));
+    print1("(64, 515, 24) & "); printf("%.02f\n", get_size_mod2mod3(515, 64, 24));
+    print("------");
+    print1("(16, 324, 92) & "); printf("%.02f\n", get_size_mod2mod3_L5(324, 16, 92));
+    print1("(16, 400, 79) & "); printf("%.02f\n", get_size_mod2mod3_L5(400, 16, 79));
+    print1("(16, 604, 68) & "); printf("%.02f\n", get_size_mod2mod3_L5(604, 16, 68));
+    print("------");
+    print1("(64, 322, 82) & "); printf("%.02f\n", get_size_mod2mod3_L5(322, 64, 82));
+    print1("(64, 518, 60) & "); printf("%.02f\n", get_size_mod2mod3_L5(518, 64, 60));
+    print1("(64, 604, 57) & "); printf("%.02f\n", get_size_mod2mod3_L5(604, 64, 57));
 
+}
 
 /* max_t = 100 is a good starting point for L1 paramters */
 find_params_mod2mod3_L1(max_t, N)=
