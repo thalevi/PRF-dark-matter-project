@@ -36,7 +36,7 @@ Since in our implementation each key $\textbf{K}$  is of size $m \times n = 256 
 The last part of the dark matter function takes an intermediate vector viewed as a vector of $Z_3$ elements, which is then multiplied 
 by a matrix $R$ in $Z_3$ to produce the output vector in $Z_3$. We tried different methods for implementing this matrix-vector multiplication over $Z_3$.:	
 
-Bit slicing is implemented  by representing a vector over $Z_3$  as two binary vectors - one LSB's and one MSB's. The operations over this $Z_3$ vector - addition, subtraction, multiplication and MUX  - were implemented in a bitwise manner as shown in table \ref{tab:multicol}. We took advantage of the fact that when representing each vector as MSB and LSB, negation (which is the same as multiplying by two) is the same as swapping the most and least significant bits. 
+Bit slicing is implemented  by representing a vector over $Z_3$  as two binary vectors - one LSB's and one MSB's. Since each matrix has 81 columns, each vector is represented by two machine words, for a total of 4 words per $Z_3$ element. The operations over this $Z_3$ vector - addition, subtraction, multiplication and MUX  - were implemented in a bitwise manner as shown in table \ref{tab:multicol}. We took advantage of the fact that when representing each vector as MSB and LSB, negation (which is the same as multiplying by two) is the same as swapping the most and least significant bits. 
 
 \begin{table}[ht]
 	\caption{Operations in $Z_3$. input:   ${l_1}, {m_1}$ - LSB and MSB  of first trinary number, 
@@ -116,22 +116,23 @@ We start with benchmarks for the different optimization techniques detailed in S
 \begin{table}[h]
 	{
 		\centering
-		\begin{tabular}{|c|c|c|c|c|c|}
+		\begin{tabular}{|c|c|c|c|c|}
 			
 			\hline
-			\multicolumn{3}{|c|}{Optimization} &  \multirow{2}{*}{Runtime} & \multirow{2}{*}{Evaluations / sec} & \multirow{2}{*}{Memory Usage}\\
-			Packing & Bit Slicing & Lookup Table &  & & \\
+			\multicolumn{3}{|c|}{Optimization} &  \multirow{2}{*}{Runtime($\mu$ sec)} & \multirow{2}{*}{Evaluations / sec} \\
+			Packing & Bit Slicing & Lookup Table &  & \\
 			\hline\hline
-			\checkmark & & & 26.84 & 37K & $5n+2t$\\
-			\checkmark & \checkmark & & 18.5 & 65K &$n(t+3)+2t$ \\
-			\checkmark & \checkmark & \checkmark & 6.08 & 165K & $n(2+2t)+t + 2^{20}$ \\
+			\checkmark & & & 26.84 & 37K\\
+			\checkmark & \checkmark & & 18.5 & 65K \\
+			\checkmark & \checkmark & \checkmark & 6.08 & 165K \\
 			\hline
 		\end{tabular}
-		\caption{Centralized 23-wPRF benchmarks using different optimization techniques. Packing was done into 64-bit sized words (for both $\Z_2$ and $\Z_3$ vectors). For the lookup table optimization, an $(m=256)$-column matrix was partitioned into 16 slices of 16 columns each. \yuval{Specify units in Runtime column. Memory Usage column: not sure what this means, and in any case the first two rows seem too small to be meaningful (e.g., the amount of memory used by the program for maintaining variables may be bigger). I suggest removing this column, and instead specifying the lookup table size in the caption. Alternatively, we can keep this column and change the title to ``lookup table size'', keeping the first two rows empty. Regarding this size, what does $2^{20}$ count? Bits? Machine words? $\Z_3$ elements? }}
+		\caption{Centralized 23-wPRF benchmarks using different optimization techniques. Packing was done into 64-bit sized words (for both $\Z_2$ and $\Z_3$ vectors). For the lookup table optimization, an $(m=256)$-column matrix was partitioned into 16 slices of 16 columns each. A lookup table containing $81 \times 2^{20}$ elements in $\Z_3$\yuval{Specify units in Runtime column. Memory Usage column: not sure what this means, and in any case the first two rows seem too small to be meaningful (e.g., the amount of memory used by the program for maintaining variables may be bigger). I suggest removing this column, and instead specifying the lookup table size in the caption. Alternatively, we can keep this column and change the title to ``lookup table size'', keeping the first two rows empty. Regarding this size, what does $2^{20}$ count? Bits? Machine words? $\Z_3$ elements? }}
 		\label{table:optimization_benchmarks}
 	}
 	\mahimna{It would be nice to get benchmarks for performance gain using each optimization independently. If possible, it might also be nice to get the numbers for different sized lookup tables. We could also estimate this analytically.}
 \end{table}
+
 
 \paragraph{Distributed wPRF evaluation.}
 We consider two 2-party weak PRF protocols. The first protocol is described in \cite{boneh2018-darkmatter} and the second one is our construction as described in \ref{newProtocol}. Since the goal of the implementation was timing the local {\em online} run-time, the implementation used a trusted party to generate the pre-processed variables.
@@ -172,13 +173,13 @@ For the comparison with the DDH-based OPRF construction in~\cite{naor1999-oprf},
 			\begin{tabular}{|cc|c|c|c|c|c|c|c|}%9 columns
 				
 				\hline
-				\multirow{2}{*}{Protocol} & & \multicolumn{3}{c|}{Runtime} & \multirow{2}{*}{\makecell{Output \\ Size}} & \multirow{2}{*}{Preprocessing} & \multicolumn{2}{c|}{Communication}\\
-				& & Server & Client & Parallel & & &Server & Client\\
+				\multirow{2}{*}{Protocol} & & \multicolumn{2}{c|}{Runtime} & \multirow{2}{*}{Preprocessing} & \multicolumn{2}{c|}{Communication(bits)}\\
+				& & Server & Client & &Server & Client\\
 				\hline\hline
-				\multirow{2}{*}{23-OPRF} & Key Update & 0.65 & - & \multirow{2}{*}{9.48} & \multirow{2}{*}{81} & \multirow{2}{*}{$2n+5.17m$} & \multirow{2}{*}{$(n+m+1.59t)$} & \multirow{2}{*}{$(n+m)$}\\
-				& Evaluation & 9.45 & 9.13 & & & &&\\
+				\multirow{2}{*}{23-OPRF} & Key Update & 0.65 & - & \multirow{2}{*}{1835} & \multirow{2}{*}{593} & \multirow{2}{*}{512}\\
+				& Evaluation & 9.45 & 9.13 & &&\\
 				\hline
-				DDH-based OPRF & & 57.38& 28.69 & - & 256 & - &n&n\\
+				DDH-based OPRF & & 57.38& 28.69 & - &256&256\\
 				\hline
 		\end{tabular}}
 		\caption{Comparison of protocols for (semi-honest) OPRF evaluation in the preprocessing model. Runtimes are given in microseconds ($\mu$s). \yuval{What does ``parallel'' mean? Should be explained in the caption. Our output size has roughly 128 bits (81 is the number of $\Z_3$ elements), but it is actually meaningless because the output size can be easily extended or decreased. So let's drop this column. For preprocessing and communication, I suggest using concrete numbers as opposed to general expressions that refer to different values of $n$. }}
@@ -186,7 +187,6 @@ For the comparison with the DDH-based OPRF construction in~\cite{naor1999-oprf},
 	}
 	\mahimna{Include more comparisons as necessary}
 \end{table}
-
 
 \newpage
 \iffalse
