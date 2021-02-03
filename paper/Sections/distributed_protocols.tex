@@ -8,6 +8,9 @@ We now describe efficient protocols to compute our candidate constructions in se
 \subsection{Technical Overview}
 Recall that all our constructions can be succinctly represented using four basic gates. The main strategy now will be to evaluate each of these gates in a distributed manner. These gate evaluation subprotocols can then be easily composed to evaluate the  candidate constructions. 
 
+\yuval{Here and/or in the introduction, we should give credit to previous relevant works (Beaver, TinyTables, BGI19), say how our protocols can be viewed as following this previous framework, and how the details differ.
+}
+
 We begin with distributed protocols to evaluate each of the four gates. Abstractly, the goal of a gate protocol is to convert shares of the inputs to shares of the outputs (or shares of the masked output). To make our formalism cleaner, the gate protocols, by themselves, will involve no communication. Instead, they can additionally take in masked versions of the inputs, and possibly some additional correlated randomness. When composing gate protocols, whenever a masked input is needed, the parties will exchange their local shares to publicly reveal the masked value.
 
 \paragraph{Protocol notation and considerations.}
@@ -16,6 +19,8 @@ For a protocol $\prot$, we use the notation $\prot(a_1, \dots, a_k \mid b_1, \do
 Given public values $a_1, \dots, a_k$, it is straightforward for the protocol parties to compute a sharing $\share{f(a_1, \dots, a_k)}$ for a function $f$ (for example, $\party_1$ computes the function as its share, and all other parties set their share to $0$).
 
 \subsubsection{Distributed Computation of Circuit Gates}
+
+\yuval{In the following, I suggest to switch to a more structured format. For instance: an itemized list for each subprotocol, where the first item describes the functionality, the second describes the correlated randomness, and the third describes the actual protocol. It will also be good to have a table that summarizes the online and communication and correlated randomness (in bits) for each subprotocol. }
 
 We provide detailed (local) protocols to compute each circuit gate in this section. The description of inputs and outputs for each gate protocol is also summarized in Table~\ref{table:gate_protocol_summary}.
 
@@ -45,18 +50,19 @@ $\prot_{\Convert}^{(3,2)}$ & $\hat{x}$ (over $\Z_3$) & \makecell{$u = \tilde{x} 
 
 
 \paragraph{Linear gate protocol $\prot_\LMap^{\mat{A}, p}$.}
-The linear gate is the easiest to evaluate. Here, each party is provided with the matrix $\mat{A}$, and a share of the input $x$ (over $\Z_p$). The goal is to compute shares of the output $y = \mat{A}x$. For the protocol $\prot_\LMap^{\mat{A}, p}(\mat{A} \mid x)$, each party $\party_i$ computes its output share as $\share{y} = \mat{A}\share{x}$. Note that $\mat{A}x = \sum_{\parties}\mat{A}\share{x}$.
+The linear gate is the easiest to evaluate, and follows from the standard linear homomorphism of additive secret sharing. Here, each party is provided with the matrix $\mat{A}$, and a share of the input $x$ (over $\Z_p$). The goal is to compute shares of the output $y = \mat{A}x$. For the protocol $\prot_\LMap^{\mat{A}, p}(\mat{A} \mid x)$, each party $\party_i$ computes its output share as $\share{y} = \mat{A}\share{x}$. Note that $\mat{A}x = \sum_{\parties}\mat{A}\share{x}$.
 
 \mahimna{Is this sufficiently clear or should we use something like $\share{x}^{(i)}$ everywhere?}
+\yuval{I think it is better to have notation for the share of player $i$. Let's look at some MPC papers that use the square bracket notation and use a similar notation. }
 
 % $\share{y}^{(i)} = \mat{A}\share{x}^{(i)} \bmod p$. Note that $\mat{A}x = \sum_{\party_i \in \parties} \mathcal{A}\share{x}^{(i)}$.
 
-\paragraph{Bilinear gate protocol $\prot_\BLMap^p$.}
+\paragraph{Bilinear gate protocol $\prot_\BLMap^p$.} \yuval{Say that this is a generalization of Beaver's multiplication triples  (cf.~\cite{Beaver,BGI19}).}
 For the bilinear gate, given shares of $\mat{K}$ and $x$ (over $\Z_p$), the goal is to compute shares of the masked value $\hat{y} = \mat{K}x + \tilde{y}$. In the protocol, the values $\hat{\mat{K}}, \hat{x}$ will be publicly provided to all parties. Further, each party will also be given shares of $\tilde{\mat{K}}, \tilde{x}$, and $\tilde{\mat{K}}\tilde{x} + \tilde{y}$. Now, for the protocol $\prot_\BLMap^p(\hat{\mat{K}},\hat{x}\mid \tilde{\mat{K}}, \tilde{x}, \tilde{\mat{K}}\tilde{x} + \tilde{y})$, each party $\party_i$ computes its share of $\hat{y}$ as:
 \[
     \share{\hat{y}} = \share{\hat{\mat{K}}\hat{x}} - \hat{\mat{K}}\share{\tilde{x}} - \share{\tilde{\mat{K}}}\hat{x} + \share{\tilde{\mat{K}}\tilde{x} + \tilde{y}}
 \]
-\mahimna{Suggestions are welcome on whether to scale $\share{\cdot}$ or not. For example, $\left\llbracket \hat{\mat{K}} \right\rrbracket, \left\llbracket \hat{x} \right\rrbracket$ vs $\llbracket \hat{\mat{K}} \rrbracket, \llbracket \hat{x} \rrbracket$. This is a macro (\textbackslash share) and is easy to change.}
+\mahimna{Suggestions are welcome on whether to scale $\share{\cdot}$ or not. For example, $\left\llbracket \hat{\mat{K}} \right\rrbracket, \left\llbracket \hat{x} \right\rrbracket$ vs $\llbracket \hat{\mat{K}} \rrbracket, \llbracket \hat{x} \rrbracket$. This is a macro (\textbackslash share) and is easy to change.} \yuval{Looks good to me.}
 
 \noindent Note that this works since:
 \begin{align*}
@@ -113,7 +119,8 @@ Consequently, $\sum_\parties \share{x^*} \bmod 2 = x \bmod 2$ holds.
 Equipped with our technical overview, we proceed to describe distributed protocols in the preprocessing model for our candidate constructions. 
 
 \subsubsection{\ttwPRF evaluation.}
-\mahimna{Since we are proposing several constructions, this kind of detailed protocol will get repetitive, especially for the distributed setting. I'm thinking, we could just point to the centralized construction to figure out what correlated randomness will be needed, and generalize the actual protocol construction. Perhaps, we can specify the full details for one protocol.}
+\mahimna{Since we are proposing several constructions, this kind of detailed protocol will get repetitive, especially for the distributed setting. I'm thinking, we could just point to the centralized construction to figure out what correlated randomness will be needed, and generalize the actual protocol construction. Perhaps, we can specify the full details for one protocol.} 
+\yuval{Yes, the previous section should provide a general scheme that can apply to any 2-3 primitive. But we need to distinguish between the following models: (1) shared inputs and shared output (2-party or $N$-party); (2) 2-party OPRF setting (each party holds an input, one party gets the output); (3) honest-majority 3PC setting. This section can summarize the total (online) communication costs of our protocols and compare them to the literature (TCC '18 paper and other relevant works). We can refer to the implementation section for computational cost benchmarks. }
 
 We start with an $N$-party (semi-honest) distributed protocol to evaluate our \ttwPRF candidate from Construction~\ref{construction:23-central-wprf}. In this setting, parties in $\parties = \{\party_1, \cdots, \party_N\}$ hold additive shares of a key $\mat{K} \in \Z_2^{m \times n}$, and an input $x \in \Z_2^n$. The goal is to compute an additive sharing of the wPRF output $y = \LMap^\mat{B}_3(\mat{K}x)$ where $\mat{B} \in \Z_3^{t \times m}$ is a publicly known matrix.
 
