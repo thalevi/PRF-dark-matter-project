@@ -86,7 +86,7 @@
 \newcommand{\parties}{\mathcal{P}}
 
 \newcommand{\share}[1]{\left\llbracket #1 \right\rrbracket}
-
+\newcommand{\sharei}[1]{\share{#1}^{(i)}}
 
 % Primitives and Constructions
 \newcommand{\PRFfunc}{\mathsf{F}_\secparam}
@@ -100,9 +100,14 @@
 \newcommand{\LMap}{\textsf{Lin}}
 \newcommand{\BLMap}{\textsf{BL}}
 \newcommand{\Convert}{\textsf{Convert}}
+\newcommand{\gateset}{\textsf{Gates}}
 
 \newcommand{\randval}[1]{\tilde{#1}}
 \newcommand{\masked}[1]{\hat{#1}}
+
+\newcommand{\Gin}{\mathbb{G}^{\textsf{in}}}
+\newcommand{\Gout}{\mathbb{G}^{\textsf{out}}}
+
 %--------------------------------------------------------------%
 
 
@@ -156,3 +161,8 @@
       {\vcenter{\hbox{\resizebox{\widthof{$\scriptscriptstyle\oplus$}}{!}{$\boxplus$}}}}
   }\displaylimits 
 }
+
+
+% TikZ Styles
+\tikzset{twostyle/.style={fill=blue!15}}
+\tikzset{threestyle/.style={pattern=north west lines, pattern color=orange}}
