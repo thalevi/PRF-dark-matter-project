@@ -36,7 +36,7 @@ Since in our implementation each key $\textbf{K}$  is of size $m \times n = 256 
 The last part of the dark matter function takes an intermediate vector viewed as a vector of $Z_3$ elements, which is then multiplied 
 by a matrix $R$ in $Z_3$ to produce the output vector in $Z_3$. We tried different methods for implementing this matrix-vector multiplication over $Z_3$.:	
 
-Bit slicing is implemented  by representing a vector over $Z_3$  as two binary vectors - one LSB's and one MSB's. Since each matrix has 81 columns, each vector is represented by two machine words, for a total of 4 words per $Z_3$ element. The operations over this $Z_3$ vector - addition, subtraction, multiplication and MUX  - were implemented in a bitwise manner as shown in table \ref{tab:multicol}. We took advantage of the fact that when representing each vector as MSB and LSB, negation (which is the same as multiplying by two) is the same as swapping the most and least significant bits. 
+Bit slicing is implemented  by representing a vector over $Z_3$  as two binary vectors - one LSB's and one MSB's. The operations over this $Z_3$ vector - addition, subtraction, multiplication and MUX  - were implemented in a bitwise manner as shown in table \ref{tab:multicol}. We took advantage of the fact that when representing each vector as MSB and LSB, negation (which is the same as multiplying by two) is the same as swapping the most and least significant bits. 
 
 \begin{table}[ht]
 	\caption{Operations in $Z_3$. input:   ${l_1}, {m_1}$ - LSB and MSB  of first trinary number, 
@@ -105,9 +105,7 @@ This implementation would have only 26 lookup operations instead of 32 in the al
 \paragraph{Experimental setup}
 We ran all our experiments on a t2.medium AWS EC2 instance with 4GiB RAM (architecture: x86-64 Intel(R) Xeon(R) CPU E5-2686 v4 @ 2.30GHz) running on Ubuntu 18.04. The performance benchmarks and timing results we provide are averaged over 1000 runs. For the distributed construction benchmarks, both parties were run on the same instance. We separately report the computational runtime for the parties, and provide an estimate of the communication costs. 
 
-Communication vs. Computation: from the table we can estimate the break even point for each protocol. Note that synchronization is needed between the parties, though, so the assumption this is independent is an estimate. For the  wPRF protocol \ref{newProtocol} presented in this paper, the break even point is achieved  at a network speed 63 Mbps, in which case the overall communication and computation times will be the same. For the oPRF protocol, the break even point will be achieved with a network of speed 146 Mbps. 
-From here we see that for the oPRF protocol, for an existing basic 25 Mbps connection, communication will dominate the total run-time, while for a high speed network of 1 Gbps, the computation time will dominate the overall run-time.
-
+\textbf{Communication vs. Computation:} The proposed OPRF hits communication bottleneck for low bandwidth network since number of bits exchanged is almost two times as that in DDH-based OPRF\cite{LibSodium}. Further calculation shows that the minimal network speed in which computation dominates communication is 7.86 Mbps. For network speed greater than 7.86Mbps, the proposed OPRF outperforms the DDH-based OPRF.
 \yuval{Communication costs in bits can be computed analytically. Maybe talk about estimated breakeven points: (1) minimal network speed in which computation dominates communication, and (2) minimal network speed where we estimate our OPRF to be faster than the DDH-based alternative.  }
 
 \paragraph{Optimization results.}
@@ -133,9 +131,8 @@ We start with benchmarks for the different optimization techniques detailed in S
 	\mahimna{It would be nice to get benchmarks for performance gain using each optimization independently. If possible, it might also be nice to get the numbers for different sized lookup tables. We could also estimate this analytically.}
 \end{table}
 
-
 \paragraph{Distributed wPRF evaluation.}
-We consider two 2-party weak PRF protocols. The first protocol is described in \cite{boneh2018-darkmatter} and the second one is our construction as described in \ref{newProtocol}. Since the goal of the implementation was timing the local {\em online} run-time, the implementation used a trusted party to generate the pre-processed variables.
+We consider two 2-party weak PRF protocols. The first protocol is described in \cite{boneh2018-darkmatter} and the second one is our construction as described in \ref{newProtocol}. Since the goal of the implementation was timing the local {\em online}run-time, the implementation used a trusted party to generate the pre-processed variables.
 
 \begin{table}[htbp]
 	%[h]
@@ -162,7 +159,7 @@ We consider two 2-party weak PRF protocols. The first protocol is described in \
 \end{table}
 
 \paragraph{OPRF evaluation.}
-In Table~\ref{table:oprf_comparison}, we provide performance benchmarks for our 23-OPRF construction while also comparing it with other constructions. For our timing results, we report both the server and client runtimes (averages over 1000 runs). For each construction, we also include the output size, the size of the preprocessed correlated randomness, and the online communication cost. All constructions are parameterized appropriately to provide 128-bit security.
+In Table~\ref{table:oprf_comparison}, we provide performance benchmarks for our 23-OPRF construction while also comparing it with other constructions. For our timing results, we report both the server and client runtimes (averages over 1000 runs). For each construction, we also include the size of the preprocessed correlated randomness, and the online communication cost. All constructions are parameterized appropriately to provide 128-bit security.
 
 For the comparison with the DDH-based OPRF construction in~\cite{naor1999-oprf}, we use the libsodium library~\cite{LibSodium} for the elliptic curve scalar multiplication operation. We use the Curve25519 elliptic curve, which has a 256-bit key size, and provides 128 bits of security. \yuval{I actually think that the Naor-Pinkas-Reingold99 paper cited in the TCC '18 paper refers to a different notion of distributing a PRF, namely where the PRF key is distributed between two or more servers and the input is public. Let's try to figure out the source of the simple DDH-based OPRF protocol. Can ask Stas/Hugo if needed.}
 
@@ -170,25 +167,32 @@ For the comparison with the DDH-based OPRF construction in~\cite{naor1999-oprf},
 	{
 		\centering
 		\resizebox{\textwidth}{!}{%
-			\begin{tabular}{|cc|c|c|c|c|c|c|c|}%9 columns
+			\begin{tabular}{|cc|c|c|c|c|c|c|}%8 columns
 				
 				\hline
-				\multirow{2}{*}{Protocol} & & \multicolumn{2}{c|}{Runtime} & \multirow{2}{*}{Preprocessing} & \multicolumn{2}{c|}{Communication(bits)}\\
-				& & Server & Client & &Server & Client\\
+				\multirow{2}{*}{Protocol} & & \multicolumn{3}{c|}{Runtime($\mu$ sec)} & \multirow{2}{*}{Preprocessing} & \multicolumn{2}{c|}{Communication(bits)}\\
+				& & Server & Client & Parallel &  &Server & Client\\
 				\hline\hline
-				\multirow{2}{*}{23-OPRF} & Key Update & 0.65 & - & \multirow{2}{*}{1835} & \multirow{2}{*}{593} & \multirow{2}{*}{512}\\
-				& Evaluation & 9.45 & 9.13 & &&\\
+				\multirow{2}{*}{23-OPRF} & Key Update & 0.65 & - & \multirow{2}{*}{9.48} & \multirow{2}{*}{1835} & \multirow{2}{*}{593} & \multirow{2}{*}{512}\\
+				& Evaluation & 9.45 & 9.13 & & &&\\
 				\hline
-				DDH-based OPRF & & 57.38& 28.69 & - &256&256\\
+				\multirow{2}{*}{23-OPRF*} & Key Update & 3.16 & - & \multirow{2}{*}{-}& \multirow{2}{*}{768} & \multirow{2}{*}{512} & \multirow{2}{*}{256}\\
+				& Evaluation & 4.84 & 8.84 & & &&\\
+				\hline
+				DDH-based OPRF & & 57.38& 28.69 & & - &256&256\\
 				\hline
 		\end{tabular}}
-		\caption{Comparison of protocols for (semi-honest) OPRF evaluation in the preprocessing model. Runtimes are given in microseconds ($\mu$s). \yuval{What does ``parallel'' mean? Should be explained in the caption. Our output size has roughly 128 bits (81 is the number of $\Z_3$ elements), but it is actually meaningless because the output size can be easily extended or decreased. So let's drop this column. For preprocessing and communication, I suggest using concrete numbers as opposed to general expressions that refer to different values of $n$. }}
+		\caption{Comparison of protocols for (semi-honest) OPRF evaluation in the preprocessing model. Runtimes are given in microseconds ($\mu$s). Server and client can run in parallel after exchange of bits at the end of each phase. Parallel column reports timing in such scenario. \yuval{What does ``parallel'' mean? Should be explained in the caption. Our output size has roughly 128 bits (81 is the number of $\Z_3$ elements), but it is actually meaningless because the output size can be easily extended or decreased. So let's drop this column. For preprocessing and communication, I suggest using concrete numbers as opposed to general expressions that refer to different values of $n$. }}
 		\label{table:oprf_comparison}
 	}
 	\mahimna{Include more comparisons as necessary}
 \end{table}
 
+
+
 \newpage
+
+%==================== Start comment=========
 \iffalse
 \section{Implementation}
 \label{sec:technical_overview}
@@ -389,3 +393,4 @@ The system was tested using Ubuntu Server 18.04 on a t2.medium AWS environment. 
 \end{table}
 
 \fi
+%==================End Comment==============
