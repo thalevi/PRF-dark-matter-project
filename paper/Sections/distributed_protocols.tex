@@ -2,9 +2,12 @@
 \newpage
 \section{Distributed Protocols}
 \label{sec:distributed_protocols}
-We now describe efficient protocols to compute our candidate constructions in several interesting distributed settings.
+We now describe efficient protocols to compute our candidate constructions in several interesting distributed settings. This section is structured as follows. First, in Section~\ref{subsec:protocol_overview}, we provide a technical overview for our protocol design. This includes computation protocols for each of our circuit gates as well as a generic way to compose them to obtain fully distributed protocols in the preprocessing model for all our constructions. Section~\ref{subsec:distributed_protocol} quantifies this approach by providing concrete communication and preprocessing costs for distributed evaluations for our constructions. In Section~\ref{subsec:3party_protocol}, for our \ttwPRF construction, we provide a 3-party protocol that does not require any preprocessing. Finally, in Section~\ref{subsec:oprf_protocol}, we provide two OPRF protocols for our \ttwPRF construction in the preprocessing model. All provided protocols are for the semi-honest setting.
+
+\mahimna{many of the subsections will undergo many changes but I wanted to get at least a first draft of the content written.}
 
 \subsection{Technical Overview}
+\label{subsec:protocol_overview}
 Recall that all our constructions can be succinctly represented using four basic gates. The main strategy now will be to evaluate each of these gates in a distributed manner. These gate evaluation subprotocols can then be easily composed to evaluate the  candidate constructions. 
 
 % \yuval{Here and/or in the introduction, we should give credit to previous relevant works (Beaver, TinyTables, BGI19), say how our protocols can be viewed as following this previous framework, and how the details differ.}
@@ -176,6 +179,7 @@ It is also straightforward to parallelize the communication to reduce the number
 
 
 \subsection{Distributed Evaluation in the Preprocessing Model}
+\label{subsec:distributed_protocol}
 Equipped with our technical overview, it is simple to construct distributed protocols (with preprocessing) for our candidate wPRF and OWF constructions. By distributed evaluation, we mean that all inputs are secret shared between all parties and the protocol provides parties with a sharing of the output. As a concrete example, we provide the complete details of a 2-party distributed evaluation protocol for our \ttwPRF candidate. In Table~\ref{table:construction_costs}, for each our constructions, we provide the amount of preprocessed randomness required as well as the communication cost for the distributed protocol.
 
 \begin{table}[t]
@@ -198,7 +202,7 @@ Equipped with our technical overview, it is simple to construct distributed prot
 \label{table:construction_costs}
 \end{table}
 
-\subsection{$2$-Party Protocol for \ttwPRF.}
+\subsubsection{$2$-Party Protocol for \ttwPRF.}
 We detail a $2$-party semi-honest protocol for evaluating our \ttwPRF candidate (Construction~\ref{construction:23-central-wprf}). In this setting, two parties, denoted by $\party_1$ and $\party_2$ hold additive shares of a key $\mat{K} \in \Z_2^{m \times n}$, and an input $x \in \Z_2^n$. The goal is to compute an additive sharing of the wPRF output $y = \LMap^\mat{B}_3(\mat{K}x)$ where $\mat{B} \in \Z_3^{t \times m}$ is a publicly known matrix.
 
 
@@ -228,8 +232,59 @@ The distributed protocol proceeds as follows:
 The distributed protocol takes 2 communication rounds in total, with both parties sending a message in each round. When $\mat{K}$ is a circulant matrix (i.e., it can be represented by $n$ bits), each party communicates $2n$ bits in the first round and $m$ bits in the second round.
 
 
-\subsection{2-party Public Input Evaluation}
+\paragraph{Public input setting.}
+\mahimna{todo}
 
 \subsection{3-party Distributed Evaluation}
+\label{subsec:3party_protocol}
 
-\subsection{Oblivious PRF Evaluation}
+
+
+
+
+
+\subsection{Oblivious PRF Evaluation in the Preprocessing Model}
+\label{subsec:oprf_protocol}
+\mahimna{This section still needs to undergo a lot of changes.}
+Our distributed evaluation protocols from Section~\ref{subsec:distributed_protocol} can be used directly for semi-honest PRF evaluation in the preprocessing model. Recall that in the OPRF setting, one party (called the ``server'') holds the key $\mat{K}$ and the other party (called the ``client'') holds the input $x$. The goal of the protocol is to have the client learn the output of the PRF for key $\mat{K}$ and input $x$, while the server learns nothing. In the semi-honest setting, both parties can first use the distributed protocol to obtain shares of the PRF output. The server can then send its share to the client so that only the client learns the final output. Such an OPRF protocol would require one extra round over the corresponding distributed PRF protocol.
+
+We can however construct much better protocols whose efficiency rivals that of existing DDH-based OPRF protocols. Here, we provide two concrete efficient protocols for evaluating the \ttwPRF candidate (Construction~\ref{construction:23-central-wprf}) in the OPRF setting. Both protocols take $3$ rounds and involve 2 messages from the server to the client and 1 message from the client to the server. The first server message however, is only required when the key needs to be changed (or re-masked). We call this the key-update phase. Now, when the masked key is already known, our protocols are optimal in the sense that they require only a single message from the client followed by a single message from the server. Since OPRF applications usually involve reusing the same key for many PRF invocations, in such a \textit{multi-input} setting, our protocols are comparable to other 2-round OPRF protocols in literature (e.g., DDH-based). 
+
+In Section~\ref{sec:implementation_and_eval}, we compare our protocols with common OPRFs protocols in terms of both computation and communication. A key observation was that in comparison to common OPRF protocols, our protocols are much faster to compute but require preprocessing as well as slightly more communication.
+
+
+\paragraph{Oblivious PRF Protocol 1.}
+This protocol is in spirit similar to the distributed evaluation for the \ttwPRF construction. Since $\mat{K}$ is known to the server, and $x$ is known to the client, both parties do not need to exchange their shares to reconstruct the masked values $\hat{\mat{K}}$ and $\hat{x}$; the party that holds a value can mask it locally and send it to the other party. This allows us to decouple the server's message that masks its PRF key from the rest of the evaluation. To update the key, the server can simply send $\hat{\mat{K}} = \mat{K} + \tilde{\mat{K}}$ to the client. Many PRF evaluations can now be done using the same $\hat{\mat{K}}$.
+
+The protocol requires the following preprocessed randomness. The mask $\tilde{\mat{K}}$ is given to the server only when the key-update phase needs to be run. For PRF evaluations, the dealer samples $w \in \Z_2^m$ at random and provides the server and client $\Z_2$ shares of $\tilde{w}$ along with $\Z_3$ shares of $r = \tilde{w}$. Additionally, the dealer also generates an OLE correlation pair $(\tilde{\mat{K}}, \tilde{v})$ and $(\tilde{x}, \hat{v})$ such that $\tilde{\mat{K}} \in \Z_2^{m \times n}$ is a random circulant matrix that is same for all correlations, $\tilde{v} \getsr \Z_2^m$, $\tilde{x} \getsr \Z_2^n$, and $\hat{v} = \tilde{\mat{K}}\tilde{x} + \tilde{v}$. The server is given $(\tilde{\mat{K}}, \tilde{v})$ while the client is given $(\tilde{x}, \hat{v})$. Note that we simply use OLE correlations and do not make use of an actual OLE protocol. In practice, if the key-update phase is run after every $k$ evaluations (where $k$ is known), the OLE correlations for all evaluations can be preprocessed at the beginning. \mahimna{need to write about / point to another section for generating the OLE correlations.} \\
+
+\noindent Assuming that the masked key $\hat{\mat{K}}$ is known to the client, for an input $x$,  the evaluation protocol now proceeds as follows:
+\begin{itemize}
+  \item The client computes $\hat{x} = x + \tilde{x}$ and $\share{\hat{w}}^{(2)} = -\mat{\hat{K}}\tilde{x} + \hat{v} + \share{\tilde{w}}^{(2)}$ and sends both $\hat{x}$ and $\share{\hat{w}}^{(2)}$ to the server.
+
+  \item The server first computes $\share{\hat{w}}^{(1)} = \mat{K}\hat{x} - \tilde{v} + \share{\tilde{w}}^{(1)}$, and adds to it the client's share to reconstruct $\hat{w}$. Identical to the distributed protocol, the server now runs $\prot_\Convert^{(2,3)}$ followed by $\prot_\LMap^{\mat{B},3}$ to obtain its share $\share{y}^{(1)}$ of the PRF output. Finally, it sends both $\hat{w}$ and $\share{y}^{(1)}$ to the client.
+
+  \item The client also runs $\prot_\Convert^{(2,3)}$ followed by $\prot_\LMap^{\mat{B},3}$ to obtain its share $\share{y}^{(2)}$ of the PRF output. It can now use the server's share to reconstruct the PRF output $y$.
+
+  % It now runs $\prot_\Convert^{(2,3)}(\hat{w} \mid \share{r}^{(1)})$ to get $\share{w^*}^{(1)}$ (over $\Z_3$) and then $\prot_\LMap^{\mat{B},3}(\mat{B} \mid \share{w^*}^{(1)})$ to obtain its share $\share{y}^{(1)}$ of the PRF output. Finally, it sends both $\hat{w}$ and $\share{y}^{(1)}$ to the client.
+
+  % \item The client now runs $\prot_\Convert^{(2,3)}(\hat{w} \mid \share{r}^{(2)})$ to get $\share{w^*}^{(2)}$ (over $\Z_3$) and then $\prot_\LMap^{\mat{B},3}(\mat{B} \mid \share{w^*}^{(2)})$ to obtain $\share{y}^{(2)}$. Finally, it uses the share received from the server to reconstruct the PRF output $y$ 
+\end{itemize}
+For evaluating a client input, the protocol takes 2 rounds and involves a single message in each direction. The client sends $2n$ bits while the server sends $m$ bits and $t$ $\Z_3$ elements. For our parameters ($n=m=256, t=81$), and with proper $\Z_3$ packing, this amounts to roughly $897$ bits of total online communication. To update $\tilde{\mat{K}}$, the server sends a 256-bit message to the client.
+
+
+\paragraph{Oblivious PRF Protocol 2.}
+For the second protocol, the server masks the PRF in a different way; a multiplicative mask is used instead of an additive one. For simplicity, suppose that $n=m$ and that $\mat{K}$ is a random full-rank circulant matrix. Then to mask $\mat{K}$, the server computes $\bar{\mat{K}} = \mat{R}\mat{K}$ using a random matrix $\mat{R}$ that is also full-rank and circulant. $\mat{R}$ will be provided as preprocessing to the server, and can be reused for multiple PRF evaluations. The server will send $\bar{\mat{K}}$ to the client in the key-update phase. Note that since the product of two circulant matrices is also circulant, this message is only $n$ bits. Additionally, since the product $\mat{R}\mat{K}$ is essentially a convolution, it can be efficiently computed in $\Theta(n\log n)$ asymptotic runtime using the fast Fourier transform (FFT) algorithm.
+
+The protocol requires the following preprocessed randomness. The mask $\mat{R}$ is given to the server only when the key-update phase needs to be run. For PRF evaluations, similar to the first protocol, the dealer samples $w \getsr \Z_2^m$ and provides the server and client $\Z_2$ shares of $\tilde{w}$ along with $\Z_3$ shares of $r = \tilde{w}$. Additionally, the dealer gives $\tilde{u} \getsr \Z_2^m$ to the client and $\tilde{v} = \mat{R}^{-1}\tilde{u} + \tilde{w}$ to the server.
+
+\noindent Assuming that the masked key $\bar{\mat{K}}$ is known to the client, for an input $x$,  the evaluation protocol now proceeds as follows:
+\begin{itemize}
+  \item The client computes $\hat{u} = \bar{\mat{K}}x + \tilde{u}$ and sends it to the server.
+
+  \item The server first computes $\mat{R}^{-1}\hat{u} + \tilde{v} = \mat{R}^{-1}(\mat{R}\mat{K}x + \tilde{u}) + (\mat{R}^{-1}\tilde{u} + \tilde{w}) = \hat{w} \mod 2$. Identical to the distributed protocol, the server now runs $\prot_\Convert^{(2,3)}$ followed by $\prot_\LMap^{\mat{B},3}$ to obtain its share $\share{y}^{(1)}$ of the PRF output. Finally, it sends both $\hat{w}$ and $\share{y}^{(1)}$ to the client.
+
+  \item The client also runs $\prot_\Convert^{(2,3)}$ followed by $\prot_\LMap^{\mat{B},3}$ to obtain its share $\share{y}^{(2)}$ of the PRF output. It can now use the server's share to reconstruct the PRF output $y$.
+\end{itemize}
+For evaluating a client input, this protocol also takes 2 rounds and involves a single message in each direction. The client sends $n$ bits while the server sends $m$ bits and $t$ $\Z_3$ elements. This is $n$ fewer bits of communication as compared to the first protocol. The key-update phase is slower however, since it involves a convolution rather than a simple vector addition. For our parameters ($n=m=256, t=81$), and with proper $\Z_3$ packing, this amounts to roughly $641$ bits of total online communication. To update $\bar{\mat{K}}$, the server sends a 256-bit message to the client.
+
