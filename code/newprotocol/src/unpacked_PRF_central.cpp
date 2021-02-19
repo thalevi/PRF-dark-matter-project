@@ -6,94 +6,58 @@
 #include "Toeplitz-by-x.hpp"
 #include "OT.hpp"
 #include "mains.hpp"
-#include <typeinfo>//to determine the type of variables
 #include "Timing.hpp"
 #include <chrono>
 
-// in Toeplitz-by-x.hpp
-// #define N_ROWS 256
-// #define N_COLS 256
-
 using namespace std;
 
-long timer_PRF_unpacked = 0;
-long timer_unpacked_cent_p1 = 0;
-long timer_unpacked_cent_rand_Z3 = 0;
-long timer_unpacked_cent_p3 = 0;
+long timer_PRF_phase1_packed = 0;
+//long timer_PRF_phase1_unpacked = 0;
+long timer_PRF_unpacked = 0;    //times the entire PRF protocol
 
-// A place to store the results from pre-processing
-static std::vector< std::vector<uint64_t> > rAs;
-static std::vector< PackedZ2<N_ROWS> > rbs, rzs;
-static std::vector< PackedZ2<N_COLS> > rxs;
-int out_mod3_dummy[81];
-
-void PRF_unpacked_central(std::vector<uint64_t>& K1, PackedZ2<N_COLS>& x1, std::vector<uint64_t>& K2,
-                          PackedZ2<N_COLS>& x2, uint64_t randMat[81][256], PackedZ3<81>& out1Z3,
-                          PackedZ3<81>& out2Z3, int i, int outMod3[81])
+void set_input(std::vector<uint64_t>& K, PackedZ2<N_COLS>& x)//setting up random input and key
 {
-    //1.perform X = x1+ x2 (on vectors)
-    PackedZ2<N_COLS> X = x1; //declare a variable
-    X.add(x2);  //x = x1 + x2
+    for (auto &w : K) w = randomWord();
+    K[K.size() - 1] &= topelitzMask; // turn off extra bits at the end
+
+    x.randomize();//random values as input(Z2)
+}
 
 
-    //2.perform K = k1 + k2 (on matrix)
-    std::vector<uint64_t> K(toeplitzWords);
-    for (int i = 0; i < K1.size(); i++)
-    {
-        K[i] = K1[i] ^ K2[i];
-    }
-    PackedZ2<N_COLS> outKX;
+//=========================================================
 
+void PRF_unpacked_central(std::vector<uint64_t>& K, PackedZ2<N_COLS>& x, uint64_t randMat[81][256], uint64_t outMod3[81])
+{
 
-    auto start_unpacked_prf = chrono::system_clock::now(); //starting the clock for unpacked
+    std::chrono::time_point<std::chrono::system_clock> start_unpacked_prf, start_packed_p1;
+    PackedZ2<N_COLS> outKX;//stores K*x in mod 2
 
-    auto start_p1 = chrono::system_clock::now(); //starting the phase 1 timing
-    outKX.toeplitzByVec(K,X);
-    timer_unpacked_cent_p1 += (std::chrono::system_clock::now() - start_p1).count();
+    //start timing for the entire PRF
+    start_unpacked_prf = chrono::system_clock::now(); //starting the clock for unpacked PRF(packed p1 and unpacked p3)
 
+    //Performing K*x
+    //start timing for the entire PRF
+    start_packed_p1 = chrono::system_clock::now(); //starting the clock for phase 1 using packed
+    outKX.toeplitzByVec(K,x);   //computes K * x
+    timer_PRF_phase1_packed += (std::chrono::system_clock::now() - start_packed_p1).count();//stop phase 1 packed clock
+
+    //convert outKX vector from mod 2 to mod 3
     uint64_t KtimesX[256];
-    //convert outKX vector
     for(int cnt = 0; cnt < 256; cnt++)
     {
-        KtimesX[cnt] = outKX.at(cnt);
+        KtimesX[cnt] = outKX.at(cnt);//convert from Z2 to Z3
     }
 
-    /*
-     * Uncomment this part to perform KX naively
-     */
-    //3a. Unpack K and X and perform their multiplication using naive method
-    /*
-    uint64_t X_unpack[256];
-    for(int i = 0; i < N_COLS;i++)
-    {
-        X_unpack[i] = (uint64_t)X.at(i);
-    }
-
-*/
-
-
-    //4.Multiply KtimesX with K_unpack
-
-    int out_mod3[81];
-    auto start_p3 = chrono::system_clock::now();
     for(int i = 0; i < 81; i++)
     {
-        int sum = 0;
+        uint64_t sum = 0;
         for(int j = 0; j < 256; j++)
         {
-           sum += KtimesX[j] * randMat[i][j];
+           sum += KtimesX[j] * randMat[i][j];   //computing each element of the resultant column
         }
-        out_mod3[i] = sum % 3;
+        outMod3[i] = sum % 3;   //performing mod 3 ocmputation
     }
-    timer_unpacked_cent_p3 += (std::chrono::system_clock::now() - start_p3).count();
-
-    timer_PRF_unpacked += (std::chrono::system_clock::now() - start_unpacked_prf).count();;
-
-    for(int dummy_i = 0; dummy_i < 81; dummy_i++)
-    {
-        out_mod3_dummy[dummy_i] = out_mod3[dummy_i];
-    }
-    //cout << "in PRF_unpacked_central" << "out_mod3=" << out_mod3 << endl;
+    timer_PRF_unpacked += (std::chrono::system_clock::now() - start_unpacked_prf).count();
 
 #ifdef PRINT_VAL
     cout<<std::endl;
@@ -109,48 +73,39 @@ void PRF_unpacked_central(std::vector<uint64_t>& K1, PackedZ2<N_COLS>& x1, std::
 #endif
 }
 
-void PRF_unpacked_driver(int nTimes,  int nRuns, int nStages)
+void display_time_unpacked(int nRuns)//displays the timing for unpacked PRF
+{
+    using Clock = std::chrono::system_clock;
+    using Duration = Clock::duration;
+    //std::cout << Duration::period::num << " , " << Duration::period::den << '\n';
+    float time_unit_multiplier = 1;
+    if(Duration::period::den == 1000000000)
+        time_unit_multiplier = 0.001; //make nanosecond to microsecond
+    else if(Duration::period::den == 1000000)
+        time_unit_multiplier = 1;   //keep the unit as microsecond
+
+    std::cout<<"\nTime to execute phase 1 packed for "<<nRuns<<" runs = "<<(timer_PRF_phase1_packed  * time_unit_multiplier)<<" microseconds";
+    //std::cout<<"\nTime to execute phase 1 unpacked for "<<nRuns<<" runs = "<<(timer_PRF_phase1_unpacked  * time_unit_multiplier)<<" microseconds";
+    std::cout<<"\nTime to execute entire unpacked PRF for "<<nRuns<<" runs = "<<(timer_PRF_unpacked  * time_unit_multiplier)<<" microseconds";
+    std::cout<<"\nNumber of rounds per second for entire unpacked PRF "<<(1000/(timer_PRF_unpacked*time_unit_multiplier)*1000000)<<std::endl;
+}
+
+void PRF_unpacked_driver(int nRuns)
 {
     randomWord(1); // use seed=1
-    vector<uint64_t> K1(toeplitzWords), K2(toeplitzWords);
-    PackedZ2<N_COLS> x1, x2;
+    vector<uint64_t> K(toeplitzWords);
+    PackedZ2<N_COLS> x;
+    uint64_t out_mod3[81];  //actual output of unpacked PRF
+    uint64_t dummyoutmod3;  //dummy output for accurate timing purpose
 
-    PackedZ2<N_ROWS> out1_A, out2_A, out1_B, out2_B;
-
-    initGlobals();  // initialize some global variables
-
-    std::vector<PackedZ3<81> > Rmat(256); // generate a 81x256 matrix
-
-    //randomize the matrix
-    for (auto &col : Rmat) // iterate over the columns
-        col.randomize();
-
-   // preProc_Toeplitz_by_x(nRuns * 2); // pre-processing for two runs
-   // preProc_OT(nRuns); //preprocess for OT, generate ra, rn, rx, and z
-
-    // Choose random K1, K2, x1, x2, we will be computing
-    // (K1 xor K2) \times (x1 xor x2)
-
-    //TODO: write randomize Toeplitzß
-
-    for (auto &w : K1) w = randomWord();
-    K1[K1.size() - 1] &= topelitzMask; // turn off extra bits at the end
-
-    for (auto &w : K2) w = randomWord();
-    K2[K2.size() - 1] &= topelitzMask; // turn off extra bits at the end
-
-    x1.randomize();
-    x2.randomize();
-
-    PackedZ3<81> out1Z3;                     // 81-vector
-    PackedZ3<81> out2Z3;                     // 81-vector
+    set_input(K,x);//setting random inputs in Z2
 
     //generating the random matrix
     auto start_randZ3 = chrono::system_clock::now();
     //3b. Take outKX and multiply it with 81X256 Z3 matrix
-    int nColsGenerated;
-    int wLen = 64;
-    int rows = 0;
+    int nColsGenerated;//no. of columns generated
+    int wLen = 64;  //
+    int rows = 0;   //row counter
 
     uint64_t randMat[81][256];
 
@@ -176,32 +131,28 @@ void PRF_unpacked_driver(int nTimes,  int nRuns, int nStages)
         }
         rows++;
     }
-    timer_unpacked_cent_rand_Z3 += (std::chrono::system_clock::now() - start_randZ3).count();
 
-    int out_mod3[81];
-
-    //TODO: write phase 1 function
+    //Running the protocol for nRuns times
     for (int i = 0; i < nRuns; i++) {
-        PRF_unpacked_central(K1, x1, K2, x2, randMat, out1Z3, out2Z3, i, out_mod3);
+        PRF_unpacked_central(K, x, randMat, out_mod3);//calling unpacked central function in unpacked_PRF_central.cpp
+        for(int i = 0; i < 81; i++)
+        {
+            dummyoutmod3 += out_mod3[i];//dummy variable for accurate timing
+        }
+        //dummyoutmod3 += out_mod3;
     }
 
+    for(int i = 0; i < 81; i++)
+    {
+        std::cout << out_mod3[i];//printing out the final value.
+    }
+
+    /*
+     * The following lines of code are to time phase 1 without packing
+     */
+    std::cout<<std::endl<<"Timing phase 1 without packing"<<std::endl;
+    //PRF_phase1_unpacked_timing();
+
+    display_time_unpacked(nRuns);
 }
 
-void display_time_unpacked(int nRuns)
-{
-    using Clock = std::chrono::system_clock;
-    using Duration = Clock::duration;
-    //std::cout << Duration::period::num << " , " << Duration::period::den << '\n';
-    float time_unit_multiplier = 1;
-    if(Duration::period::den == 1000000000)
-        time_unit_multiplier = 0.001; //make nanosecond to microsecond
-    else if(Duration::period::den == 1000000)
-        time_unit_multiplier = 1;   //keep the unit as microsecond
-    std::cout<<std::endl<<"Time to execute unpacked phase 1(K * X) for "<<nRuns << " runs = " <<(timer_unpacked_cent_p1  * time_unit_multiplier)<<" microseconds"<<  std::endl;
-    std::cout<<"Time to generate (81 X 256)randomization matrix for "<<1 << " runs = " <<(timer_unpacked_cent_rand_Z3  * time_unit_multiplier)<<" microseconds" << std::endl;
-    std::cout<<"Time to execute unpacked phase 3(Rmat*(K * X)) for "<<nRuns << " runs = " <<(timer_unpacked_cent_p3  * time_unit_multiplier)<<" microseconds" << std::endl;
-    std::cout<<"Time to execute entire unpacked PRF for "<<nRuns<<" runs = "<<(timer_PRF_unpacked  * time_unit_multiplier)<<" microseconds"<<std::endl;
-    std::cout<<"Number of rounds per second for unpacked phase 1(K * X) "<<(1000/(timer_unpacked_cent_p1*time_unit_multiplier)*1000000)<<std::endl;
-    std::cout<<"Number of rounds per second for unpacked phase 3(Rmat*(K * X)) "<<(1000/(timer_unpacked_cent_p3*time_unit_multiplier)*1000000)<<std::endl;
-    std::cout<<"Number of rounds per second for entire unpacked PRF "<<(1000/(timer_PRF_unpacked*time_unit_multiplier)*1000000)<<std::endl;
-}

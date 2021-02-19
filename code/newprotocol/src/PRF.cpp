@@ -3,15 +3,14 @@
  *  - implementing a protocol for A*x (aka A*x+b) mod 2
  *    A is a Toeplitz matrix
  */
+#include <iostream>
 #include <cassert>
 #include "packedMod2.hpp"
 #include "Toeplitz-by-x.hpp"
 #include "OT.hpp"
 #include "mains.hpp"
-#include <typeinfo>//to determine the type of variables
 #include "Timing.hpp"
 #include <chrono>
-#include "packedMod2.hpp"
 #include "packedMod3.hpp"
 #include "utils.hpp"
 #include "lookup_functions.h"
@@ -20,36 +19,32 @@
 // #define N_ROWS 256
 // #define N_COLS 256
 
+
+#ifdef TEST_PRF
 using namespace std;
 
-long timerPRF = 0;
-long timer_phase3 = 0;
 
-#ifdef LOOKUP_TIME
-long timer_create_lookup = 0;
-long timer_use_lookup = 0;
+long timerPRF = 0;  //times the entire DM wPRF
+
+long timer_phase3 = 0;  //total time to complete phase 3(matByVec)
+long timer_phase31 = 0;     //time required to complete phase 3 by party 1
+long timer_phase32 = 0;     //time required to complete phase 3 by party 2
+long timer_final_output = 0; //final timer to compute addition of output of two shares.
+
+long timer_phase3_lookup = 0;  //total time to complete phase 3(using lookup table)
+long timer_phase31_lookup = 0;
+long timer_phase32_lookup = 0;
+
 #endif
 
-// A place to store the results from pre-processing
-static std::vector< std::vector<uint64_t> > rAs;
-static std::vector< PackedZ2<N_ROWS> > rbs, rzs;
-static std::vector< PackedZ2<N_COLS> > rxs;
+//global variables to emulate storage in file.
+PackedZ2<N_ROWS> global_out1_A, global_out1_B, global_out2_A, global_out2_B;
+PackedZ3<N_SIZE> global_SC_out1, global_SC_out2;
 PackedZ3<81> out_dummy;
 
-void display_Phase3_runtime(float& time_unit_multiplier)
-{
-    std::cout<<"\nTime to execute phase 3: "<<
-             (timer_phase3 * time_unit_multiplier)<<" microseconds"<<std::endl;
-    std::cout<<"Number of rounds per second for phase 3: "<<(1000/(timer_phase3*time_unit_multiplier)*1000000)<<std::endl;
-
-}
-void display_PRF_runtime(float& time_unit_multiplier)
-{
-    std::cout<<"\nTime to execute entire PRF protocol: "<<
-             (timerPRF * time_unit_multiplier)<<" microseconds"<<std::endl;
-    std::cout<<"Number of rounds per second for entire PRF: "<<(1000/(timerPRF*time_unit_multiplier)*1000000)<<std::endl;
-
-}
+//============================================================================
+//This is the centralized implementation, acting as the base version for packing.
+// For lookup implementation go to test_packed_central_lookup.cpp
 
 void PRF_packed_centralized(std::vector<uint64_t>& K1, PackedZ2<N_COLS>& x1, std::vector<uint64_t>& K2,
                             PackedZ2<N_COLS>& x2, std::vector< PackedZ3<81> >& Rmat,  PackedZ3<81>& outZ3, int nTimes)
@@ -66,7 +61,7 @@ void PRF_packed_centralized(std::vector<uint64_t>& K1, PackedZ2<N_COLS>& x1, std
     std::vector<uint64_t> K(toeplitzWords);
     for (int i = 0; i < K1.size(); i++)
     {
-        K[i] = K1[i] ^ K2[i];
+        K[i] = K1[i] ^ K2[i];       //K = K1 + K2
     }
     #ifdef PRINT_VAL
         cout<<"x "<<X<<endl;
@@ -74,7 +69,7 @@ void PRF_packed_centralized(std::vector<uint64_t>& K1, PackedZ2<N_COLS>& x1, std
     #endif
 
     PackedZ2<N_COLS> outKX;
-    outKX.toeplitzByVec(K,X);
+    outKX.toeplitzByVec(K,X);//K * x (mod 2)
     #ifdef PRINT_VAL
         cout<<"outKX "<<outKX<<endl;
     #endif
@@ -92,191 +87,295 @@ void PRF_packed_centralized(std::vector<uint64_t>& K1, PackedZ2<N_COLS>& x1, std
     #endif
 
     //IMPORTANT FOR RUNNING NEW PROTOCOL WITHOUT LOOKUP TABLE: COMMENT IT IF LOOKUP IS USED
-    outZ3.matByVec(Rmat,outKX_Z3);//output of randmat*K*x
+    outZ3.matByVec(Rmat,outKX_Z3);//output of [randmat*((K*x) mod 2) mod 3]
     #ifdef PRINT_VAL
         cout<<"outZ3 "<<outZ3<<endl;
     #endif
 }
+//==============================================================
 
-#ifdef LOOKUP
-void independent_lookup_implementation(int nRuns)
+#ifdef TEST_PRF
+void display_timing()
+{
+    using Clock = std::chrono::system_clock;
+    using Duration = Clock::duration;
+    //std::cout << Duration::period::num << " , " << Duration::period::den << '\n';
+    float time_unit_multiplier = 1;
+    if(Duration::period::den == 1000000000)
+        time_unit_multiplier = 0.001; //make nanosecond to microsecond
+    else if(Duration::period::den == 1000000)
+        time_unit_multiplier = 1;   //keep the unit as microsecond
+
+    cout<<endl<<"AX + B execution time "<<endl;
+    cout<<"Party 1: " << (timerAxpBP1 * time_unit_multiplier)<<" microseconds"<<endl;
+    cout<<"Party 2: "<<(timerAxpBP2 * time_unit_multiplier)<<" microseconds"<<endl;
+    std::cout<<"Time to execute phase 1 (K*X): "<<
+             ((timerAxpBP1 + timerAxpBP2) * time_unit_multiplier)<<" microseconds"<<std::endl;
+    std::cout<<"Number of rounds per second for phase 1: "<<(1000/((timerAxpBP1 + timerAxpBP2)*time_unit_multiplier)*1000000)<<std::endl;
+    std::cout<<"====================================================="<<std::endl;
+    std::cout<<std::endl<<"Share Conversion execution time "<<std::endl;
+    std::cout<<"Party 1: " << (timerSCP1* time_unit_multiplier)<<" microseconds"<<std::endl;
+    std::cout<<"Party 2: "<<(timerSCP2 * time_unit_multiplier)<<" microseconds"<<std::endl;
+    std::cout<<"Time to execute phase 2(Share Conversion): "<<
+             ((timerSCP1 + timerSCP2) * time_unit_multiplier)<<" microseconds"<<std::endl;
+    std::cout<<"Number of rounds per second for phase 2: "<<(1000/((timerSCP1 + timerSCP2) * time_unit_multiplier)*1000000)<<std::endl;
+    std::cout<<"====================================================="<<std::endl;
+#ifndef TEST_PRF_LOOKUP
+    timer_phase3 = std::max(timer_phase31,timer_phase32) + timer_final_output;       //taking maximum of both phases to emulate simultaneous execution
+    std::cout<<"\nphase 3 party 1: "<<(timer_phase31 * time_unit_multiplier)<<" microseconds"<<std::endl;
+    std::cout<<"\nphase 3 party 2: "<<(timer_phase32 * time_unit_multiplier)<<" microseconds"<<std::endl;
+    std::cout<<"\nTime to execute phase 3: "<<
+             (timer_phase3 * time_unit_multiplier)<<" microseconds"<<std::endl;
+    std::cout<<"Number of rounds per second for phase 3: "<<(1000/(timer_phase3*time_unit_multiplier)*1000000)<<std::endl;
+    timerPRF = (timerAxpBP1 + timerAxpBP2) + (timerSCP1 + timerSCP2) + timer_phase3;
+#endif
+
+#ifdef TEST_PRF_LOOKUP
+    timer_phase3 = std::max(timer_phase31,timer_phase32) + timer_final_output;       //taking maximum of both phases to emulate simultaneous execution
+    std::cout<<"\nphase 3 party 1: "<<(timer_phase31 * time_unit_multiplier)<<" microseconds"<<std::endl;
+    std::cout<<"\nphase 3 party 2: "<<(timer_phase32 * time_unit_multiplier)<<" microseconds"<<std::endl;
+    std::cout<<"\nTime to execute phase 3: "<<
+             (timer_phase3 * time_unit_multiplier)<<" microseconds"<<std::endl;
+    std::cout<<"Number of rounds per second for phase 3: "<<(1000/(timer_phase3*time_unit_multiplier)*1000000)<<std::endl;
+    timerPRF = (timerAxpBP1 + timerAxpBP2) + (timerSCP1 + timerSCP2) + timer_phase3;
+#endif
+
+    std::cout<<"====================================================="<<std::endl;
+
+    std::cout<<"\nTime to execute entire PRF protocol: "<<
+             (timerPRF * time_unit_multiplier)<<" microseconds"<<std::endl;
+    std::cout<<"Number of rounds per second for entire PRF: "<<(1000/(timerPRF*time_unit_multiplier)*1000000)<<std::endl;
+
+}
+
+//=============================Modular Code========================
+
+void DM_preprocess(int nTimes)
+{
+    initGlobals();      //initialize some global variables
+    preProc_Toeplitz_by_x(nTimes * 2); // pre-processing for two runs
+    preProc_OT(nTimes); //preprocess for OT, generate ra, rn, rx, and z
+}
+
+void set_input(std::vector<uint64_t>& K1,PackedZ2<N_COLS>& x1,
+                     std::vector<uint64_t>& K2, PackedZ2<N_COLS>& x2, std::vector<PackedZ3<81> >& Rmat)
+{
+    for (auto &w : K1) w = randomWord();
+    K1[K1.size() - 1] &= topelitzMask; // turn off extra bits at the end
+
+    for (auto &w : K2) w = randomWord();
+    K2[K2.size() - 1] &= topelitzMask; // turn off extra bits at the end
+
+    x1.randomize();     //setting random input for party 1
+    x2.randomize();     //setting random input for party 2
+
+    for (auto &col : Rmat) // iterate over the columns
+        col.randomize();
+}
+
+void setup_table(std::vector<std::vector<PackedZ3<81> > >& lookup_prf, std::vector<PackedZ3<81> >& Rmat)
+{
+    //local copy of lookup table and Rmat16
+    std::vector<std::vector<PackedZ3<81> > > Rmat16_prf(16); //Rmat16_prf vector of size 16 X 16 X 81 (GLOBAL)
+
+    //reformat Rmat
+    reformat_Rmat(Rmat16_prf, Rmat);        //convert (81 X 256) matrix to (16 x 16 X 81) matrix
+
+    //Creation of Lookup table
+    create_lookup_table(Rmat16_prf, lookup_prf);        //(a lookup table of 16 X 2^16) is generated
+    std::cout<<"Lookup table created"<<std::endl;
+}
+
+void party1_local_computation(std::vector<uint64_t>& K1,PackedZ2<N_COLS>& x1,
+                              PackedZ2<N_ROWS>& out1_A, PackedZ2<N_ROWS>& out2_A)
+{
+    // Party1 computes locally K1 times x1, and adds to out1_A,out2_A
+    out1_A.add(out2_A);           // out1 ^= out2
+    out2_A.toeplitzByVec(K1, x1); // K1 times x1
+    out1_A.add(out2_A);           // sum of all terms
+}
+
+void party2_local_computation( std::vector<uint64_t>& K2, PackedZ2<N_COLS>& x2,
+                               PackedZ2<N_ROWS>& out1_B, PackedZ2<N_ROWS>& out2_B)
+{
+    // Party2 computes locally K2 times x2, and adds to out1_B,out2_N
+    out1_B.add(out2_B);           // out1 ^= out2
+    out2_B.toeplitzByVec(K2, x2); // K2 times x2
+    out1_B.add(out2_B);           // sum of all terms
+}
+
+void round1(std::vector<uint64_t>& K1,PackedZ2<N_COLS>& x1, std::vector<uint64_t>& K2, PackedZ2<N_COLS>& x2,
+            PackedZ2<N_ROWS>& out1_A, PackedZ2<N_ROWS>& out2_A, PackedZ2<N_ROWS>& out1_B, PackedZ2<N_ROWS>& out2_B, int nTimes)
 {
 
-        //generate Rmat with 16 matrix of size 81 X 16.
-        std::vector<std::vector<PackedZ3<81> > > Rmat16(16);
+    std::chrono::time_point<std::chrono::system_clock> start_p1,start_p2;
 
-        for(int matrix_count = 0; matrix_count < 16; matrix_count++)//go over 16 matrix
-        {
-            Rmat16[matrix_count].resize(16);        //resize each matrix to have 16 columns
-            for (auto &col : Rmat16[matrix_count]) // iterate over the columns
-                col.randomize();                    //call the randomize function in packedMod3.hpp
-        }
+    for(int i = 0; i < nTimes; i++){
+        // First run, a protocol for K1 times x2
+        topelitz_Party2_1(x2, 2 * i);
+        topelitz_Party1(out1_A, K1, 2 * i);
+        topelitz_Party2_2(out1_B, x2, 2 * i);
 
-
-#ifdef LOOKUP_DEBUG
-        //printing the values of Rmat16
-    std::cout<<"The number of matrices is "<<Rmat16.size()<<std::endl;
-    for(int i = 0; i< 16;i++)
-    {
-        std::cout<<Rmat16[i]<<std::endl;
+        // Second run, a protocol for K2 times x1
+        topelitz_Party2_1(x1, 2 * i + 1);
+        topelitz_Party1(out2_B, K2, 2 * i + 1);
+        topelitz_Party2_2(out2_A, x1, 2 * i + 1);
     }
-#endif
 
-#ifdef LOOKUP
-        //generate a lookup table with all the possibilities of multiplication of Rmat with 2^16 inputs.
-        std::vector<std::vector<PackedZ3<81> > > lookup_table(16); //table has 16 rows and 65536 columns and each element is PackedZ3
+    //start_p1 = chrono::system_clock::now();
+    party1_local_computation(K1, x1, out1_A,out2_A);
+    //timerAxpBP1 += (chrono::system_clock::now() - start_p1).count();
 
-#ifdef LOOKUP_TIME
-        std::chrono::time_point<std::chrono::system_clock> start_create_lookup = std::chrono::system_clock::now();
-#endif
-        create_lookup_table(Rmat16,lookup_table);
-
-#ifdef LOOKUP_TIME
-        timer_create_lookup += (std::chrono::system_clock::now() - start_create_lookup).count();
-#endif
-
-#ifdef LOOKUP_DEBUG
-        std::cout<<"The lookup table has been generated successfully"<<std::endl;
-#endif
-
-    PackedZ3<81> totalTime;
-
-    for(int iteration_count = 0; iteration_count < nRuns; iteration_count++)//running use of lookup table nRuns times
-    {
-        uint64_t random_input16[16]; //16 random words of size 16 bits
-        uint64_t random_input64[4]; //4 random words of size 64 bits
-
-        for(int word_count  = 0; word_count < 4; word_count++)
-        {
-            random_input64[word_count] = 0;
-            random_input64[word_count] = randomWord(0); //randomWord generates 64 bits of input in Z2.
-            random_input16[4*word_count+0] = ((random_input64[word_count]) & 65535);
-            random_input16[4*word_count+1] = ((random_input64[word_count]>>16) & 65535);
-            random_input16[4*word_count+2] = ((random_input64[word_count]>>32) & 65535);
-            random_input16[4*word_count+3] = ((random_input64[word_count]>>48) & 65535);
-            //std::cout<<random_input64[i]<<std::endl;
-        }
-
-#ifdef LOOKUP_DEBUG
-        std::cout<<"The input has been generated successfully, they are: " <<std::endl;
-#endif
-
-
-        std::vector<PackedZ3<81> > result_table(16); //stores the result of multiplication using lookup table
-        for(int i =0; i< 16; i++)
-        {
-            result_table[i].reset();
-        }
-
-
-#ifdef LOOKUP_TIME
-        std::chrono::time_point<std::chrono::system_clock> start_use_lookup = std::chrono::system_clock::now();
-#endif
-        //use_lookup_table(lookup_table, random_input16,result_table);
-        for(int word_count = 0; word_count < 16; word_count++)
-        {
-            uint64_t value = random_input16[word_count];
-            result_table[word_count] = lookup_table[word_count][value];
-        }
-
-        //add up the 16 count of packedmod3 values
-        PackedZ3<81> result_sum;
-        result_sum = result_table[0];
-        for(int count = 1; count < 16; count++)
-        {
-            result_sum += result_table[count];
-        }
-
-#ifdef LOOKUP_TIME
-        timer_use_lookup += (std::chrono::system_clock::now() - start_use_lookup).count();
-
-        totalTime+= result_sum;
-
-#endif
-
-#ifdef LOOKUP_DEBUG
-        std::cout<<"Printing the output value "<<std::endl;
-    std::cout<<"The final output is "<<result_sum<<std::endl;
-#endif
-
-#endif
-    }
-    cout << "in independent_lookup_implementation, " << "total Time=" << totalTime << endl;
-    cout << "in independent_lookup_implementation, " << "nruns-" << nRuns << endl;
+    //start_p2 = chrono::system_clock::now();
+    party2_local_computation(K2, x2, out1_B,out2_B);
+    //timerAxpBP2 += (chrono::system_clock::now() - start_p2).count();
 }
-#endif
 
-#ifdef LOOKUP_TIME
-void exec_lookup_timing()
+void save_round1_output(PackedZ2<N_ROWS>& out1_A, PackedZ2<N_ROWS>& out1_B, PackedZ2<N_ROWS>& out2_A,PackedZ2<N_ROWS>& out2_B)
 {
-    std::cout<<"Time to create a lookup table(just once) "<<timer_create_lookup<<std::endl;
-    std::cout<<"Time elapsed in using lookup table "<<timer_use_lookup<<std::endl;
+    global_out1_A = out1_A;
+    global_out1_B = out1_B;
+    global_out2_A = out2_A;
+    global_out2_B = out2_B;
 }
-#endif
 
-/*
- * PRF without the pre-processing
- */
+void fetch_round1_output(PackedZ2<N_ROWS>& out1_A, PackedZ2<N_ROWS>& out1_B, PackedZ2<N_ROWS>& out2_A, PackedZ2<N_ROWS>& out2_B)
+{
+
+    out1_A = global_out1_A;
+    out1_B = global_out1_B;
+    out2_A = global_out2_A;
+    out2_B = global_out2_B;
+}
+
+void save_round2_output(PackedZ3<N_SIZE>& SC_out1, PackedZ3<N_SIZE>& SC_out2)
+{
+    global_SC_out1 = SC_out1;
+    global_SC_out2 = SC_out2;
+}
+
+void fetch_round2_output(PackedZ3<N_SIZE>& SC_out1, PackedZ3<N_SIZE>& SC_out2)
+{
+    SC_out1 = global_SC_out1;
+    SC_out2 = global_SC_out2;
+}
+
+void round2(PackedZ3<N_SIZE>& SC_out1, PackedZ3<N_SIZE>& SC_out2, PackedZ2<N_ROWS>& out1_A, PackedZ2<N_ROWS>& out2_A,
+            PackedZ2<N_ROWS>& out1_B,PackedZ2<N_ROWS>& out2_B, int nTimes)
+{
+    PackedZ2<N_SIZE> &y1 = out1_A;
+    PackedZ2<N_SIZE> &y2 = out1_B;
+
+    for(int i = 0; i < nTimes;i++)
+    {
+        SC_Party2_1(y2, i);             //The implementation details for SC functions are within the function.
+        SC_Party1(y1, SC_out1, i);
+        SC_Party2_2(y2, SC_out2, i);
+    }
+
+}
+void round3_party1_lookup(PackedZ3<81>& out1Z3, PackedZ3<N_SIZE>& SC_out1,std::vector<std::vector<PackedZ3<81> > >& lookup_prf)
+{
+    usedLookupTable(out1Z3,SC_out1,lookup_prf);
+}
+
+void round3_party2_lookup(PackedZ3<81>& out2Z3, PackedZ3<N_SIZE>& SC_out2,std::vector<std::vector<PackedZ3<81> > >& lookup_prf)
+{
+    usedLookupTable(out2Z3,SC_out2,lookup_prf);
+}
+
+void final_protocol_output(PackedZ3<81>& out_protocol_result, PackedZ3<81>& out1Z3, PackedZ3<81>& out2Z3)
+{
+    out_protocol_result = out1Z3;
+    out_protocol_result += out2Z3;
+}
+
 
 void PRF_DM(vector<uint64_t>& K1, PackedZ2<N_COLS>& x1, vector<uint64_t>& K2,
         PackedZ2<N_COLS>& x2, std::vector< PackedZ3<81> >& Rmat, PackedZ3<81>& out1Z3,
-        PackedZ3<81>& out2Z3, int i)
+        PackedZ3<81>& out2Z3, int nRuns, int nTimes)
 {
 
-    auto start_prf = std::chrono::system_clock::now();
-        PackedZ2<N_ROWS> out1_A, out2_A, out1_B, out2_B;
 
-        topelitz_Party2_1(x2, 2*i);
-        topelitz_Party1(out1_A, K1, 2*i);
-        topelitz_Party2_2(out1_B, x2, 2*i);
+#ifdef TEST_PRF_LOOKUP
+    //local copy of lookup table and Rmat16
+    std::vector<std::vector<PackedZ3<81> > > Rmat16_prf(16); //Rmat16_prf vector of size 16 X 16 X 81 (GLOBAL)
+    std::vector<std::vector<PackedZ3<81> > > lookup_prf(16); //lookup table
 
-        // Second run, a protocol for K2 times x1
-        topelitz_Party2_1(x1, 2*i+1);
-        topelitz_Party1(out2_B, K2, 2*i+1);
-        topelitz_Party2_2(out2_A, x1, 2*i+1);
+    //setup lookup preprocessing
+    setup_table(lookup_prf, Rmat);
+    std::cout<<"Lookup table created"<<std::endl;
+#endif
 
-        chrono::time_point<std::chrono::system_clock> start_p1 = chrono::system_clock::now();
+    PackedZ2<N_ROWS> out1_A, out2_A, out1_B, out2_B;
+    PackedZ3<N_SIZE> SC_out1, SC_out2;        //phase 2 output
+    PackedZ3<81> out_protocol_result;            //final output of entire dark matter wPRF
+    out_protocol_result.reset();
 
-        // Party1 computes locally K1 times x1, and adds to out1_A,out2_A
-        out1_A.add(out2_A);           // out1 ^= out2
-        out2_A.toeplitzByVec(K1, x1); // K1 times x1
-        out1_A.add(out2_A);           // sum of all terms
+    chrono::time_point<std::chrono::system_clock> start_p1,start_p2, start_final_output;
+    //Timing declaration for lookup implementation in PRF phase 3
+    std::chrono::time_point<std::chrono::system_clock> start_p31_lookup, start_p32_lookup;
+    std::chrono::time_point<std::chrono::system_clock> start_p31, start_p32;//start timers for without lookup
+    std::chrono::time_point<std::chrono::system_clock> start_round3_p1, start_round3_p2; //start timer with lookup
+    std::chrono::time_point<std::chrono::system_clock> start_reformat, start_uselookup, start_subtract;
 
-        timerAxpBP1 += (chrono::system_clock::now() - start_p1).count();
+    /*For micro benchmarking purpose
+    //run round 1 just once and save out1_A, out2_A, out1_B and out2_B in a file.
+    round1(K1,x1,K2,x2,out1_A,out2_A,out1_B,out2_B,nTimes);
 
+    //run round 2 just once and save out1_A, out2_A, out1_B and out2_B in a file.
+    round2(SC_out1, SC_out2, out1_A,out2_A,out1_B,out2_B,nTimes);
 
-        auto start_p2 = chrono::system_clock::now();
+    //SAVE 1: save round 1 output in a file
+    save_round1_output(out1_A,  out1_B, out2_A, out2_B);
 
-        // Party2 computes locally K2 times x2, and adds to out1_B,out2_N
-        out1_B.add(out2_B);           // out1 ^= out2
-        out2_B.toeplitzByVec(K2, x2); // K2 times x2
-        out1_B.add(out2_B);           // sum of all terms
+    //SAVE 2: save round 2 output in a file
+    save_round2_output(SC_out1, SC_out2);
 
-        timerAxpBP2 += (chrono::system_clock::now() - start_p2).count();
+    //round1- fetch output from a file
+    //fetch_round1_output(out1_A,  out1_B, out2_A, out2_B);
 
-        //end of phase 1
+    //round2- fetch output from a file
+    //fetch_round2_output(SC_out1, SC_out2);*/
 
-        PackedZ2<N_SIZE>& y1 = out1_A;
-        PackedZ2<N_SIZE>& y2 = out1_B;
-        PackedZ3<N_SIZE> out1, out2;
+    for(int i = 0; i< nRuns; i++)//runs the rounds for nRuns times
+    {
+        //round1
+        round1(K1,x1,K2,x2,out1_A,out2_A,out1_B,out2_B,nTimes);
+        //fetch_round1_output(out1_A,  out1_B, out2_A, out2_B);
 
-        SC_Party2_1(y2, i);
-        SC_Party1(y1, out1, i);
-        SC_Party2_2(y2, out2, i);
+        //round2
+        round2(SC_out1, SC_out2, out1_A,out2_A,out1_B,out2_B,nTimes);
+        //fetch_round2_output(SC_out1, SC_out2);
 
-        //end of phase 2
+#ifndef TEST_PRF_LOOKUP     //party 1 phase 3 without lookup implementation
 
-    auto start_p3 = chrono::system_clock::now();
+        //===============party 1 phase 3 without lookup table==================
+        start_p31 = chrono::system_clock::now();
+        out1Z3.matByVec(Rmat, SC_out1); // compute matrix-by-vector multiply
+        timer_phase31 += (std::chrono::system_clock::now() - start_p31).count();
 
-    out1Z3.matByVec(Rmat, out1); // compute matrix-by-vector multiply
-    out2Z3.matByVec(Rmat, out2); // compute matrix-by-vector multiply
+        //===============party 2 phase 3 without lookup table==================
+        start_p32 = chrono::system_clock::now();
+        out2Z3.matByVec(Rmat, SC_out2);    //compute matrix-by-vector multiply
+        timer_phase32 += (std::chrono::system_clock::now() - start_p32).count();
+#endif
 
-    timer_phase3 += (std::chrono::system_clock::now() - start_p3).count();
+#ifdef TEST_PRF_LOOKUP  //party 1 phase 3 with lookup implementation
+        //round3/usedLookupTable
+        start_round3_p1 = std::chrono::system_clock::now();
+        round3_party1_lookup(out1Z3, SC_out1,lookup_prf);
+        timer_phase31 += (chrono::system_clock::now() - start_round3_p1).count();
 
-    timerPRF += (chrono::system_clock::now() - start_prf).count();
+        start_round3_p2 = std::chrono::system_clock::now();
+        round3_party2_lookup(out2Z3, SC_out2,lookup_prf);
+        timer_phase32 += (chrono::system_clock::now() - start_round3_p2).count();
+#endif
+        start_final_output = std::chrono::system_clock::now();
+        final_protocol_output(out_protocol_result,out1Z3, out2Z3);
+        timer_final_output += (chrono::system_clock::now() - start_final_output).count();
+    }
 
-    out_dummy += out1Z3;
-    out_dummy += out2Z3;
 }
 
 /*
@@ -286,51 +385,38 @@ void PRF_DM(vector<uint64_t>& K1, PackedZ2<N_COLS>& x1, vector<uint64_t>& K2,
 void PRF_DM_wpreproc(unsigned int nTimes,  int nRuns, int nStages) {
 
     randomWord(1); // use seed=1
-    vector<uint64_t> K1(toeplitzWords), K2(toeplitzWords);
-    PackedZ2<N_COLS> x1, x2;
-
-    PackedZ2<N_ROWS> out1_A, out2_A, out1_B, out2_B;
-
-    initGlobals();  // initialize some global variables
-
+    vector<uint64_t> K1(toeplitzWords), K2(toeplitzWords);  //Key to the protocol
+    PackedZ2<N_COLS> x1, x2;            //input of the protocol
     std::vector<PackedZ3<81> > Rmat(256); // generate a 81x256 matrix
 
-    //randomize the matrix
-    for (auto &col : Rmat) // iterate over the columns
-        col.randomize();
+    //Declaring output variables for wPRF protocol and centralized wPRF
+    PackedZ3<81> outZ3;         //output of packed_centralized implementation used for testing
+    PackedZ3<81> out1Z3, out2Z3;                     // party i's protocol output share
+    PackedZ3<81> outSum;            //final output of entire dark matter wPRF
+    outSum.reset(); //reset the output
 
-    preProc_Toeplitz_by_x(nRuns * 2); // pre-processing for two runs
-    preProc_OT(nRuns); //preprocess for OT, generate ra, rn, rx, and z
+    //preprocessing
+    DM_preprocess(nTimes);
 
-    // Choose random K1, K2, x1, x2, we will be computing
-    // (K1 xor K2) \times (x1 xor x2)
+    //set input
+    set_input(K1, x1, K2, x2, Rmat);
 
-    //TODO: write randomize Toeplitzß
+    std::cout<<" Number of Runs: "<<nRuns<<std::endl;
 
-    for (auto &w : K1) w = randomWord();
-    K1[K1.size() - 1] &= topelitzMask; // turn off extra bits at the end
+    PRF_DM(K1, x1, K2, x2, Rmat, out1Z3, out2Z3, nRuns, nTimes); // Calling the main function
 
-    for (auto &w : K2) w = randomWord();
-    K2[K2.size() - 1] &= topelitzMask; // turn off extra bits at the end
+    outSum = out1Z3;
+    outSum += out2Z3;   //computing the output of entire PRF by adding the shares of output by both the parties
 
-    x1.randomize();
-    x2.randomize();
+    cout << "Output of PRF Dark matter, outSum=" << outSum << endl;
+    PRF_packed_centralized(K1,x1,K2,x2,Rmat,outZ3,1);   //centralized implementation for testing
+    cout << "Output of PRF centralized implementation, outZ3=" << outZ3 << endl;
 
-    PackedZ3<81> out1Z3;                     // 81-vector
-    PackedZ3<81> out2Z3;                     // 81-vector
+    if(outSum == outZ3) //outZ3 is the output of centralized and outSum is output of DM wPRF protocol.
+        std::cout<<std::endl<<"Test passed"<<std::endl;
+    else
+        std::cout<<std::endl<<"Test failed"<<std::endl;
+    display_timing();       //displays the timing and number of rounds in each phase of the protocol
 
-    PackedZ3<81> outSum;
-    outSum.reset();
-
-    //TODO: write phase 1 function
-    for (int i = 0; i < nRuns; i++) {
-
-        PRF_DM(K1, x1, K2, x2, Rmat, out1Z3, out2Z3, i); // R = randomization matrix
-    //    PRF_packed_centralized_test(K1, x1, K2, x2, Rmat, out1Z3, out2Z3, i);
-        //PRF_unpacked_test() /* just a placeholder*/
-        outSum+= out1Z3;
-        //cout <<"out1Z3=" << out1Z3 << "\n out2Z3=" << out2Z3 << endl;
-    }
-    cout << "in PRF_DM_wpreproc, outSum=" << outSum << endl;
 }
-
+#endif

@@ -155,10 +155,14 @@ int main()
 #ifdef UNITTEST_ROUND2
     test_round2_unit(K1,x1,K2, x2,nTimes);
 #endif
-    std::cout<<"Executing new protocol"<<std::endl;
-
+#ifndef TEST_NP_LOOKUP
+    std::cout<<"Executing new protocol without lookup table (Distributed Input and Distributed Key)"<<std::endl;
+#endif
+#ifdef TEST_NP_LOOKUP
+    std::cout<<"Executing new protocol with lookup table (Distributed Input and Distributed Key)"<<std::endl;
+#endif
     //calling the distributed version of the new PRF protocol
-    PRF_new_protocol(K1,x1,K2, x2, Rmat, y1_z3, y2_z3, nRuns);
+    PRF_new_protocol(K1,x1,K2, x2, Rmat, y1_z3, y2_z3, nRuns);//method in newprotocol.cpp
 
 #ifdef PRINT_VAL
     std::cout<<"test_newprotocol/main.cpp: Protocol Execution ends"<<std::endl;
@@ -168,7 +172,7 @@ int main()
 /*
  * Code to compare the output of New protocol with the centralized implementation
  */
-/*
+
     PackedZ3<81>out_dist_Z3 = y1_z3;
     out_dist_Z3.add(y2_z3);//merged output from parameters
 
@@ -181,7 +185,7 @@ int main()
         std::cout<<std::endl<<"PRF packed test: Test passed"<<std::endl;
     else
         std::cout<<std::endl<<"PRF packed test: Test fails"<<std::endl;
-*/
+
 
     //===============================LOOKUP IMPLEMENTATION=================
 #ifdef LOOKUP //enable in main.hpp to compute using lookup table

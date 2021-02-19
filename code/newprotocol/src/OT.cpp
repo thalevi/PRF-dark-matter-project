@@ -69,7 +69,7 @@ static PackedZ2<N_SIZE>& rcv_mx()
 // genrate randomly binary rx vector
 // calculate z = ra*rx+ rb*(~rx)
 
-void preProc_OT(unsigned int nTimes) {
+void preProc_OT(unsigned int nTimes) {      //preprocess for share conversion
     // allocate space
     raps.resize(nTimes);
     rbps.resize(nTimes);
@@ -106,7 +106,7 @@ void OT_Party2_1(const PackedZ2<N_SIZE>& x,  int index) {
     auto start = std::chrono::system_clock::now();
     // send mx = x xor rx to party1
     PackedZ2<N_SIZE> mx = x;
-    mx ^= rx;
+    mx ^= rx;                   //mx = x - rx
 #ifdef DEBUG
     std::cout << ", sending mx="<<mx.at(0) << std::endl;
 #endif
@@ -247,7 +247,7 @@ void OT_Party2_2(const PackedZ2<N_SIZE>& x, PackedPairZ2<N_SIZE>& out, int index
 
 void SC_Party2_1(const PackedZ2<N_SIZE>& y2, int index) {
 //    std::cout << "\nSC: party 2 calling OT("<<y2.at(0)<<",index="<<index<<")\n";
-    auto start = std::chrono::system_clock::now();
+    std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
 
     OT_Party2_1(y2, index);
 
@@ -268,7 +268,7 @@ void SC_Party1(const PackedZ2<N_SIZE>& y1, PackedZ3<N_SIZE>& out, int index) {
     const static PackedZ2<N_SIZE> zVec; //by default constructor initializes to 0
     PackedZ3<N_SIZE> y1_3;  // initialized to zero
 
-    auto start = std::chrono::system_clock::now();
+    std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
     y1_3.lsbs() = y1;       // set the lsb's to y1
 
 #ifdef DEBUG
@@ -299,7 +299,7 @@ void SC_Party1(const PackedZ2<N_SIZE>& y1, PackedZ3<N_SIZE>& out, int index) {
 
 void SC_Party2_2(const PackedZ2<N_SIZE>& y2, PackedZ3<N_SIZE>& out, int index)
 {
-    auto start = std::chrono::system_clock::now();
+    std::chrono::time_point<std::chrono::system_clock> start = std::chrono::system_clock::now();
     // Note: out is a PackedZ3, which is derived from PackedPairZ2
     // so we can directly call OT_Party2_2 that expects to get PackedPairZ2
     OT_Party2_2(y2,out, index);
@@ -308,13 +308,4 @@ void SC_Party2_2(const PackedZ2<N_SIZE>& y2, PackedZ3<N_SIZE>& out, int index)
     timerSCP2 += (std::chrono::system_clock::now() - start).count();
 }
 
-void display_SC_runtime(float& time_unit_multiplier)
-{
-    std::cout<<std::endl<<"Share Conversion execution time "<<std::endl;
-    std::cout<<"Party 1: " << (timerSCP1* time_unit_multiplier)<<" microseconds"<<std::endl;
-    std::cout<<"Party 2: "<<(timerSCP2 * time_unit_multiplier)<<" microseconds"<<std::endl;
-    std::cout<<"Time to execute phase 2(Share Conversion): "<<
-             ((timerSCP1 + timerSCP2) * time_unit_multiplier)<<" microseconds"<<std::endl;
-    std::cout<<"Number of rounds per second for phase 2: "<<(1000/((timerSCP1 + timerSCP2) * time_unit_multiplier)*1000000)<<std::endl;
-}
 
