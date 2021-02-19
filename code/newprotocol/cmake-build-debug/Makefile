@@ -48,10 +48,10 @@ RM = /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/vivek/Documents/PseudoRandomFunction/src/newprotocol
+CMAKE_SOURCE_DIR = /Users/thalevi/Documents/research/PRFs/git/darkmatter/PRF-dark-matter-project/code/newprotocol
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/vivek/Documents/PseudoRandomFunction/src/newprotocol/cmake-build-debug
+CMAKE_BINARY_DIR = /Users/thalevi/Documents/research/PRFs/git/darkmatter/PRF-dark-matter-project/code/newprotocol/cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/vivek/Documents/PseudoRandomFunction/src/newprotocol/cmake-build-debug/CMakeFiles /Users/vivek/Documents/PseudoRandomFunction/src/newprotocol/cmake-build-debug/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/thalevi/Documents/research/PRFs/git/darkmatter/PRF-dark-matter-project/code/newprotocol/cmake-build-debug/CMakeFiles /Users/thalevi/Documents/research/PRFs/git/darkmatter/PRF-dark-matter-project/code/newprotocol/cmake-build-debug/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/vivek/Documents/PseudoRandomFunction/src/newprotocol/cmake-build-debug/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/thalevi/Documents/research/PRFs/git/darkmatter/PRF-dark-matter-project/code/newprotocol/cmake-build-debug/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -366,33 +366,6 @@ src/unpacked_PRF_central.cpp.s:
 	$(MAKE) -f CMakeFiles/newprotocol.dir/build.make CMakeFiles/newprotocol.dir/src/unpacked_PRF_central.cpp.s
 .PHONY : src/unpacked_PRF_central.cpp.s
 
-tests/test_OT.o: tests/test_OT.cpp.o
-
-.PHONY : tests/test_OT.o
-
-# target to build an object file
-tests/test_OT.cpp.o:
-	$(MAKE) -f CMakeFiles/newprotocol.dir/build.make CMakeFiles/newprotocol.dir/tests/test_OT.cpp.o
-.PHONY : tests/test_OT.cpp.o
-
-tests/test_OT.i: tests/test_OT.cpp.i
-
-.PHONY : tests/test_OT.i
-
-# target to preprocess a source file
-tests/test_OT.cpp.i:
-	$(MAKE) -f CMakeFiles/newprotocol.dir/build.make CMakeFiles/newprotocol.dir/tests/test_OT.cpp.i
-.PHONY : tests/test_OT.cpp.i
-
-tests/test_OT.s: tests/test_OT.cpp.s
-
-.PHONY : tests/test_OT.s
-
-# target to generate assembly for a file
-tests/test_OT.cpp.s:
-	$(MAKE) -f CMakeFiles/newprotocol.dir/build.make CMakeFiles/newprotocol.dir/tests/test_OT.cpp.s
-.PHONY : tests/test_OT.cpp.s
-
 tests/test_PRF.o: tests/test_PRF.cpp.o
 
 .PHONY : tests/test_PRF.o
@@ -446,33 +419,6 @@ tests/test_Packed_PRF.s: tests/test_Packed_PRF.cpp.s
 tests/test_Packed_PRF.cpp.s:
 	$(MAKE) -f CMakeFiles/newprotocol.dir/build.make CMakeFiles/newprotocol.dir/tests/test_Packed_PRF.cpp.s
 .PHONY : tests/test_Packed_PRF.cpp.s
-
-tests/test_Toeplitz-by-x.o: tests/test_Toeplitz-by-x.cpp.o
-
-.PHONY : tests/test_Toeplitz-by-x.o
-
-# target to build an object file
-tests/test_Toeplitz-by-x.cpp.o:
-	$(MAKE) -f CMakeFiles/newprotocol.dir/build.make CMakeFiles/newprotocol.dir/tests/test_Toeplitz-by-x.cpp.o
-.PHONY : tests/test_Toeplitz-by-x.cpp.o
-
-tests/test_Toeplitz-by-x.i: tests/test_Toeplitz-by-x.cpp.i
-
-.PHONY : tests/test_Toeplitz-by-x.i
-
-# target to preprocess a source file
-tests/test_Toeplitz-by-x.cpp.i:
-	$(MAKE) -f CMakeFiles/newprotocol.dir/build.make CMakeFiles/newprotocol.dir/tests/test_Toeplitz-by-x.cpp.i
-.PHONY : tests/test_Toeplitz-by-x.cpp.i
-
-tests/test_Toeplitz-by-x.s: tests/test_Toeplitz-by-x.cpp.s
-
-.PHONY : tests/test_Toeplitz-by-x.s
-
-# target to generate assembly for a file
-tests/test_Toeplitz-by-x.cpp.s:
-	$(MAKE) -f CMakeFiles/newprotocol.dir/build.make CMakeFiles/newprotocol.dir/tests/test_Toeplitz-by-x.cpp.s
-.PHONY : tests/test_Toeplitz-by-x.cpp.s
 
 tests/test_central_int_packed.o: tests/test_central_int_packed.cpp.o
 
@@ -636,60 +582,6 @@ tests/test_oprf.cpp.s:
 	$(MAKE) -f CMakeFiles/newprotocol.dir/build.make CMakeFiles/newprotocol.dir/tests/test_oprf.cpp.s
 .PHONY : tests/test_oprf.cpp.s
 
-tests/test_packedMod2.o: tests/test_packedMod2.cpp.o
-
-.PHONY : tests/test_packedMod2.o
-
-# target to build an object file
-tests/test_packedMod2.cpp.o:
-	$(MAKE) -f CMakeFiles/newprotocol.dir/build.make CMakeFiles/newprotocol.dir/tests/test_packedMod2.cpp.o
-.PHONY : tests/test_packedMod2.cpp.o
-
-tests/test_packedMod2.i: tests/test_packedMod2.cpp.i
-
-.PHONY : tests/test_packedMod2.i
-
-# target to preprocess a source file
-tests/test_packedMod2.cpp.i:
-	$(MAKE) -f CMakeFiles/newprotocol.dir/build.make CMakeFiles/newprotocol.dir/tests/test_packedMod2.cpp.i
-.PHONY : tests/test_packedMod2.cpp.i
-
-tests/test_packedMod2.s: tests/test_packedMod2.cpp.s
-
-.PHONY : tests/test_packedMod2.s
-
-# target to generate assembly for a file
-tests/test_packedMod2.cpp.s:
-	$(MAKE) -f CMakeFiles/newprotocol.dir/build.make CMakeFiles/newprotocol.dir/tests/test_packedMod2.cpp.s
-.PHONY : tests/test_packedMod2.cpp.s
-
-tests/test_packedMod3.o: tests/test_packedMod3.cpp.o
-
-.PHONY : tests/test_packedMod3.o
-
-# target to build an object file
-tests/test_packedMod3.cpp.o:
-	$(MAKE) -f CMakeFiles/newprotocol.dir/build.make CMakeFiles/newprotocol.dir/tests/test_packedMod3.cpp.o
-.PHONY : tests/test_packedMod3.cpp.o
-
-tests/test_packedMod3.i: tests/test_packedMod3.cpp.i
-
-.PHONY : tests/test_packedMod3.i
-
-# target to preprocess a source file
-tests/test_packedMod3.cpp.i:
-	$(MAKE) -f CMakeFiles/newprotocol.dir/build.make CMakeFiles/newprotocol.dir/tests/test_packedMod3.cpp.i
-.PHONY : tests/test_packedMod3.cpp.i
-
-tests/test_packedMod3.s: tests/test_packedMod3.cpp.s
-
-.PHONY : tests/test_packedMod3.s
-
-# target to generate assembly for a file
-tests/test_packedMod3.cpp.s:
-	$(MAKE) -f CMakeFiles/newprotocol.dir/build.make CMakeFiles/newprotocol.dir/tests/test_packedMod3.cpp.s
-.PHONY : tests/test_packedMod3.cpp.s
-
 tests/test_packed_PRF_central_lookup.o: tests/test_packed_PRF_central_lookup.cpp.o
 
 .PHONY : tests/test_packed_PRF_central_lookup.o
@@ -716,33 +608,6 @@ tests/test_packed_PRF_central_lookup.s: tests/test_packed_PRF_central_lookup.cpp
 tests/test_packed_PRF_central_lookup.cpp.s:
 	$(MAKE) -f CMakeFiles/newprotocol.dir/build.make CMakeFiles/newprotocol.dir/tests/test_packed_PRF_central_lookup.cpp.s
 .PHONY : tests/test_packed_PRF_central_lookup.cpp.s
-
-tests/test_unit_newprotocol.o: tests/test_unit_newprotocol.cpp.o
-
-.PHONY : tests/test_unit_newprotocol.o
-
-# target to build an object file
-tests/test_unit_newprotocol.cpp.o:
-	$(MAKE) -f CMakeFiles/newprotocol.dir/build.make CMakeFiles/newprotocol.dir/tests/test_unit_newprotocol.cpp.o
-.PHONY : tests/test_unit_newprotocol.cpp.o
-
-tests/test_unit_newprotocol.i: tests/test_unit_newprotocol.cpp.i
-
-.PHONY : tests/test_unit_newprotocol.i
-
-# target to preprocess a source file
-tests/test_unit_newprotocol.cpp.i:
-	$(MAKE) -f CMakeFiles/newprotocol.dir/build.make CMakeFiles/newprotocol.dir/tests/test_unit_newprotocol.cpp.i
-.PHONY : tests/test_unit_newprotocol.cpp.i
-
-tests/test_unit_newprotocol.s: tests/test_unit_newprotocol.cpp.s
-
-.PHONY : tests/test_unit_newprotocol.s
-
-# target to generate assembly for a file
-tests/test_unit_newprotocol.cpp.s:
-	$(MAKE) -f CMakeFiles/newprotocol.dir/build.make CMakeFiles/newprotocol.dir/tests/test_unit_newprotocol.cpp.s
-.PHONY : tests/test_unit_newprotocol.cpp.s
 
 tests/test_unpacked_PRF.o: tests/test_unpacked_PRF.cpp.o
 
@@ -834,18 +699,12 @@ help:
 	@echo "... src/unpacked_PRF_central.o"
 	@echo "... src/unpacked_PRF_central.i"
 	@echo "... src/unpacked_PRF_central.s"
-	@echo "... tests/test_OT.o"
-	@echo "... tests/test_OT.i"
-	@echo "... tests/test_OT.s"
 	@echo "... tests/test_PRF.o"
 	@echo "... tests/test_PRF.i"
 	@echo "... tests/test_PRF.s"
 	@echo "... tests/test_Packed_PRF.o"
 	@echo "... tests/test_Packed_PRF.i"
 	@echo "... tests/test_Packed_PRF.s"
-	@echo "... tests/test_Toeplitz-by-x.o"
-	@echo "... tests/test_Toeplitz-by-x.i"
-	@echo "... tests/test_Toeplitz-by-x.s"
 	@echo "... tests/test_central_int_packed.o"
 	@echo "... tests/test_central_int_packed.i"
 	@echo "... tests/test_central_int_packed.s"
@@ -864,18 +723,9 @@ help:
 	@echo "... tests/test_oprf.o"
 	@echo "... tests/test_oprf.i"
 	@echo "... tests/test_oprf.s"
-	@echo "... tests/test_packedMod2.o"
-	@echo "... tests/test_packedMod2.i"
-	@echo "... tests/test_packedMod2.s"
-	@echo "... tests/test_packedMod3.o"
-	@echo "... tests/test_packedMod3.i"
-	@echo "... tests/test_packedMod3.s"
 	@echo "... tests/test_packed_PRF_central_lookup.o"
 	@echo "... tests/test_packed_PRF_central_lookup.i"
 	@echo "... tests/test_packed_PRF_central_lookup.s"
-	@echo "... tests/test_unit_newprotocol.o"
-	@echo "... tests/test_unit_newprotocol.i"
-	@echo "... tests/test_unit_newprotocol.s"
 	@echo "... tests/test_unpacked_PRF.o"
 	@echo "... tests/test_unpacked_PRF.i"
 	@echo "... tests/test_unpacked_PRF.s"
