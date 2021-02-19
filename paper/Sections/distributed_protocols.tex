@@ -2,9 +2,9 @@
 \newpage
 \section{Distributed Protocols}
 \label{sec:distributed_protocols}
-We now describe efficient protocols to compute our candidate constructions in several interesting distributed settings. This section is structured as follows. First, in Section~\ref{subsec:protocol_overview}, we provide a technical overview for our protocol design. This includes computation protocols for each of our circuit gates as well as a generic way to compose them to obtain fully distributed protocols in the preprocessing model for all our constructions. Section~\ref{subsec:distributed_protocol} quantifies this approach by providing concrete communication and preprocessing costs for distributed evaluations for our constructions. In Section~\ref{subsec:3party_protocol}, for our \ttwPRF construction, we provide a 3-party protocol that does not require any preprocessing. Finally, in Section~\ref{subsec:oprf_protocol}, we provide two OPRF protocols for our \ttwPRF construction in the preprocessing model. All provided protocols are for the semi-honest setting.
+We now describe efficient protocols to compute our candidate constructions in several interesting distributed settings. This section is structured as follows. First, in Section~\ref{subsec:protocol_overview}, we provide a technical overview for our overall protocol design. This includes computation protocols for each of our circuit gates as well as a generic way to compose them to obtain fully distributed protocols in the preprocessing model for all our constructions. Section~\ref{subsec:distributed_protocol} quantifies this approach by providing concrete communication and preprocessing costs for distributed evaluations for our constructions. In Section~\ref{subsec:3party_protocol}, for our \ttwPRF construction, we provide a 3-party protocol that does not require any preprocessing and is secure against one passive corruption. Finally, in Section~\ref{subsec:oprf_protocol}, we provide two OPRF protocols for our \ttwPRF construction in the preprocessing model. All provided protocols are for the semi-honest setting.
 
-\mahimna{many of the subsections will undergo many changes but I wanted to get at least a first draft of the content written.}
+% \mahimna{many of the subsections will undergo many changes but I wanted to get at least a first draft of the content written.}
 
 \subsection{Technical Overview}
 \label{subsec:protocol_overview}
@@ -46,7 +46,7 @@ $\prot_{\Convert}^{(3,2)}$ & $\hat{x}$ (over $\Z_3$) & - & \makecell{$u = \tilde
 \hline
 \end{tabular}
 }
-\caption{Summary of the circuit gate protocols}
+\caption{Summary of input, output, and randomness for the circuit gate protocols}
 \label{table:gate_protocol_summary}
 \end{table}
 
@@ -233,16 +233,41 @@ The distributed protocol proceeds as follows:
 The distributed protocol takes 2 communication rounds in total, with both parties sending a message in each round. When $\mat{K}$ is a circulant matrix (i.e., it can be represented by $n$ bits), each party communicates $2n$ bits in the first round and $m$ bits in the second round.
 
 
-\paragraph{Public input setting.}
-\mahimna{todo}
+\paragraph{Public-input setting.}
+It is also straightforward to use the same generic algorithm to construct distributed algorithms in the public-input setting. For keyed primitives, in public-input setting, the key is secret shared between the parties but the input is publicly known. The goal of the protocol is for the parties to compute shares of the output.
+
+
+
+%------------------%
 
 \subsection{3-party Distributed Evaluation}
 \label{subsec:3party_protocol}
 
+In this section, we provide a 3-party (semi-honest) protocol for computing the \ttwPRF candidate that is secure against one passive corruption and does not require any preprocessing.
+
+\paragraph{Functionality.}
+Denote the servers by $\party_1, \party_2$, and $\party_3$. We assume that the servers hold replicated additive shares of the key $\mat{K}$ and the input $x$. The key is assumed to be circulant and can be represented by $k \in \Z_2^n$. Concretely, let $(k_1, k_2, k_3)$ and $(x_1,x_2,x_3)$ be additive shares of $k$ and $x$ respectively. Then, each party $\party_i$ is given $k_j$, $x_j$ with $j \neq i$. At the end of the protocol, $\party_2$ and $\party_3$ should hold $y_2$ and $y_3$ respectively such that $(y_2, y_3)$ is a sharing of the wPRF output $y$.
+
+\paragraph{Protocol.}
+
+
+\begin{itemize}
+  \item First, the three servers compute additive shares of the linear mapping $\mat{K}{x}$ locally using their replicated shares. Note that this can be locally since for two secret shared values $a = a_1 + a_2 + a_3$ and $b = b_1 + b_2 + b_3$, their product can be computed as $ab = \sum_{1 \leq j,k \leq 3} a_jb_k$. Since each party holds two shares of $a,b$ in a replicated sharing scheme, each term $a_jb_k$ can be computed by at least 1 party. Suppose that the share of $\party_i$ is denoted by $\sharei{\mat{K}x}$.
+
+  \item Now, $\party_1$ samples $\tilde{w} \getsr \Z_2^m$, $r_2 \gets \Z_3^m$, and sets $r_3 = \tilde{w} - r_2 \bmod 3$. In other words $(r_2, r_3)$ is a random $\Z_3$ sharing of $r = \tilde{w}$. $\party_1$ sends $\share{\mat{K}x}^{(1)} + \tilde{w}$ and $r_i$ to $\party_{i \in \{2,3\}}$. At the same time, $\party_2$ and $\party_3$ exchange their shares of $\mat{K}x$. All of this can be done in one round.
+
+  \item At this point, $\party_2$ and $\party_3$ can both compute $\hat{w} = \tilde{w} + \sum_{1\leq i \leq 3} \sharei{\mat{K}x}$. Now, for $i \in \{2,3\}$, $\party_i$ can locally compute $w^*_i \gets \prot_\Convert^{(2,3)}(\hat{w} \mid r_i)$. Finally, $\party_i$ can locally compute its share $y_i$ of the output by running $\prot_\LMap^{\mat{B},3}(\mat{B} \mid w^*_i)$.
+\end{itemize}
+
+
+\paragraph{Cost analysis.}
+\mahimna{todo}
 
 
 
 
+
+%----------------%
 
 \subsection{Oblivious PRF Evaluation in the Preprocessing Model}
 \label{subsec:oprf_protocol}
@@ -289,3 +314,38 @@ The protocol requires the following preprocessed randomness. The mask $\mat{R}$ 
 \end{itemize}
 For evaluating a client input, this protocol also takes 2 rounds and involves a single message in each direction. The client sends $n$ bits while the server sends $m$ bits and $t$ $\Z_3$ elements. This is $n$ fewer bits of communication as compared to the first protocol. The key-update phase is slower however, since it involves a convolution rather than a simple vector addition. For our parameters ($n=m=256, t=81$), and with proper $\Z_3$ packing, this amounts to roughly $641$ bits of total online communication. To update $\bar{\mat{K}}$, the server sends a 256-bit message to the client.
 
+
+
+\section{Table}
+
+\mahimna{Placeholder section for cost table. Will some somewhere else later}
+
+
+\newcommand{\formula}[1]{{\color{red} #1}}
+
+\begin{table}[h]
+{
+\centering
+\resizebox{\textwidth}{!}{%
+  \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
+  \hline
+  \multirow{3}{*}{Primitive} & \multirow{3}{*}{Construction} & \multirow{3}{*}{\makecell{Param. \\ $(n,m,t)$}} & \multicolumn{3}{c|}{\makecell{Distributed 2PC \\ (with preprocessing)}} & \makecell{Distributed \\ 3PC} &  \multicolumn{3}{c|}{\makecell{Public-Input 2PC \\ (with preprocessing)}} \\
+  \cline{4-10}
+  & & & \makecell{Online \\ Comm.} & \makecell{Prepr.} & \makecell{Offline \\ Comm.} & \makecell{Online \\ Comm.} & \makecell{Online \\ Comm.} & \makecell{Prepr.} & \makecell{Offline \\ Comm.} \\
+  \hline \hline
+
+  \multirow{2}{*}{wPRF} & \makecell{\ttwPRF} & $(256,256,81)$ & $(1536,4,2)$ & $(2348,662)$ & & $(1430,4,1)$ & $(512,2,1)$ & $(1324, 406)$ &\\
+  & LPN-style & $(256,256,128)$ & $(3000,6,3)$ & $(4995,)$ & & &$(1324,4,2)$ & $(3160,918)$ &  \\
+
+  \hline
+
+  OWF & \makecell{\ttOWF} & $(128, 452, 81)$ & $(904,2,1)$ & $(2337, 717)$ & & & - & - & - \\
+  \hline
+  \end{tabular}
+}
+\caption{Concrete MPC costs for our candidate constructions in three settings (Distributed 2PC (with preprocessing), 3PC, and Public-input 2PC) using our proposed parameters. For the distributed 2PC and the public-input 2PC settings, we provide the total online communication (bits, messages, rounds), preprocessing required in bits (without compression, with compression), and offline communication (bits, messages, rounds) to generate the preprocessing. For the compressed size of the preprocessing, we do not include values that can be reused (e.g., PRG seeds). For the distributed 3PC setting, we provide the online communication (bits, messages, rounds).}
+
+
+}
+\mahimna{Should we count PRG size in the compression.}
+\end{table}

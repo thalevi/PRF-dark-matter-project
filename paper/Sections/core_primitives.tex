@@ -18,6 +18,9 @@ We make use of just four types of basic operations, or ``gates,'' which we detai
     \item \textbf{Mod-$p$ Public Linear Gate.}
     For a prime $p$, given a public matrix $\mat{A} \in \Z_p^{s \times l}$, the gate $\LMap^\mat{A}_p(\cdot)$ takes as input $x \in \Z_p^l$ and outputs $y = \mat{A}x \in \Z_p^s$.
 
+    % \item \textbf{Mod-$p$ Addition Gate.}
+    % For a prime $p$, the gate $\textsf{Add}_p(\cdot,\cdot)$ takes input $x,x' \in \Z_p^{n}$ and outputs $y = x + x' \bmod p$.
+
     \item \textbf{Mod-$p$ Bilinear Gate.}
     For a prime $p$, and positive integers $s$ and $l$, the gate $\BLMap_p^{s,l}(\cdot, \cdot)$ takes as input a matrix $\mat{K} \in \Z_p^{s \times l}$ and a vector $x \in \Z_p^l$ and outputs $y = \mat{K}x \in \Z_p^s$. When clear from context, we will drop the superscript and simply write $\BLMap_p(\mat{K}, x)$.
     
@@ -29,6 +32,8 @@ We make use of just four types of basic operations, or ``gates,'' which we detai
 \noindent Note that the difference between the $\LMap$ and the $\BLMap$ gates is seen in the context of their distributed protocols. For $\LMap$, the matrix $\mat{A}$ will be publicly available to all parties, while the input $x$ will be secret shared. On the other hand, for $\BLMap$, both the key $\mat{K}$ and the input $x$ will be secret shared. We call this gate \textit{bilinear} because its output is linear in both of its inputs. Also note that although the $\Convert_{(2,3)}$ gate is effectively a no-op in a centralized evaluation, in the distributed setting, the gate will be used to convert an additive sharing over $\Z_2$ to an additive sharing over $\Z_3$.
 
 As described previously, for the (bi)linear mappings, we focus only on constructions that use mod-2 and mod-3 mappings. In Figure~\ref{fig:graphical_gates}, we provide a pictorial representation for each circuit gate. We will connect these pieces together to also provide clean visual representations for all our constructions. 
+
+The homomorphic properties properties of additive secret sharing directly imply that the gates $\LMap$ and $\textsf{Add}$ can be computed locally without any preprocessing or communication. For the other gates, we provide protocols to evaluate them in a distributed setting in Section~\ref{sec:distributed_protocols}.
 
 \input{Figures/tikzfigs/graphical_gates.tex}
 

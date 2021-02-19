@@ -45,7 +45,26 @@
 
     \end{scope} 
 
-    \begin{scope}[shift={(-7,-6)}]
+    \begin{scope}[shift={(-6,-6.25)}]
+        \node[draw,circle, minimum size=1cm] {};
+        \draw (0,0.5) -- (0,-0.5);
+        \draw (0.5,0) -- (-0.5,0);
+        \node[shift={(0.55,-0.55)}] {$p$};        
+
+        \draw[->, -latex] (-1.5,0) -- (-0.5,0);
+        \node[shift={(-1.65,0)}] {$x$};        
+
+        \draw[->, -latex] (1.5,0) -- (0.5,0);
+        \node[shift={(1.68,0.065)}] {$x'$};        
+
+        \draw[->, -latex] (0,-0.5) -- (0,-1.5);
+        \node[shift={(0,-1.65)}] {$y$};        
+
+        \node[shift={(0,-2)}] {$\Add_p$ gate};
+
+    \end{scope}
+
+    \begin{scope}[shift={(2.75,-7.85)}]
        \node [draw=none,regular polygon, regular polygon sides=4, scale=2, twostyle] {};
        \node[shift={(1,0)}] {$p=2$};
        \node [draw=none,regular polygon, regular polygon sides=4, scale=2, threestyle, shift={(1.5,0)}] {};
