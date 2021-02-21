@@ -4,13 +4,9 @@
 \label{sec:distributed_protocols}
 We now describe efficient protocols to compute our candidate constructions in several interesting distributed settings. This section is structured as follows. First, in Section~\ref{subsec:protocol_overview}, we provide a technical overview for our overall protocol design. This includes computation protocols for each of our circuit gates as well as a generic way to compose them to obtain fully distributed protocols in the preprocessing model for all our constructions. Section~\ref{subsec:distributed_protocol} quantifies this approach by providing concrete communication and preprocessing costs for distributed evaluations for our constructions. In Section~\ref{subsec:3party_protocol}, for our \ttwPRF construction, we provide a 3-party protocol that does not require any preprocessing and is secure against one passive corruption. Finally, in Section~\ref{subsec:oprf_protocol}, we provide two OPRF protocols for our \ttwPRF construction in the preprocessing model. All provided protocols are for the semi-honest setting.
 
-% \mahimna{many of the subsections will undergo many changes but I wanted to get at least a first draft of the content written.}
-
 \subsection{Technical Overview}
 \label{subsec:protocol_overview}
 Recall that all our constructions can be succinctly represented using four basic gates. The main strategy now will be to evaluate each of these gates in a distributed manner. These gate evaluation subprotocols can then be easily composed to evaluate the  candidate constructions. 
-
-% \yuval{Here and/or in the introduction, we should give credit to previous relevant works (Beaver, TinyTables, BGI19), say how our protocols can be viewed as following this previous framework, and how the details differ.}
 
 We begin with distributed protocols to evaluate each of the four gates. Abstractly, the goal of a gate protocol is to convert shares of the inputs to shares of the outputs (or shares of the masked output). To make our formalism cleaner, the gate protocols, by themselves, will involve no communication. Instead, they can additionally take in masked versions of the inputs, and possibly some additional correlated randomness. When composing gate protocols, whenever a masked input is needed, the parties will exchange their local shares to publicly reveal the masked value. This choice also prevents redoing the same communication when the masked value is already available from earlier gate evaluations.
 
@@ -22,7 +18,7 @@ Given public values $a_1, \dots, a_k$, it is straightforward for the protocol pa
 
 \subsubsection{Distributed Computation of Circuit Gates}
 
-\yuval{In the following, I suggest to switch to a more structured format. For instance: an itemized list for each subprotocol, where the first item describes the functionality, the second describes the correlated randomness, and the third describes the actual protocol. It will also be good to have a table that summarizes the online and communication and correlated randomness (in bits) for each subprotocol. }
+% \yuval{In the following, I suggest to switch to a more structured format. For instance: an itemized list for each subprotocol, where the first item describes the functionality, the second describes the correlated randomness, and the third describes the actual protocol. It will also be good to have a table that summarizes the online and communication and correlated randomness (in bits) for each subprotocol. }
 
 We provide detailed (local) protocols to compute each circuit gate in this section. The description of inputs (including shared correlated randomness) and outputs for each gate protocol is also summarized in Table~\ref{table:gate_protocol_summary}.
 
@@ -37,6 +33,9 @@ Protocol & \makecell{Public \\ Inputs} & \makecell{Shared \\ Inputs} & \makecell
 \hline
 $\prot_{\LMap}^{\mat{A},p}$ & $\mat{A}$ & $x$ & - & $y = \mat{A}x$ (over $\Z_p$)\\
 \hline
+$\prot_{\Add}^{p}$ & & $x, x'$ & - & $y = x + x'$ (over $\Z_p$)\\
+\hline
+
 % $\prot_{\BLMap}^p$ & $\hat{\mat{K}}, \hat{x}$ & $\tilde{\mat{K}},\tilde{x}, \tilde{\mat{K}}\tilde{x} + \tilde{y}$ & $\hat{y} = \mat{K}x + \tilde{y}$ (over $\Z_p$)\\
 $\prot_{\BLMap}^p$ & $\hat{\mat{K}}, \hat{x}$ & - & $\tilde{\mat{K}},\tilde{x}, \tilde{\mat{K}}\tilde{x}$ & $y = \mat{K}x$ (over $\Z_p$)\\
 \hline
@@ -62,6 +61,10 @@ The linear gate is the easiest to evaluate, and follows from the standard linear
   \item \textbf{Protocol details}:
   For the protocol $\prot_\LMap^{\mat{A}, p}(\mat{A} \mid x)$, each party $\party_i$ computes its output share as $\sharei{y} = \mat{A}\sharei{x}$. Note that this works because $\mat{A}x = \sum_{\party_i \in \parties} \mat{A}\sharei{x}$ as a direct consequence of the linear homomorphism of additive shares.
 \end{itemize}
+
+\paragraph{Addition gate protocol $\prot_\Add^{p}$.}
+The addition modulo $p$ gate is also equally easy to evaluate. Given shares of $x, x'$ over $\Z_p$, for the protocol each party $\party_i$ can locally compute its share of $x+x'$ as $\sharei{x} + \sharei{x'} \bmod p$. This directly follows from the additive homomorphism of additive shares. 
+
 
 
 \paragraph{Bilinear gate protocol $\prot_\BLMap^p$.}
@@ -143,11 +146,12 @@ Consequently, $\sum_{\party_i \in \parties} \sharei{x^*} \bmod 2 = x \bmod 2$ ho
 \end{itemize}
 
 
+%-------------------------------%
+
 \subsubsection{Composing Gate Protocols}
-\mahimna{Still need to mention how this can be adapted from prior work}
 We now describe a general technique to evaluate circuit composed of the previously specified gates in a distributed fashion. We provide details for the semi-honest fully distributed setting (with preprocessing), where all inputs are secret shared between all parties initially. While the technique will also work for other settings (e.g., OPRF, public input), the concrete communication costs will be significantly worse than more specially designed protocols. For these settings, we will provide more efficient protocols than provided by this general technique.
 
-Consider a circuit $C$ (Definition~\ref{def:computation_circuit}) with input space $\Gin = \prod \Gin_i$. To evaluate $C$ with input $(x_1, \dots, x_l) \in \Gin$, in the fully distributed setting, all parties are given additive shares for each $x_i$. Now, the distributed evaluation of $C$ proceeds as follows:
+\paragraph{Composition protocol.} Consider a circuit $C$ (Definition~\ref{def:computation_circuit}) with input space $\Gin = \prod \Gin_i$. To evaluate $C$ with input $(x_1, \dots, x_l) \in \Gin$, in the fully distributed setting, all parties are given additive shares for each $x_i$. Now, the distributed evaluation of $C$ proceeds as follows:
 \begin{itemize}
   
   \item All vertices at the same depth in $C$ are evaluated simultaneously, starting from the source vertices that contain the inputs of the computation. 
@@ -170,7 +174,48 @@ Consider $N$ parties taking part in the distributed evaluation. To reconstruct a
 \end{itemize}
 
 
-It is also straightforward to parallelize the communication to reduce the number of rounds. For this, suppose that we call an edge $(V_a, V_b)$ \textit{communication-requiring} if the output of the protocol for $V_a$ needs to be masked before it is input into the protocol for $V_b$. Now, define the communication-depth of a vertex $V$ as the maximum number of communication-requiring edges in the path from a source vertex to $V$. Now, instead of evaluating vertices with the same depth simultaneously, we will evaluate vertices with the same \textit{communication-depth} together before the next communication round. By doing so, we can reduce the total number of rounds to the maximum communication-depth.
+\paragraph{Reducing round complexity.} It is also straightforward to parallelize the communication to reduce the number of rounds. For this, suppose that we call an edge $(V_a, V_b)$ \textit{communication-requiring} if the output of the protocol for $V_a$ needs to be masked before it is input into the protocol for $V_b$ (in other words, the gate protocol for $V_b$ requires a masked input). Now, define the communication-depth of a vertex $V$ as the maximum number of communication-requiring edges in any path from a source vertex to $V$. Now, instead of evaluating vertices with the same depth simultaneously, we will evaluate vertices with the same \textit{communication-depth} together before the next communication round. By doing so, we can reduce the total number of rounds to the maximum communication-depth.
+
+
+\paragraph{Preprocessing cost.}
+A na{\"i}ve technique to compute the preprocessing required is to add the preprocessing for each gate in the circuit as follows:
+
+\begin{itemize}
+\item The $\LMap$ and $\Add$ gates are computed locally and require no preprocessing.
+
+\item Each $\BLMap_p$ gate requires a Beaver-style triple which provides masks for the two inputs and a multiplication of the two masks. Specifically, for $\BLMap_p(\mat{K}, x)$ where $\mat{K} \in \Z_p^{l_2 \times l_1}$ and $x \in \Z_p^{l_1}$, the preprocessed shares are of the form $(\tilde{\mat{K}}, \tilde{x}, \tilde{\mat{K}}\tilde{x})$. Consequently, when $\mat{K}$ is circulant, a total of $(2l_1 + l_2) \log_p$ bits needs to be provided as preprocessing to each party.
+
+\item Each $\Convert_{(2,3)}$ gate requires shares of a random mask $\tilde{x}$ both over $\Z_2$ and $\Z_3$. In other words, for $x \in \Z_2^l$, it requires $l + \log_2{3} \cdot l$ bits of preprocessing per party.
+
+\item Each $\Convert_{(3,2)}$ gate requires shares of a random mask $\tilde{x}$ (over $\Z_3$) as well as $u = \tilde{x}$ and $v = (\tilde{x} + \textbf{1} \bmod 3)\bmod 2$ (both over $\Z_2$). In other words, for $x \in \Z_3^l$, it requires $\log_2{3} \cdot l + 2l$ bits of preprocessing per party.
+\end{itemize}
+
+\paragraph{Compressing preprocessing required.}
+We describe several optimizations to reduce the total cost of preprocessing. We assume here the presence of a trusted dealer to generate any correlations in the randomness. We note that some of the optimizations, while reducing the size of preprocessing, would be more complicated to generate if a dealer is not present.
+
+\begin{itemize}
+
+  \item (Reducing redundant preprocessing).
+  A straightforward optimization is to not mask the same value twice. For example, if the same value $x$ is considered as input for both a $\BLMap$ gate and a $\Convert$ gate, the same mask $\tilde{x}$ can be used for both. 
+
+  \item (Masking $\BLMap$ gate outputs.)
+  The standard $\BLMap$ gate requires preprocessing of the form $(\tilde{\mat{K}}, \tilde{x}, \tilde{\mat{K}}\tilde{x})$. However, if the output of the $\BLMap$ gate is then later input to a gate that requires a masked input (e.g., a $\Convert$ gate or even another $\BLMap$ gate), the $\BLMap$ gate can directly mask its output by providing $\tilde{\mat{K}}\tilde{x} + \tilde{y}$ instead. If this is done, the parties will compute a sharing of $\hat{y} = \mat{K}x + \tilde{y}$ using the $\BLMap$ gate. This means that the parties can directly exchange their shares to reconstruct $\hat{y}$ without requiring more preprocessing to mask $y$.
+
+  For both the $\Convert_{2,3}$ and $\Convert_{(3,2)}$ gates, if the masked version $\hat{x}$ of the input $x$ is already known to all parties, only $\log_2{3} \cdot l$ and $2l$ bits respectively of preprocessing are required per party. 
+
+ 
+  \item (Compression using a PRG).
+  Another standard technique for compressing the size of preprocessing is to use a PRG. Intuitively, each party is given a different PRG seed by the trusted dealer which they can use locally to generate their randomness. Only a single party has its shares given by the dealer to ensure that the randomness is appropriately correlated. 
+
+  % For this, the dealer will first generate the randomness as usual. To share the randomness, instead of randomly sampling shares, the dealer (who knows the seeds of all parties) will compute the shares for all but one party (say $\party_1$) using the party's PRG seed. The share for $\party_1$ can now be set so that the shares form an sharing of the required randomness.
+
+  % More specifically, for the $\BLMap$ gate, a dealer first samples a random triple $(\tilde{K}, \tilde{x}, \tilde{K}\tilde{x})$
+\end{itemize}
+
+
+
+
+\newpage
 
 
 \paragraph{Correlated randomness.}
@@ -182,25 +227,25 @@ It is also straightforward to parallelize the communication to reduce the number
 \label{subsec:distributed_protocol}
 Equipped with our technical overview, it is simple to construct distributed protocols (with preprocessing) for our candidate wPRF and OWF constructions. By distributed evaluation, we mean that all inputs are secret shared between all parties and the protocol provides parties with a sharing of the output. As a concrete example, we provide the complete details of a 2-party distributed evaluation protocol for our \ttwPRF candidate. In Table~\ref{table:construction_costs}, for each our constructions, we provide the amount of preprocessed randomness required as well as the communication cost for the distributed protocol.
 
-\begin{table}[t]
-\centering
-\begin{tabular}{|c|c|c|c|c|c|}
-  \hline
-  \multirow{2}{*}{Primitive} & \multirow{2}{*}{Construction} & \multirow{2}{*}{\makecell{Preprocessing \\ (bits)}} & 
-  \multicolumn{3}{c|}{Communication} \\
-  & & & Size (bits) & Rounds & Messages\\
-  \hline
-  \hline
-  \multirow{2}{*}{wPRF} & 23-wPRF & & &&\\
-  & 32-wPRF & & &&\\
-  \hline
-  \multirow{2}{*}{OWF} & 23-OWF & & &&\\
-  & 32-OWF & & &&\\
-  \hline
-\end{tabular}
-\caption{Preprocessing and communication cost for fully distributed evaluation of each of our candidate constructions. \mahimna{to be filled. I think here, we should report the final numbers after compression. We should also decide whether to report the concrete numbers, numbers as functions of $n,m,t$ or both. We can also report numbers for other constructions in literature here}}
-\label{table:construction_costs}
-\end{table}
+% \begin{table}[t]
+% \centering
+% \begin{tabular}{|c|c|c|c|c|c|}
+%   \hline
+%   \multirow{2}{*}{Primitive} & \multirow{2}{*}{Construction} & \multirow{2}{*}{\makecell{Preprocessing \\ (bits)}} & 
+%   \multicolumn{3}{c|}{Communication} \\
+%   & & & Size (bits) & Rounds & Messages\\
+%   \hline
+%   \hline
+%   \multirow{2}{*}{wPRF} & 23-wPRF & & &&\\
+%   & 32-wPRF & & &&\\
+%   \hline
+%   \multirow{2}{*}{OWF} & 23-OWF & & &&\\
+%   & 32-OWF & & &&\\
+%   \hline
+% \end{tabular}
+% \caption{Preprocessing and communication cost for fully distributed evaluation of each of our candidate constructions. \mahimna{to be filled. I think here, we should report the final numbers after compression. We should also decide whether to report the concrete numbers, numbers as functions of $n,m,t$ or both. We can also report numbers for other constructions in literature here}}
+% \label{table:construction_costs}
+% \end{table}
 
 \subsubsection{$2$-Party Protocol for \ttwPRF.}
 \label{subsec:2pc-wprf}

@@ -4,13 +4,22 @@
 %-----------------------Common Packages------------------------%
 %--------------------------------------------------------------%
 \usepackage[dvipsnames]{xcolor}
-\usepackage{amsfonts,amssymb,amsmath,amsthm}
+\usepackage{amsfonts,amssymb,amsmath}
 \usepackage{mathtools}
 \usepackage{enumitem}
+
+\iffull
 \usepackage[style=alphabetic,backend=bibtex,maxnames=4,minnames=3,maxbibnames=99]{biblatex}
+\else
+\usepackage[style=numeric-comp,backend=bibtex]{biblatex}
+\fi
+
 \usepackage[pdfauthor={},pdfpagelabels=true,linktocpage=true,hidelinks,linktoc=all,colorlinks]{hyperref}
 \usepackage[nameinlink,capitalize]{cleveref}
+
+\iffull
 \hypersetup{linkcolor = {teal}, citecolor = {magenta}, urlcolor = {black}}
+\fi
 
 \usepackage{tikz}
 \usetikzlibrary{shapes, positioning, patterns, math}
@@ -99,11 +108,11 @@
 \newcommand{\ttwPRF}{$(2,3)$-wPRF\xspace}
 
 \newcommand{\prot}{\boldsymbol{\pi}}
-\newcommand{\LMap}{\textsf{Lin}}
-\newcommand{\Add}{\textsf{Add}}
-\newcommand{\BLMap}{\textsf{BL}}
-\newcommand{\Convert}{\textsf{Convert}}
-\newcommand{\gateset}{\textsf{Gates}}
+\newcommand{\LMap}{\textnormal{\textsf{Lin}}}
+\newcommand{\Add}{\textnormal{\textsf{Add}}}
+\newcommand{\BLMap}{\textnormal{\textsf{BL}}}
+\newcommand{\Convert}{\textnormal{\textsf{Convert}}}
+\newcommand{\gateset}{\textnormal{\textsf{Gates}}}
 
 \newcommand{\randval}[1]{\tilde{#1}}
 \newcommand{\masked}[1]{\hat{#1}}
@@ -131,6 +140,8 @@
 \fi
 
 % Environments
+\iffull
+\usepackage{amsthm}
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{corollary}{Corollary}[theorem]
 \newtheorem{lemma}[theorem]{Lemma}
@@ -144,6 +155,11 @@
 \newtheorem{functionality}[theorem]{Functionality}
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
+\else
+\newtheorem{construction}[theorem]{Construction}
+\fi
+
+
 
 
 
