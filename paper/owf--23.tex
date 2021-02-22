@@ -41,7 +41,7 @@ while the relation between $n$ and $m$ depends on the cryptosystem.
 The input to each cryptosystem consists of a secret over $\mathbb{F}_2^n$ chosen uniformly at random,
 to which an initial transformation
 is applied to obtain a vector $w \in \mathbb{F}_2^m$, and a final transformation is applied to $w$ to obtain
-The output $y \in \mathbb{F}_2^t$ or $y\in \mathbb{F}_3^n$ (depending on the cryptosystem).
+The output $y \in \mathbb{F}_2^t$ or $y\in \mathbb{F}_3^t$ (depending on the cryptosystem).
 The transformations involve public matrices or vectors selected uniformly at random
 (perhaps under some constraints).
 
@@ -50,7 +50,7 @@ The transformations involve public matrices or vectors selected uniformly at ran
 
 The parameters $n,m,t$ satisfy $m \geq n$, $m \geq t$.
 Given a secret $x \in \mathbb{F}_2^n$ and
-two public matrices $A \in \mathbb{F}_2^{m \times n}$
+two public matrices $A \in \mathbb{F}_2^{m \times n}$,
 $B \in \mathbb{F}_3^{t \times m}$:
 \begin{enumerate}
   \item Compute $w = Ax \in \mathbb{F}_2^m$.
@@ -61,9 +61,10 @@ $B \in \mathbb{F}_3^{t \times m}$:
 
 The parameters $n,m,t$ satisfy $n \geq m$, $m \geq t$.
 The secret input is $k \in \mathbb{F}_2^{n}$.
-Let $K \in \mathbb{F}_2^{m \times n}$ be a circulant matrix of full rank $n$
+Let $K \in \mathbb{F}_2^{m \times n}$ be a circulant matrix of 
+full rank $m$
 whose rows include all cyclic rotations of $k$.
-Given a public input vector $x \in \mathbb{F}^{m}_2$ and
+Given a public input vector $x \in \mathbb{F}^{2}_n$ and
 and a public matrix $B \in \mathbb{F}_3^{t \times m}$:
 \begin{enumerate}
   \item Compute $w = Kx \in \mathbb{F}_2^m$
@@ -88,7 +89,7 @@ The secret input is $k \in \mathbb{F}_2^{n}$.
 Let $K \in \mathbb{F}_2^{m \times n}$ be a circulant matrix of full rank $n$
 whose rows include all cyclic rotations of $k$.
 Given a public input vector $x \in \mathbb{F}^{m}_2$ and
-and a public matrix $B \in \mathbb{F}_2^{t \times m}$:
+a public matrix $B \in \mathbb{F}_2^{t \times m}$:
 \begin{enumerate}
   \item Compute $w = Kx \bmod 2 + ((Kx \bmod 3) \bmod 2) \bmod 2 \in \mathbb{F}_2^m$.
   \item Output $y = Bw \in \mathbb{F}_2^t$.
@@ -109,23 +110,30 @@ PRFs and the PRG we define.
 Of course, there are bad choices of the public inputs which could degrade security,
 and we need to show that these are unlikely to be occur.
 
-Finally, for the PRFs we define, this still leaves open the question of how to select the public matrices $x$ and $B$
+Finally, for the PRFs we define, this still leaves open the question of how to select the public inputs $x$ and $B$
 per sample computed with a secret key. We chose to select $x$ independently per sample,
-while fixing $B$ per secret key, as this allows to optimize performance by preprocessing.  
+while fixing $B$ per secret key, as this allows to optimize performance by preprocessing.
 In terms of security, the choice of fixing $B$ does allow for a wider range of attacks
 that we need to consider, as we demonstrate in the security analysis.
+
+\subsubsection{Restricted public matrices.}
+In order to optimize performance, we select the public matrices 
+for the schemes as random Toeplitz matrices. These matrices 
+define a pairwise independent hash family and are known to satisfy the 
+Gilbert–Varshamov bound for linear codes, which is the main tool we use in the analysis.
 
 
 \subsection{Security Goals}
 For each scheme the goal is to obtain parameter sets $n,m,t$ such that it offers
-$s$-bit security, as defined below, which achieving good performance in distributed protocols.
+$s$-bit security, as defined below, while achieving good performance in distributed protocols.
 
-\subsubsection{OWF security}
+\subsubsection{OWF security.}
 
-Given a OWF scheme $F(\cdot)$ (applied to a secret input), we define an inversion attack game by choosing $\hat{x} \in \mathbb{F}_2^n$
+Given a OWF scheme $F(\cdot)$ (applied to a secret input, where the public parameters are embedded into $F$), 
+we define an inversion attack game by choosing $\hat{x} \in \mathbb{F}_2^n$
 uniformly at random and giving $\hat{y}= F(\hat{x})$ to the adversary, whose
 goal to output some $x \in \mathbb{F}_2^n$ such that $F(x) = \hat{y}$.
-We say that $F(\cdot)$ has $s$ bits of security if no adversary can win the inversion attack game on $F(\cdot)$ with average complexity below $2^s$.
+We say that $F(\cdot)$ has $s$ bits of security if no adversary can win the inversion attack game on $F(\cdot)$ with average complexity below $2^{s-1}$.
 
 
 \subsubsection{PRF security.}
@@ -133,38 +141,35 @@ We say that $F(\cdot)$ has $s$ bits of security if no adversary can win the inve
 We refer to both PRFs listed above.
 
 The key $k \in \mathbb{F}_2^n$ that defines the secret matrix $K$ is chosen uniformly at random such that
-$K \in \mathbb{F}_2^{m \times n}$ is of rank $n$.
+$K \in \mathbb{F}_2^{m \times n}$ is of rank $m$.
 Moreover, the public matrix
-$B \in \mathbb{F}_3^{t \times m}$ (or $B^{(i)} \in \mathbb{F}_2^{t \times m}$) is chosen uniformly at random.  
+$B \in \mathbb{F}_3^{t \times m}$ (or $B^{(i)} \in \mathbb{F}_2^{t \times m}$) is chosen uniformly at random
+(or as a random Toeplitz matrix).
 For a parameter $r$, an adversary is given $2^{r}$ samples $(x^{(1)},B,y^{(1)}) ,\ldots, (x^{(r)},B,y^{(r)})$,
-where each $x^{(i)} \in \mathbb{F}_2^m$ is chosen independently and uniformly at random.
-The adversary is a distinguisher that attempts to distinguish $2^r$ samples where each $y^{(i)}$
-is generated using the PRF with a fixed $k$ from
-$2^r$ samples where each vector $y^{(i)}$ is chosen uniformly at random.
+where each $x^{(i)} \in \mathbb{F}_2^n$ is chosen independently and uniformly at random.
 
 We will place a restriction of $r \leq 40$,
 corresponding to a practical limit of $2^{40}$ on the number of samples available to the adversary.
 
-We say that the PRF has $s$ bits of security if given $2^r$ samples, no adversary that runs in time $2^\tau$
-can win the distinguishing game with probability more that 
-$$2^{\tau - s} + 2^{(r - s)/2}.$$
-To motivate this formula, the first term correspond to the advantage of an adversary in a key recovery attack on an ideal random function
-with a key size of $s$ bits. The second term takes into account distinguishing attacks given the independent samples obtained by the adversary.
+We consider two types of adversaries. 
+The first type is a distinguisher that attempts to distinguish $2^r$ samples where each $y^{(i)}$
+is generated using the PRF with a fixed $k$ from
+$2^r$ samples where each vector $y^{(i)}$ is chosen uniformly at random.
+The second type attempts to find the secret key given samples generated using the PRF.
+
+We say that the PRF has $s$ bits of security if given (at most) $2^r$ samples both conditions below hold. 
+\begin{enumerate}
+  \item The advantage of a distinguishing adversary that runs in time $2^\tau$ is at most $2^{(\tau - s)/2}$.
+  \item The probability that an adversary that runs in time $2^\tau$ find the key is at most $2^{\tau - s}$.
+\end{enumerate} 
+This definition is aligned with the work of Micciancio and Walter~\cite{Micciancio018}.
 
 
 \subsubsection{PRG security.}
 
-The secret seed $x \in \mathbb{F}_2^n$ is chosen uniformly at random
-and the adversary is given a single sample $A,B,y$,
-such that either $y$ is generated using the PRG, or chosen uniformly at random.
-Thus, the adversary is a distinguisher that attempts to distinguish a sample generated using the PRG from
-a sample where $y \in \mathbb{F}_2^t$ is uniform.
-
-We say that $F$ has $s$ bits of security if given a single sample, no adversary that runs in time $2^\tau$
-can win the distinguishing game with probability more that 
-$$2^{\tau - s} + 2^{-s/2}$$
-(which is a special case of the PRF definition in which $r=0$).
-
+The secret seed $x \in \mathbb{F}_2^n$ is chosen uniformly at random, along with the public parameters $A,B$.
+The adversary is given a single sample $A,B,y$.
+As for PRFs, security is defined against the two types of adversaries and the definition is similar. 
 
 \subsection{Algebraic Attacks}
 
@@ -178,9 +183,9 @@ For example, in the 2-3 OWF and PRF constructions each output entry is a sum $\b
 where each such entry is a sum $\bmod$ 2 of the unknown bits of the secret input.
 Due to the mix between the sums $\bmod$ 2 and $\bmod$ 3 we conjecture (similarly to~\cite{BonehIPSW18}) that
 the output cannot be represented (or well-approximated) by a low degree polynomial over any specific polynomial ring.
-In particular, it was shown in~\cite{BonehIPSW18} that the sum $\bmod$ 3 of $k$ binary-valued variables is
+In particular, it was shown in~\cite{BonehIPSW18} that the sum $\bmod$ 3 of $\ell$ binary-valued variables is
 a high-degree polynomial over $\mathbb{F}_2$,
-as long as $k$ is large (e.g., $k \approx n$).
+as long as $\ell$ is large (e.g., $\ell \approx n$).
 Crucially, our choice of parameters will ensure that the sums $\bmod$ 2 and $\bmod$ 3
 are dense and contain many terms.
 In particular, for the
@@ -199,7 +204,7 @@ Beforehand, we note that we may assume without loss of generality that in the mo
 
 Indeed, setting $\log 3 \cdot t > n$ does not reduce the average number of preimages substantially. Consequently, any attack on a scheme with $n = \log 3 \cdot t'$ can be applied to a scheme with $\log 3 \cdot t > n$ by truncating the output to be of length $\log 3 \cdot t'$. Hence a scheme in which $\log 3 \cdot t > n$ does not offer better security than the truncated one.
 On the other hand, the truncated scheme has shorter output and is generally more efficient.
-Similarly, if $n > \log 3 \cdot t$, an attacker can fix $n - \log 3 \cdot t$ bits of the secret input to and arbitrary value and try to invert the image of the induced scheme where $n' = \log 3 \cdot t$ (note that on average, a single such preimage exists).
+Similarly, if $n > \log 3 \cdot t$, an attacker can fix $n - \log 3 \cdot t$ bits of the secret input to an arbitrary value and try to invert the image of the induced scheme where $n' = \log 3 \cdot t$ (note that on average, such a preimage exists).
 
 
 \subsection{Basic Attacks}
@@ -271,7 +276,7 @@ Assume that $x \in \mathbb{F}_2^n$ satisfies $\OWF(x) = \hat{y}$ and let $w = Ax
 $w$ satisfies the conditions $P w = 0$ (over $\mathbb{F}_2$) and $Bw = \hat{y}$ (over $\mathbb{F}_3$).
 We attempt to find such $w$ by a reduction to subset-sum, as detailed below.
 
-Suppose we fine a set $J \subseteq [m]$ such that
+Suppose we find a set $J \subseteq [m]$ such that
 $$\left( \sum_{j \in J} Pe_j  \bmod 2, \sum_{j \in J} Be_j  \bmod 3 \right) = (\vec{0},\hat{y}),$$
 where $e_i \in \{0,1\}^m$ be the $i$'th unit vector.
 Then, a preimage $x$ such that $\OWF(x) = \hat{y}$ can be computed by solving the linear equation system
@@ -290,7 +295,7 @@ We can now apply the advanced subset-sum algorithm by
 Howgrave{-}Graham and Joux~\cite{Howgrave-GrahamJ10} and the more recent ones
 ~\cite{BeckerCJ11,BonnetainBSS20},
 which are based on the \emph{representation technique}.
-These algorithms were designed to solve subset-sum problems over the integers.
+These algorithms were mostly designed to solve subset-sum problems over the integers.
 Below, we describe the main ideas of these algorithms
 and explain how to apply them to the special subset-sum problem
 we consider.
@@ -309,7 +314,7 @@ and the parameters are set such that the instance has about one solution on aver
 The main idea of the basic algorithm of Howgrave{-}Graham and Joux~\cite{Howgrave-GrahamJ10}
 is to split the problem into two parts by writing
 $S = \sigma_1 + \sigma_2$,
-where $\sigma_1 = \sum_{i=1}^{m} \alpha_i a_i$ and $\sigma_2 = \sum_{i=1}^{m} \beta_i a_i$
+where $\sigma_1 = \sum_{i=1}^{m} \alpha_i a_i$, $\sigma_2 = \sum_{i=1}^{m} \beta_i a_i$
 and $(\alpha_i,\beta_i) \in \{(0,0),(0,1),(1,0)\}$.
 Thus, $\epsilon_i = \alpha_i + \beta_i$ for each $i$ is a solution to the problem.
 
@@ -357,7 +362,7 @@ we conjecture that $\OWF(\cdot)$ has $s$ bits of security.
 First, due to the exhaustive search, we require $$n \geq s.$$
 Second,
 the most restrictive constraint on $m$ is imposed by the subset-sum algorithm.
-Of we conservatively ignore the hidden polynomial factors and the large memory
+If we conservatively ignore the hidden polynomial factors and the large memory
 complexity of the subset-sum algorithm of~\cite{BonnetainBSS20}, we need to set
 $$0.283m \geq s.$$
 
@@ -383,14 +388,14 @@ we require $m^2 \cdot 2^{0.283m} \geq 2^{s} = 2^{128}$. Setting $m = 400 = 3.125
 
 \paragraph{Post-quantum setting.}
 In the post-quantum setting, we have the constraints
-$$n/2 \geq s$$
+$n/2 \geq s$
 due to Grover's algorithm, and
-$$0.2156 m \geq s$$
+$0.2156 m \geq s$
 due to the quantum subset-sum algorithm.
 
 Overall, we obtain
-$$n = \log 3 \cdot t = 2s,$$
-and $$m = \tfrac{s}{0.2156} \approx 4.64 s.$$
+$n = \log 3 \cdot t = 2s,$
+and $m = \tfrac{s}{0.2156} \approx 4.64 s.$
 
 
 
@@ -423,13 +428,14 @@ On the other hand, if we try to reduce the complexity by applying the algorithm 
 \subsection{Exploiting Multiple Samples}
 The key recovery attacks described above make use of a minimal number of samples required to derive the secret key. On the other hand, when given more samples, it may be possible to exploit various relations among them to mount distinguishing and even key recovery attacks which we investigate below.
 
-
 \subsubsection{Output bias.}
 We consider a single sample $(x,B,y)$ and analyze the bias of linear combinations of the entries of $y$ over $\mathbb{F}_3$.
+If any such linear combination has a sufficiently high bias towards some constant, 
+then an attacker can exploit it in a distinguishing attack.
 
 Similarly to the case analyzed for the corresponding OWF, assume there are vectors $v \in \mathbb{F}_3^m$ and $u \in \mathbb{F}_3^t$ such that $u B = v$ and the Hamming weight of $v$ is $\ell$. Given $y = Bw \bmod 3$, the attacker computes $uy \bmod 3 = vw \bmod 3$ and thus obtains the value of a linear combination $\bmod$ 3 of $\ell$ entries of $w \in \{0,1\}^m$.
 Specifically, denoting the set of $\ell$ non-zero indices of $v$ by $I$, the attacker computes $\sum_{i \in I} v_i w_i \bmod 3$.
-We now calculate the bias of sum $\bmod $ 3, recalling that as $m < n$ and $K$ has full rank, $w$ is uniformly distributed in $\mathbb{F}_2^m$.
+We now calculate the bias of sum the $\bmod $ 3, assuming that $w$ is uniformly distributed in $\mathbb{F}_2^m$.
 
 Each non-zero coefficient of the linear combination $v$ is either 1 and 2.
 It is easy to prove by induction on $\ell$ (or by analysis of sums of binomial coefficients) that
@@ -441,7 +447,9 @@ We use Proposition~\ref{prop:hw} to deduce
 that the subspace spanned by the rows of $B$ contains a vector of Hamming weight at most $\ell$ with probability at most
 $2 \cdot 2^{m (H(\ell/m) - \log 3) + \ell + \log 3 \cdot t}$.
 
-In general, we will be interested in $\ell \approx s/2$,
+Our analysis is conservative, as we ignore the work performed 
+by the attacker to find a low Hamming weight vector $v$ spanned by the rows of $B$.
+Thus, we will be interested in $\ell \approx s/2$,
 as we would like to avoid having a linear combination of the output with bias at least $2^{-s/2}$
 (except with small probability).
 Plugging this into the formula above we bound the probability by
@@ -449,6 +457,65 @@ Plugging this into the formula above we bound the probability by
 \label{eq:bias}
 2 \cdot 2^{m (H(s/2m) - \log 3) + s/2 + \log 3 \cdot t}.
 \end{align}
+
+\subsubsection{Conditional output bias.}
+As described above, the bias of expressions of the form $\sum_{i \in I} v_i w_i \bmod 3$,
+(where $I \subseteq [m]$ is a set of size $\ell$, each $v_i \in \{1,2\}$ is fixed and $w_i \in \{0,1\}$
+are independent and uniformly distributed random variables) is bounded by $2^{-\ell+1}$.
+
+However, the bias may increase if information about the variables $w_i$ is known.
+In particular, the case in which $\sum_{i \in I} w_i \bmod 2$ is known was analyzed in~\cite{CheonCKK20},
+where the authors showed that the conditional biases such as
+$$\left| \Pr \left[\sum_{i \in I} w_i \bmod 3 = 0 \mid \sum_{i \in I} w_i \bmod 2 = 0 \right] - 1/3 \right|$$
+can be as large as about $2^{-0.21\ell}$.
+While this is still exponentially small in $\ell$,
+it is more significant than the unconditional bias.
+
+The PRF candidate proposed in~\cite{BonehIPSW18} and analyzed in~\cite{CheonCKK20} 
+is similar to the one we analyze for $n = m$,
+yet the matrix $B$ contains a single row that sums $\bmod$ 3 all the entries of $w$.
+Moreover, since $K$ is a circulant matrix and $x$ has even Hamming weight, 
+then $\sum_{i \in [m]} w_i \bmod 2 = 0$ and the distinguishing attack is applicable.
+In our case, $B$ is selected at random and the parameters are chosen 
+such that the attacker cannot obtain $\sum_{i \in I} w_i \bmod 3$ for any fixed set $I$ (and particularly $I = [m]$),
+except with negligible probability. 
+The general distinguishing attack is analyzed below.
+
+Assume that given a sample $(x,B,y)$, 
+there exists a set $I \subseteq [m]$ (that depends of $x$)
+such that $\sum_{i \in I} w_i \bmod 2$ is known to the attacker.
+Moreover, assume that there exists $v$ in the row span of $B$
+such that $v_i = 1$ for each $i \in I$ and $v_i = 0$
+for each $i \notin I$.
+Then, the value $\sum_{i \in I} w_i \bmod 3$ can be computed from
+the output, and the distinguishing advantage is as high as (about) $2^{-0.21\ell}$.
+Of course, if several samples are available, the distinguishing advantage can
+increase by accumulating the bias,
+assuming the above conditions are fulfilled for more than one sample.
+
+An extended variant of the attack may consider a vector
+$v' = v + u$ in the row span of $B$.
+Denoting that Hamming weights of $v$ and $u$ by $\ell_1$,$\ell_2$, respectively,
+the conditional bias can be as high as $2^{-0.21\ell_1 - \ell_2 + 1}$.
+Note that here we conservatively ignore the work required to find such $v'$.
+
+Given $2^r$ samples (where $r \leq 40$),
+we wish to show that the distinguishing advantage is small
+(except with negligible probability).
+Indeed, calculation shows that this distinguisher is not stronger that the
+unconditional distinguisher.
+Essentially, given a single sample, for any fixed $I$, the vector $v$ as described above
+is in the row span of $B$ with minuscule probability $3^{t - m}$.
+In the extended attack, we consider a ball around $v$, but this ball
+is much smaller than the one considered in the unconditional distinguisher (as $\ell_2 < s/2$).
+
+Finally, in a more general variant of the attack,
+the attacker may guess a parity of key bits and calculate the conditional bias over several samples,
+attempting to amplify it.
+Note that the desired vector $v$ changes for each sample according to $x$.
+By similar calculation, once the attacker has fixed the guess given a sample,
+almost all additional samples would not allow to amplify the conditional bias, 
+as a good vector is unlikely to be in the row span of $B$.
 
 \subsubsection{Differential cryptanalysis and low Hamming weight samples.}
 As we argue below, the 2-3 PRF seems to be immune to classical statistical differential cryptanalysis.
@@ -459,7 +526,6 @@ Thus, $y' = B w' \bmod 3 = B (w + K \delta \bmod 2 ) \bmod 3$.
 In general, $y$ and $y'$ do not seem to have any statistical relation that holds with sufficiently high probability.
 Particularly, $w + K \delta \bmod 2 \neq w + K \delta \bmod 3$,
 except with very small probability.
-On the other hand, a more interesting attack that exploits relations between more than two samples is described below.
 
 From an algebraic viewpoint, the attacker can consider the $m$ bits of $w = K x \bmod 2$ as variables over $\mathbb{F}_2$,
 but then the algebraic degree of the output over $\mathbb{F}_3$ would be large.
@@ -479,16 +545,17 @@ but we can also place a restriction on the sample generation, forcing it to gene
 with minimal Hamming weight (e.g., a lower bound of $n/4$).
 
 
-\subsubsection{Weakness in circulant matrices for $m=n$.}
-In case $m =n$, then since $K$ is a circulant matrix, if the parity of the bits of $x$ is 0 then the parity of bits of $w$ is also 0.
-This property was exploited in the distinguishing attack of~\cite{CheonCKK20}. In general, we would like to keep the parity of any subset of bits of $w$ secret. Consequently, we make sure that we set $m < n$.
-
 
 \subsubsection{Attacks based on self-similarity.}
 
+%collision on $x$ values
+
 There are several simple attacks that take advantage of the fact that $B$ is fixed for all samples generated with the same secret $k$.
-For example, in a simple multi-target attack, given $2^r$ samples, the attacker guesses $w$, computes $B w \bmod 3$ and compares the result
-with all given outputs. A match allows to recover a candidate for the secret $k$.
+A basic attack looks for a collision on the $w$ values for a pair of samples, which can be detected at the output.
+Given $2^r$ samples, the advantage of this attack is $2^{2r - rank(K)}$. Given the data complexity bound,
+we will set the parameters such that the advantage of this attack is negligible (assuming the rank of $K$ is not too small).
+
+Another simple attack is a multi-target attack, where given $2^r$ samples, the attacker guesses $w$, computes $B w \bmod 3$ and compares the result with all given outputs. A match allows to recover a candidate for the secret $k$.
 The expected complexity of this attack is $2^{m-r}$, but cannot drop below $2^{m - \log 3 \cdot t}$ without exploiting relations between the different $w$ values. In general, given the data limit, the attack less efficient that the attack that enumerates all $w$ values considered above.
 
 \paragraph{Simultaneous sums.}
@@ -496,9 +563,9 @@ The expected complexity of this attack is $2^{m-r}$, but cannot drop below $2^{m
 We describe a more involved self-similarity attack, which exploits the fixed $B$ value per secret $k$.
 
 Assume that for some index set $I$ of size at least 3, $\sum_{i \in I} x^{(i)} \bmod 2 = 0$. Then, $\sum_{i \in I} w^{(i)} \bmod 2 = 0$. While it is not clear how this relation influences the output,
-we extend this initial observation by simultaneously considering sums $\bmod$ 2 and 3, as follows: 
+we extend this initial observation by simultaneously considering sums $\bmod$ 2 and 3, as follows:
 assume that there are 4 samples (denoted for simplicity
-by $ \{(x^{(i)},B,y^{(i)})\}_{i=1}^{4}$) such that for each $j \in [m]$, 
+by $ \{(x^{(i)},B,y^{(i)})\}_{i=1}^{4}$) such that for each $j \in [m]$,
 $$\sum_{i = 1}^{4} w^{(i)}_j = 2.$$
 Then, $\sum_{i = 0}^{4} x^{(i)} \bmod 2 = 0$ and $\sum_{i = 0}^{4} y^{(i)} \bmod 3 = B \cdot \vec{2} \bmod 3$ (where $\vec{2}$ is a vector with $m$ entries whose values are 2).
 Note that a random 4-tuple of samples satisfies this simultaneous sum constraint with probability
@@ -506,20 +573,20 @@ $2^{-n - \log 3 \cdot t}$, but the probability that the constraint $\sum_{i = 0}
 $$\left( \tfrac{\tbinom{4}{2}}{16} \right) ^{-m} \approx 2^{- 1.415 m},$$
 which is higher than expected if $1.415 m < n + \log 3 \cdot t $.
 
-Since the adversary has about $2^{4r}$ such 4-tuples, the probability that such a simultaneous 4-sum exists is about $2^{4r - 1.415 m}$. It can be detected in time complexity of about $2^{2r}$ using a standard matching algorithm. The important constraints for this attack are
+Since the adversary has about $2^{4r}$ such 4-tuples, the probability that such a simultaneous 4-sum exists is about $2^{4r - 1.415 m}$. It can be detected in time complexity of about $2^{2r}$ using a standard matching algorithm. The important constraints for defending against this attack are
 $$1.415 m > n + \log 3 \cdot t,$$ or
 \begin{align}
 \label{eq:sim}
-2^{4r - 1.415 m} 
+2^{4r - 1.415 m}
 \end{align}
 is negligible, otherwise.
 
 The simultaneous 4-sum distinguisher can be easily generalized to a
-simultaneous $t$-sum distinguisher for arbitrary $t$.
-In general, we look for $t$-tuples where (for example)
-for each $j \in [m]$, $$\sum_{i = 1}^{\ell} w^{(i)}_j = c,$$
+simultaneous $d$-sum distinguisher for arbitrary $d$.
+In general, we look for $d$-tuples where (for example)
+for each $j \in [m]$, $$\sum_{i = 1}^{d} w^{(i)}_j = c,$$
 for some value $c$ (fixed $\bmod$ 6) such that $c \bmod 2 = 0$.
-However, calculation shows that $t = 4$ gives the most efficient
+However, calculation shows that $d = 4$ gives the most efficient
 distinguisher in our case (with the small data limit).
 
 
@@ -546,20 +613,19 @@ First, due to exhaustive search, we require $$n \geq s.$$
 Second, the subset-sum algorithm
 imposes the constraint
 $$n - \log 3 \cdot t \geq s,$$
-(given that $n > m$ and $\log 3 \cdot t \leq s$).
-We further recall that do not set $m = n$ due to the weakness in circulant matrices described above
+(given that $n \geq m$ and $\log 3 \cdot t \leq s$).
 
 
-We consider two sets of parameter. 
+We consider two sets of parameter.
 The first is
-$$n - 1 = m = s + \log 3 \cdot t.$$
+$$n = m = s + \log 3 \cdot t.$$
 In particular, if $\log 3 \cdot t  = s$, then
-$n - 1 = m = 2s$.
-The second parameter set  
-$$n-1 = m = 1.25(s + \log 3 \cdot t),$$
+$n = m = 2s$.
+The second parameter set
+$$n = m = 1.25(s + \log 3 \cdot t),$$
 and is less aggressive.
 
-Next, we analyze the bias of the output based on~(\ref{eq:bias}), 
+Next, we analyze the bias of the output based on~(\ref{eq:bias}),
 assuming that $\log 3 \cdot t = s$.
 For the first parameter set,
 we obtain that the probability of having bias of $\tfrac{2}{2^{s/2}}$ is bounded by
@@ -570,7 +636,7 @@ we obtain that the probability of having bias of $\tfrac{2}{2^{s/2}}$ is bounded
 \end{align*}
 which is non-negligible.
 On the other hand, the consequences of the distinguishing attack given the data limit
-seem relatively mild, and this parameter set may be considered by applications 
+seem relatively mild, and this parameter set may be considered by applications
 where performance is critical.
 
 For the second parameter set (assuming $\log 3 \cdot t = s$),
@@ -581,9 +647,13 @@ the probability of having bias $\tfrac{2}{2^{s/2}}$ is bounded by
 2 \cdot 2^{-0.65s},
 \end{align*}
 which we consider negligible.
- 
+
+%The advantage of the collision attack is $2^{2r - rank(K)} \leq 2^{80 - rank(K)}$.
+%Given that $m = 2s \geq 128$, 
+
+
 Finally, we consider the simultaneous 4-sum distinguisher,
-and recall that the probability of having such a 4-sum in the output is estimated 
+and recall that the probability of having such a 4-sum in the output is estimated
 in~(\ref{eq:sim}) as $2^{4r - 1.415 m} \leq 2^{160 - 2.83s}$.
 For a minimal choice of $s = 128$, this probability is smaller than $2^{-200}$
 which is negligible.
@@ -594,7 +664,8 @@ which is negligible.
 
 We analyze the security of the compressed LPN-Style PRG.
 
-We note that the first step consists of generating $m$ samples from the alternative PRF construction proposed
+If the matrix was a random matrix, then
+the first step would consist of generating $m$ samples from the alternative PRF construction proposed
 in~\cite{BonehIPSW18}. Each sample
 $w_i = A[i] x \bmod 2 + ((A[i] x \bmod 3) \bmod 2) \bmod 2 \in \mathbb{F}_2^m$
 can be viewed as adding noise $((A[i] x \bmod 3) \bmod 2)$ to the inner product $A[i] x \bmod 2$.
@@ -604,6 +675,9 @@ The second step consists of a compressing linear transformation $B$ applied to $
 The idea is to increase the noise of each sample by mixing it with other samples.
 This step should defeat standard attacks applied to LPN with a constant noise parameter
 (such as decoding attacks).
+
+In our case, the matrix $A$ is structured (it is a random Toeplitz matrix),
+but we were not able to exploit this in an efficient attack.
 
 
 
@@ -617,14 +691,15 @@ In a different approach for recovering the key, given a sample $A,B,y$,
 the attacker enumerates over the subspace of $w$ values that satisfy $B w = y \bmod 2$.
 This subspace contains $2^{m - t}$ vectors. For each such vector, the attacker attempts to recover $x$
 given $A$ and $w$. Thus, given $A,w$ the attacker has $m$ samples
-generated from the LPN-like construction proposed in~\cite{BonehIPSW18} as a weak PRF.
+generated from the LPN-like construction proposed in~\cite{BonehIPSW18} as a weak PRF
+(although we a structured matrix $A$).
 Given that $m$ is not too large (i.e., it is a small multiple of $n$),
 then the best attack we have on this scheme simply tries to break the LPN instance (which has noise of $1/3$),
 without exploiting the deterministic way in which it is generated.
 The concrete security of LPN given a small number was analyzed in several publications such as~\cite{EsserKM17},
 and the complexity of known attack is generally exponential in $n$.
 Nevertheless, the attacker is required to solve $2^{m - t}$ related LPN instances,
-and perhaps can amortize the complexity.
+and perhaps can amortize the complexity. Moreover, the matrix $A$ is structured.
 Thus, we (conservatively) estimate the total complexity of such attacks by $2^{m - t}$.
 
 \subsection{Obtaining Noisy Linear Equations}
@@ -665,7 +740,7 @@ at least $s \cdot 0.1/\log 3 < 0.07 s$ (except with small probability).
 \begin{remark}
 In~\cite{CheonCKK20} the authors analyze the constructions presented in~\cite{BonehIPSW18}.
 In particular, for the alternative PRF construction,
-for a sample $a \in \mathbb{F}_2^n, x \cdot a$,
+given a sample $(a \in \mathbb{F}_2^n, x \cdot a)$,
 they show that there exists $j \in [n]$ such that
 $$|\Pr[a_j = 0 \mid x_j = 0 \text{ and } (a \cdot x \bmod 2 + ((a \cdot x \bmod 3) \bmod 2) \bmod 2) = 0]| \approx \tfrac{1}{2^{0.21 \ell}},$$
 where $\ell$ is the Hamming weight of $a$.
@@ -688,8 +763,8 @@ Exhaustive search implies that $n \geq s$ and we have lower
 bounded the effort required in key recover by $2^{m - t}$.
 Thus, a reasonable choice of parameters is $n = s$ and $m = 3s, t = 2s$.
 
-For these parameters, we consider the maximal of linear equations according to~\ref{eq:bias_linear},
-where consider $\ell = 0.07 s$.
+For these parameters, we consider the maximal bias of linear combinations according to~(\ref{eq:bias_linear}),
+with $\ell = 0.07 s$.
 By Proposition~\ref{prop:hw},
 the probability of having a vector of Hamming weight more than $0.07 s$
 in the row span of $B$ is
@@ -700,6 +775,22 @@ as the consequences of the this unlikely event are mild.
 
 \section{Security Analysis of Compressed LPN-Style PRF}
 
+The overall structure of the compressed LPN-Style PRF is similar to the PRG.
+However, unlike PRG, in the first transformation, the key is part of the matrix and
+$x$ is a public value. 
+Thus, $w$ can be viewed as $m$ outputs of (another) more 
+structured version of the construction of~\cite{BonehIPSW18}.
+
+In terms of parameters, the main differences are that we have $n \geq m$ 
+and $t$ is not constraint to $2n$ (in fact, we will propose to set it smaller than $n$).
+Furthermore, we assume that the attacker obtains $2^r$ samples for $r \leq 40$ instead of a single sample. 
+
+\subsubsection{Key Recovery Attacks}
+
+As for the PRG, we estimate the total complexity of such attacks by $2^{m - t}$.
+Although we have more samples for the PRF, it is not clear how to exploit them to reduce the complexity.
+
+%TODO continue
 
 
 \bibliographystyle{abbrv}
@@ -710,13 +801,16 @@ as the consequences of the this unlikely event are mild.
 \section{Analysis of Random Linear Codes}
 \label{app:distance}
 
-We analyze the distance of random linear codes based on the probabilistic method.
-The analysis similar to the one used to obtain the Gilbert–Varshamov bound.
+We analyze the distance of random linear codes defined by a random matrix 
+or a random Toeplitz matrix.
+The analysis is based on the probabilistic method and 
+similar to the analysis used to obtain the Gilbert–Varshamov bound.
 
 \begin{proposition}
 \label{prop:hw}
-Let $B \in \mathbb{F}^{t \times m}_{q}$ be a random linear code.
-Then, the minimal distance of $B$ is at most $\ell < m/2$ with probability at most
+Let $B \in \mathbb{F}^{t \times m}_{q}$ be a random matrix, or a random Toeplitz matrix whose rows define
+a linear code.
+Then, the minimal distance of (the code defined by) $B$ is at most $\ell < m/2$ with probability at most
 $$f_q(m,t,\ell) \leq q^{t-m} \cdot Vol_q(m,\ell),$$
 where $Vol_q(m,\ell) = \sum_{i=1}^\ell \tbinom{m}{i} \cdot (q-1)^{i}$.
 Moreover, this subspace contains two such linearly independent vectors with probability at most $(f_q(m,t,\ell))^2$.
@@ -739,7 +833,8 @@ $Vol_3(m,\ell) = \sum_{i=1}^\ell \tbinom{m}{i} 2^i <
 2 \cdot \tbinom{m}{\ell} 2^\ell \leq
 2 \cdot 2^{m H(\ell/m) + \ell}.$
 
-Since the rows of $B$ span a uniformly chosen linear subspace of dimension $t$ over $\mathbb{F}_q^m$, the probability that each such vector is in the row space is $q^{t-m} - 1 < q^{t-m}$. By a union bound over all vectors of Hamming weight bounded by $\ell$, the probability that there exists such a vector in the row space of $B$ is at most
+Since $B$ is selected uniformly from a pairwise independent hash family (either a random matrix or a random Toeplitz matrix),
+the probability that each such vector is in the row space is $q^{t-m} - 1 < q^{t-m}$. By a union bound over all vectors of Hamming weight bounded by $\ell$, the probability that there exists such a vector in the row space of $B$ is at most
 \begin{align*}
 f_q(m,t,\ell) \leq q^{t-m} \cdot Vol_q(m,\ell).
 \end{align*}
