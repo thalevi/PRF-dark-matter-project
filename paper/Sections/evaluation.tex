@@ -3,7 +3,7 @@
 \newpage
 \section{Implementation and Evaluation}
 \label{sec:implementation_and_eval}
-We implemented our 2-party 23-wPRF (Construction~\ref{construction:23-central-wprf}) and 23-OPRF (Construction~\ref{construction:23-owf}) in C++. For the constructions, we used the parameters $n = m = 256$ and $t = 81$. In other words, the implemented 23-constructions use a circulant matrix in $\Z_2^{256 \times 256}$ as the key, take as input a vector in $\Z_2^{256}$ and output a vector in $\Z_3^{81}$. The correlated randomness was implemented as if provided by a trusted third party.  See Section~\ref{to-add} for concretely efficient protocols for securely generating the correlated randomness, which we did not implement but give efficiency estimates based on prior works.  \yuval{Add pointer when section is written.}
+We implemented our 2-party 23-wPRF (Construction~\ref{construction:23-central-wprf}) and 23-OPRF (Construction~\ref{construction:23-owf}) in C++. For the constructions, we used the parameters $n = m = 256$ and $t = 81$. In other words, the implemented 23-constructions use a circulant matrix in $\Z_2^{256 \times 256}$ as the key, take as input a vector in $\Z_2^{256}$ and output a vector in $\Z_3^{81}$. The correlated randomness was implemented as if provided by a trusted third party.  See Section~\ref{subsec:preprocessing} for concretely efficient protocols for securely generating the correlated randomness, which we did not implement but give efficiency estimates based on prior works. 
 
 \subsection{Optimizations}
 \label{subsec:implementation_opt}
@@ -206,7 +206,7 @@ We also implement the 2-party semi-honest distributed protocol detailed in Secti
 \centering
 \begin{tabular}{|c|c|c|c|c|c|}
 	\hline
-	Protocol & Runtime ($\mu$s) & Evaluations / sec & \makecell{Preprocessing \\ (bits)} & \makecell{Communication \\ (bits)} \\
+	Protocol & Runtime ($\mu$s) & Evaluations / sec & \makecell{Preprocessing \\ (bits)} & \makecell{Comm. \\ (bits)} \\
 	\hline
 	\hline
 	\makecell{\ttwPRF Protocol \\~\cite{boneh2018-darkmatter}} & 28.02 & 36K & 3533 & 2612 \\
@@ -258,6 +258,21 @@ We point out that both of our OPRF protocols are much faster than the DDH-based 
 }
 \mahimna{ToDo: better naming for the protocols.}
 \end{table}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

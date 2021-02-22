@@ -7,7 +7,7 @@
 \usepackage{amsfonts,amssymb,amsmath}
 \usepackage{mathtools}
 \usepackage{enumitem}
-
+\usepackage{caption}
 \iffull
 \usepackage[style=alphabetic,backend=bibtex,maxnames=4,minnames=3,maxbibnames=99]{biblatex}
 \else
@@ -188,6 +188,7 @@
 
 \newcommand{\dash}{\textnormal{-}}
 
+\newcommand{\fig}{\iffull Figure\else Fig.\fi}
 
 % TikZ Styles
 \tikzset{twostyle/.style={fill=blue!15}}
@@ -201,4 +202,6 @@
 \makeatother
 
 \setitemize{label=$\bullet$}
+\patchcmd{\paragraph}{\itshape}{\bfseries\boldmath}{}{}
+\captionsetup[table]{skip=5pt}
 \fi

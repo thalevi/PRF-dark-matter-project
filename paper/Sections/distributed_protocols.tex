@@ -364,7 +364,9 @@ For evaluating a client input, $\prot^{\textsf{oprf}}_2$ also takes 2 rounds and
 A simple and widely used OPRF is based on the Decision Diffie-Hellman (DDH) assumption. Abstractly, given a cyclic group $\mathbb{G}$ of prime order $q$, consider a PRF $\mathsf{F}$ defined as follows: For key $k \in \keyspace$ and input $x \in \inspace$, define $\mathsf{F}(k,x) = H(x)^k$ where $H:\inspace \to \mathbb{G}$ is a hash function modeled as a random oracle. $\mathsf{F}$ is a secure PRF under the DDH assumption in the random oracle model~\cite{naor1999-oprf}.
 
 The PRF $\mathsf{F}$ leads to a natural 2-party (semi-honest) protocol for oblivious evaluation. Concretely, suppose that the client holds $x$ and the server holds $k$. To evaluate the PRF obliviously, the client initiates the interaction by first sampling a mask $r \getsr \mathbb{Z}_q$ and then sending $a \gets H(x)^r$ to the server. The server responds with $b \gets a^k$. Finally, the client can retrieve the PRF computation as $y \gets b^{r^{-1}}$ where $r^{-1}$ is the multiplicative inverse of $r$ in $\Z_q$. Security of this OPRF protocol has been shown in~\cite{}, assuming the one-more discrete-log assumption~\cite{bellare2003-onemore}
-% Also cite the security papers
+\mahimna{@todo Also cite the security papers}
+
+\mahimna{also compare to other OPRFs}
 
 \greg{One drawback of this is if the client becomes malicious, they can send a
 previous server output back as input, and get the sequence $g, g^k, g^{k^2},
@@ -378,7 +380,7 @@ problem with our primitives?
 
 %-------------------%
 \subsection{Generating the correlated randomness.}
-
+\label{subsec:preprocessing}
 
 
 In this section, we show how to efficiently generate these correlations given OT correlations.

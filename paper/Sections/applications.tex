@@ -50,8 +50,8 @@
 \greg{Should the OPRF material be in the applications section? Seems like it fits here, and without it there is only one application.} 
 \subsection{A Signature Scheme}
 Here we describe a signature scheme using the \ttOWF.  Abstractly, a
-signature scheme can be built from any OWF that has an MPC protocol to
-evaluatue it, by setting the public key to $y = F(x)$ for a random secret $x$,
+signature scheme can be built from any OWF $F$ that has an MPC protocol to
+evaluate it, by setting the public key to $y = F(x)$ for a random secret $x$,
 and then proving knowledge of $x$, using a proof system based on the
 MPC-in-the-head paradigm~\cite{STOC:IKOS07}.  In addition to assuming the OWF is
 secure, the only other assumption require is a secure hash function. As 
@@ -78,7 +78,7 @@ requires far less precomputed constants, and has a simpler implementation.
 \item Potential advantages in implementation performance
 \end{itemize} }
 
-\paragraph{\ttOWF Description}
+\paragraph{\ttOWF description.}
 Recall that the \ttOWF is defined as $y = F(x)$ where $x \in \Z_2^{n}$ and $y\in \Z_3^{t}$, and is computed as follows: 
 \begin{enumerate}
 \item Compute $w = \matA x \in \Z_2^{m}$, where $\matA$ is a public, randomly chosen matrix of full rank in $\Z_2^{m\times n}$
@@ -87,7 +87,7 @@ Recall that the \ttOWF is defined as $y = F(x)$ where $x \in \Z_2^{n}$ and $y\in
 \end{enumerate}
 
 
-\paragraph{An $N$-party protocol}
+\paragraph{An $N$-party protocol.}
 There will be $N$ parties for our MPC protocol, each holding a secret share of
 $x$, who jointly compute $y = F(x)$.  The protocol is $N$-private, meaning that
 up to $N-1$ parties may be malicious, and the secret input remains private.
@@ -125,7 +125,7 @@ to denote the broadcast messages of party $i$.
 
 \subsubsection{MPC protocol details}
 
-\paragraph{Preprocessing phase} Preprocessing establishes random seeds of all parties and shares of 
+\paragraph{Preprocessing phase.} Preprocessing establishes random seeds of all parties and shares of 
 \begin{enumerate}
 \item $\tilde{x}$: a random vector in $\Z_2^{n}$,\algcomment{Sampled from random tapes}
 \item $\tilde{w}$: the vector $\matA \tilde{x}$ in $\Z_2^{m}$, 
@@ -138,7 +138,7 @@ $[\overline{r}] = -[r]$.  Then observe that
 \[\sum_{i=1}^N [\overline{r}]_i = 1-[r]_1 - \ldots - [r]_N = 1 - \sum_{i=1}^{N}[r]_i = 1-r \]
  as required. 
 
-\paragraph{Online phase}
+\paragraph{Online phase.}
 The public input to the online phase is $\hat{x} = x + \tilde{x}$. 
 \begin{enumerate}
 
@@ -158,7 +158,7 @@ then localy computes $[y] = \matB[z]$. All parties broadcast $[y]$ and reconstru
 In this step each party broadcasts $t$ values in $\Z_3$.
 \end{enumerate}
 
-\paragraph{Correctness} The protocol correctly computes the \ttOWF.  The
+\paragraph{Correctness.} The protocol correctly computes the \ttOWF.  The
 first step computes $w = \matA x$, 
 updating the public value $\hat{x} = x + x'$ with $\hat{w} = w + \tilde{w}$.  The
 second step is where the bits of $w$ are cast from $\Z_2$ to $\Z_3$.  The 
@@ -168,7 +168,7 @@ that when $\hat{w} = 0$, then $w$ and $\tilde{w}$ are the same, and when $\hat{w
 w \mod 3$ to the shares of $[\tilde{w}] \mod 3$, and when $\hat{w} = 1$, we set the
 shares of $z$ to the complement of $\tilde{w}$.
 
-\paragraph{Communication Costs}
+\paragraph{Communication costs.}
 Here we quantify the cost of communication for the MPC inputs, the $\aux$ values and the broadcast $\msgs$ of one party,
 as this will directly contribute to the signature size in the following section. 
 Let $\ell_3$ be the bitlength of an element in $\Z_3$; the direct encoding has
@@ -193,7 +193,7 @@ $\msgs$ for the \ttOWF and neatly drop it into the KKW proof system used in
 Picnic.  The signature generation and verification algorithms for the
 \ttOWF  signature scheme are given in \cref{fig:23-picnic}.
 
-\paragraph{Parameters} Let $\secpar$ be a security parameter.  The
+\paragraph{Parameters.} Let $\secpar$ be a security parameter.  The
 \ttOWF parameters are denoted $(n, m, t)$.  The KKW parameters $(N, M,
 \tau)$ denote the number of parties $N$, the total number of MPC instances $M$,
 and the number $\tau$ of MPC instances where the verifier checks the online
@@ -206,7 +206,7 @@ The challenge $(\CCC, \PPP)$ defines $\tau$ pairs $(c,p_c)$ where $c$ is the
 index of  an MPC instance for which the verifier will check the online phase,
 and $p_c$ is the index of the party that will remain unopened. 
 
-\paragraph{Key generation} The signer chooses a random $x \in \Z_2^n$ as a
+\paragraph{Key generation.} The signer chooses a random $x \in \Z_2^n$ as a
 secret key, and a random seed $s \in \{0,1\}^{\secpar}$ such that $s$
 expands to matrices $\matA \in \Z_2^{m\times n}$ and $\matB\in \Z_3^{m\times t}$ that is full rank (using a suitable cryptographic
 function, such as the SHAKE extendable output function~\cite{sp800-185}).  We
@@ -215,7 +215,7 @@ Compute $y = F(x)$ and set $(y, s)$ as the public key.
 We specify the scheme using random matrices, however, it could also be instantiated
 with circulant matrices, which may improve the performance of sign and verify operations.
 
-\paragraph{Signature generation and verification} Here we give an overview of
+\paragraph{Signature generation and verification.} Here we give an overview of
 signature generation, for details see \cref{fig:23-picnic}. The structure of
 the signature follows a three-move $\Sigma$-protocol. In the commit phase, the
 prover simulates the preprocessing phase for all $M$ MPC instances, and commits
@@ -234,7 +234,7 @@ all $N$ parties and the verifier can recompute the prover's commitment to the
 preprocessing, in particular the verifier checks that the auxiliary values are
 correct.
 
-\paragraph{Optimizations and simplifications}
+\paragraph{Optimizations and simplifications.}
 For ease of presentation, \cref{fig:23-picnic} omits some optimizations that
 are essential for efficiency, but are not unique to the $(2,3)$-signature schemes, 
 they are exactly as in Picnic. All random seeds in a signature are derived from
@@ -261,7 +261,7 @@ separation should also be done, as in~\cite{picnic-spec}.
   \underbrace{#1}_{\text{#2}}
 }}
 
-\paragraph{Parameter selection and signature size}
+\paragraph{Parameter selection and signature size.}
 The size of the signature in bits is:
 \begin{align*}
 \textunderbrace{\secpar\tau\log_2\left(\frac{M}{\tau}\right)}{initial seeds} + 
