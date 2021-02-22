@@ -47,7 +47,7 @@ $\prot_{\Convert}^{(3,2)}$ & $\hat{x}$ (over $\Z_3$) & - & \makecell{$u = \tilde
 \end{tabular}
 }
 }
-\caption{Summary of input, output, and randomness for the circuit gate protocols}
+\caption{Summary of input, output, and randomness for the circuit gate protocols. \greg{Change ``over base group'' to ``over group''?}}
 \label{table:gate_protocol_summary}
 \end{table}
 
@@ -65,16 +65,16 @@ The linear gate is the easiest to evaluate, and follows from the standard linear
 \end{itemize}
 
 \paragraph{Addition gate protocol $\prot_\Add^{p}$.}
-The addition modulo $p$ gate is also equally easy to evaluate. Given shares of $x, x'$ over $\Z_p$, for the protocol each party $\party_i$ can locally compute its share of $x+x'$ as $\sharei{x} + \sharei{x'} \bmod p$. This directly follows from the additive homomorphism of additive shares. 
+The addition modulo $p$ gate is also easy to evaluate. Given shares of $x, x'$ over $\Z_p$, for the protocol each party $\party_i$ can locally compute its share of $x+x'$ as $\sharei{x} + \sharei{x'} \bmod p$. This directly follows from the additive homomorphism of additive shares. 
 
 
 
 \paragraph{Bilinear gate protocol $\prot_\BLMap^p$.}
-The bilinear gate protocol is essentially a generalization of Beaver's multiplication triples~\cite{boyle2019-fss-preprocess,beaver1991-triples} that computes the multiplication of two shared inputs. For Beaver's protocol, to compute a sharing of $y = ab$ given shares of $a$ and $b$ (all sharings are over a ring $\mathcal{R}$), the protocol parties are provided shares of a randomly sampled triple of the form $(\tilde{a},\tilde{b},\tilde{a}\tilde{b})$ in the preprocessing stage. Beaver's protocol first reconstructs the masked inputs $\hat{a}$ and $\hat{b}$ after which local computation is enough to produce shares of the output. For our bilinear gate protocol, we assume that  all parties are already provided with the masked inputs (to move the communication outside of the gate protocol), along with correlated randomness similar to a Beaver triple. 
+The bilinear gate protocol is essentially a generalization of Beaver's multiplication triples~\cite{boyle2019-fss-preprocess,beaver1991-triples} that computes the multiplication of two shared inputs. For Beaver's protocol, to compute a sharing of $ab$ given shares of $a$ and $b$ (all sharings are over a ring $\mathcal{R}$), the protocol parties are provided shares of a randomly sampled triple of the form $(\tilde{a},\tilde{b},\tilde{a}\tilde{b})$ in the preprocessing stage. Beaver's protocol first reconstructs the masked inputs $\hat{a}$ and $\hat{b}$ after which local computation is enough to produce shares of the output. For our bilinear gate protocol, we assume that  all parties are already provided with the masked inputs (to move the communication outside of the gate protocol), along with correlated randomness similar to a Beaver triple. 
 
 \begin{itemize}
   \item \textbf{Functionality}: 
-  Abstractly, the goal of the bilinear gate protocol is to compute shares of the output $y = \mat{K}x$ given shares of both inputs $\mat{K}$ and $x$. For our purpose however, the masked inputs will have already been reconstructed beforehand, i.e., each party is provided with $\hat{\mat{K}}$ and $\hat{x}$ publicly, along with shares of correlated randomness similar to a Beaver triple (see below).
+  Abstractly, the goal of the bilinear gate protocol is to compute shares of the output $y = \mat{K}x$ given shares of both inputs $\mat{K}$ and $x$. For our purpose however, the masked inputs will have already been constructed beforehand, i.e., each party is provided with $\hat{\mat{K}}$ and $\hat{x}$ publicly, along with shares of correlated randomness similar to a Beaver triple (see below).
 
   \item \textbf{Preprocessing}: Each party is provided shares of $\tilde{\mat{K}}, \tilde{x}$, and $\tilde{\mat{K}}\tilde{x}$ as correlated randomness.
 
@@ -156,6 +156,10 @@ Consequently, $\sum_{\party_i \in \parties} \sharei{x^*} \bmod 2 = x \bmod 2$ ho
 
 \subsubsection{Composing Gate Protocols}
 We now describe a general technique to evaluate circuit composed of the previously specified gates in a distributed fashion. We provide details for the semi-honest fully distributed setting (with preprocessing), where all inputs are secret shared between all parties initially. While the technique will also work for other settings (e.g., OPRF, public input), the concrete communication costs will be significantly worse than more specially designed protocols. For these settings, we will provide more efficient protocols than provided by this general technique.
+
+\greg{Does it make sense to say that this very general composition protocol can
+allow one to easily make protocols for variants of our primitives? ``MPC
+toolbox for alternating moduli primitives'' or similar}
 
 \paragraph{Composition protocol.} Consider a circuit $C$ (Definition~\ref{def:computation_circuit}) with input space $\Gin = \prod \Gin_i$. To evaluate $C$ with input $(x_1, \dots, x_l) \in \Gin$, in the fully distributed setting, all parties are given additive shares for each $x_i$. Now, the distributed evaluation of $C$ proceeds as follows:
 \begin{itemize}
@@ -310,6 +314,8 @@ Denote the servers by $\party_1, \party_2$, and $\party_3$. We assume that the s
 Our distributed evaluation protocols from Section~\ref{subsec:distributed_protocol} can be used directly for semi-honest \textit{oblivious} PRF, or OPRF, evaluation in the preprocessing model. Recall that in the OPRF setting, one party $\party_1$ (called the ``server'') holds the key $\mat{K}$ and the other party $\party_2$ (called the ``client'') holds the input $x$. The goal of the protocol is to have the client learn the output of the PRF for key $\mat{K}$ and input $x$, while the server learns nothing. In the semi-honest setting, both parties can first use the distributed protocol to obtain shares of the PRF output. The server can then send its share to the client so that only the client learns the final output. Such an OPRF protocol would require one extra round over the corresponding distributed PRF protocol. We can however construct much better protocols whose efficiency rivals that of existing DDH-based OPRF protocols. Here, we provide two concrete efficient protocols for evaluating the \ttwPRF candidate (Construction~\ref{construction:23-central-wprf}) in the OPRF setting. 
 
 \paragraph{General structure.} Both protocols take $3$ rounds and involve 2 messages from the server to the client and 1 message from the client to the server. The first server message however, is only required when the key needs to be changed (or re-masked). We call this the key-update phase. Now, when the masked key is already known, our protocols are optimal in the sense that they require only a single message from the client followed by a single message from the server. Since OPRF applications usually involve reusing the same key for many PRF invocations, in such a \textit{multi-input} setting, our protocols are comparable to other 2-round OPRF protocols in literature (e.g., DDH-based). 
+\greg{For a real-world use of OPRFs where our construction might be the best option, see \url{https://www.usenix.org/system/files/sec19-thomas.pdf}. 
+It uses the DDH-based OPRF for a private set intersection protocol (where the client has one element and the server has a masssive set). }
 
 We detail the two protocols, $\prot^{\textsf{oprf}}_1$ and $\prot^{\textsf{oprf}}_2$, in Sections~\ref{subsec:oprf1} and~\ref{subsec:oprf2} respectively. In Section~\ref{subsec:oprf-comparison}, we compare our OPRF protocols to other common constructions in the literature. Later, in Section~\ref{sec:implementation_and_eval}, we also report on our protocol implementations and compare their performance (both computation and communication) with related work. To foreshadow, a key observation is that in comparison to common OPRF protocols, our protocols are much faster to compute but require preprocessing as well as slightly more communication.
 
@@ -360,7 +366,13 @@ A simple and widely used OPRF is based on the Decision Diffie-Hellman (DDH) assu
 The PRF $\mathsf{F}$ leads to a natural 2-party (semi-honest) protocol for oblivious evaluation. Concretely, suppose that the client holds $x$ and the server holds $k$. To evaluate the PRF obliviously, the client initiates the interaction by first sampling a mask $r \getsr \mathbb{Z}_q$ and then sending $a \gets H(x)^r$ to the server. The server responds with $b \gets a^k$. Finally, the client can retrieve the PRF computation as $y \gets b^{r^{-1}}$ where $r^{-1}$ is the multiplicative inverse of $r$ in $\Z_q$. Security of this OPRF protocol has been shown in~\cite{}, assuming the one-more discrete-log assumption~\cite{bellare2003-onemore}
 % Also cite the security papers
 
-
+\greg{One drawback of this is if the client becomes malicious, they can send a
+previous server output back as input, and get the sequence $g, g^k, g^{k^2},
+\ldots, g^{k^t}$. This is sometimes called a DH oracle, which lets one solve an
+instance of the strong DH problem, which is easier than the DH problem
+($O(\sqrt{q/t})$ group operations instead of $O(\sqrt{q})$).  Is there a similar
+problem with our primitives? 
+ }
 
 
 \section{Table}
