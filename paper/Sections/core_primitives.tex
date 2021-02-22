@@ -20,7 +20,7 @@ We make use of just five types of basic operations, or ``gates,'' which we detai
     For a prime $p$, given a public matrix $\mat{A} \in \Z_p^{s \times l}$, the gate $\LMap^\mat{A}_p(\cdot)$ takes as input $x \in \Z_p^l$ and outputs $y = \mat{A}x \in \Z_p^s$.
 
     \item \textbf{Mod-$p$ Addition Gate.}
-    For a prime $p$, the gate $\Add_p(\cdot,\cdot)$ takes input $x,x' \in \Z_p^{n}$ and outputs $y = x + x' \bmod p$.
+    For a prime $p$, the gate $\Add_p(\cdot,\cdot)$ takes input $x,x' \in \Z_p^{l}$ and outputs $y = x + x' \bmod p$.
 
     \item \textbf{Mod-$p$ Bilinear Gate.}
     For a prime $p$, and positive integers $s$ and $l$, the gate $\BLMap_p^{s,l}(\cdot, \cdot)$ takes as input a matrix $\mat{K} \in \Z_p^{s \times l}$ and a vector $x \in \Z_p^l$ and outputs $y = \mat{K}x \in \Z_p^s$. When clear from context, we will drop the superscript and simply write $\BLMap_p(\mat{K}, x)$.
@@ -31,7 +31,7 @@ We make use of just five types of basic operations, or ``gates,'' which we detai
 \end{itemize}
 
 
-\noindent Note that the difference between the $\LMap$ and the $\BLMap$ gates is seen in the context of their distributed protocols. For $\LMap$, the matrix $\mat{A}$ will be publicly available to all parties, while the input $x$ will be secret shared. On the other hand, for $\BLMap$, both the key $\mat{K}$ and the input $x$ will be secret shared. We call this gate \textit{bilinear} because its output is linear in both of its inputs. Also note that although the $\Convert_{(2,3)}$ gate is effectively a no-op in a centralized evaluation, in the distributed setting, the gate will be used to convert an additive sharing over $\Z_2$ to an additive sharing over $\Z_3$.
+\noindent Note that the difference between the $\LMap$ and the $\BLMap$ gates is seen in the context of their distributed protocols. For $\LMap$, the matrix $\mat{A}$ will be publicly available to all parties, while the input $x$ will be secret shared. On the other hand, for $\BLMap$, both the key $\mat{K}$ and the input $x$ will be secret shared. We call this gate \textit{bilinear} because its output is linear in both of its (secret-shared) inputs. Also note that although the $\Convert_{(2,3)}$ gate is effectively a no-op in a centralized evaluation, in the distributed setting, the gate will be used to convert an additive sharing over $\Z_2$ to an additive sharing over $\Z_3$.
 
 \greg{At this point I feel that Lin and BL not that descriptive.  It's
 vector-matrix multiply, and for Lin the matrix is public.  Readers know what
@@ -54,9 +54,10 @@ The candidate constructions we introduce follow one of two broad styles which we
     \item \textbf{$(p,q)$-constructions.}
     For distinct primes $p, q$, the $(p,q)$-constructions have the following structure: On an input $x$ over $\Z_p$, first a linear $\bmod~p$ mapping is applied, followed by a linear $\bmod~q$ mapping. Note that after the $\bmod~p$ mapping, the input is first reinterpreted as a vector over $\Z_q$. For unkeyed primitives (e.g., OWF), both mappings are public, while for keyed primitives (e.g., wPRF), the key is used for the first linear mapping. The construction is parameterized by positive integers $n, m, t$ (functions of the security parameter $\secparam$) denoting the length of the input vector (over $\Z_p$), the length of the intermediate vector, and the length of the output vector (over $\Z_q$) respectively. The two linear mappings can be represented by matrices $\mat{A} \in \Z_p^{m \times n}$ and $\mat{B} \in \Z_q^{t \times m}$. For keyed primitives, the key $\mat{K} \in \Z_p^{m \times n}$ will be used instead of $\mat{A}$.
 
-    Concretely, given an input $x \in \Z_p^n$, the construction output is of the form $y = \mat{B}w \in \Z_q^t$ where $w = \mat{A}{x}$ is first viewed over $\Z_q$. In this paper, we will analyze this style of constructions for $(p,q) = (2,3)$ and $(3,2)$. 
-\greg{Why did we choose to focus on (2,3), (3,2)?}
-    %As a shorthand, we will denote these by 23-constructions and 32-constructions (e.g., 23-wPRF).
+    Concretely, given an input $x \in \Z_p^n$, the construction output is of the form $y = \mat{B}w \in \Z_q^t$ where $w = \mat{A}{x}$ is first viewed over $\Z_q$. In this paper, we will analyze this style of constructions for $(p,q) = (2,3)$ and $(3,2)$ since these are arguably the simplest constructions that employ linear mappings over alternate moduli. We find that the $(2,3)$-constructions outperform the $(3,2)$-constructions and we will use primarily use the former style for our constructions.
+
+    \greg{Why did we choose to focus on (2,3), (3,2)?}
+    
     \item \textbf{LPN-style-constructions.}
     These constructions have the following general structure: On input $x$ over $\Z_2$, first a linear $\bmod~2$ mapping given by the matrix $\mat{A}$ is applied to obtain $u$. Concurrently, the same linear mapping is also applied over $\Z_3$ (where both $x$ and $\mat{A}$ are now reinterpreted over $\Z_3$) and then reduced modulo $2$ to obtain $v$. The sum $w = u \oplus v$ is then multiplied by a second linear mapping (given by $\mat{B}$) over $\Z_2$. The mapping $\mat{B}$ is always public, while for keyed primitives, the key $\mat{K}$ is used instead of the first mapping $\mat{A}$.
 
@@ -66,22 +67,13 @@ The candidate constructions we introduce follow one of two broad styles which we
         y = \left[(\mat{A}x \bmod 2) + (\mat{A}x \bmod 3) \bmod 2\right] \bmod 2.
     \]
     The upshot of this style of constructions is that both the input and the output are both over $\Z_2$. Intuitively, each output bit can be thought of as a deterministic Learning-Parity-with-Noise (LPN) instance with a noise rate of $1/3$. The noise is deterministically generated and is dependent on the input $x$ and a specific column of $\mat{A}$. The noise for the $i^\thtext$ instance will be $1$ if and only if $\left<\mat{A}_i, x\right> = 1$.
-
-    %When $\mat{A}$ is a structured matrix (e.g., a circulant key is used), the noise bits will also be correlated.
-
-
-
-    % \item For primes $p$ and $q > p$, these constructions have the following structure: On an input $x$ over $\Z_p$, first a linear $\bmod p$ mapping given by matrix $\mat{A}$ is applied to obtain $u$. Concurrently, the same linear mapping is also applied over $\Z_q$ (where both $x$ and $\mat{A}$ are considered over $\Z_q$) and then reduced modulo $p$ to obtain $v$. The sum $w = u + v \mod p$ is then multiplied by a second linear mapping ($\mat{B}$) over $\Z_p$. The mapping $\mat{B}$ is always public while for keyed primitives, the key $\mat{K}$ is used instead of the first mapping $\mat{A}$. 
-
-    % The construction is parameterized by positive integers $n,m,t$ (as functions of the security parameter $\secparam$) denoting the size of the input vector, the intermediate vector(s), and the output vector (all over $\Z_p$).
-    % Concretely, given $\mat{A} \in \Z_p^{m \times n}$ and a public $\mat{B} \in \Z_p^{t \times m}$, for an input $x \in \Z_p^n$, the construction computes something of the form:
-    % \[
-    %     y = \left[(\mat{A}x \bmod p) + (\mat{A}x \bmod q) \bmod p\right] \bmod p.
-    % \]
-    % The upshot of this construction is that both the input and the output are over the same field. In this paper, we will analyze this construction for $(p,q) = (2,3)$. 
-    \item \mahimna{Also add any other constructions.}
-
 \end{itemize}
+
+
+\paragraph{Winning candidates.}
+
+
+
 
 \input{Figures/23-constructions}
 \input{Figures/lpn-constructions}
