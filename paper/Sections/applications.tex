@@ -85,26 +85,27 @@ Recall that the \ttOWF is defined as $y = F(x)$ where $x \in \Z_2^{n}$ and $y\in
 \item Let $z\in\Z_3^{m}$ be $w$, where entries are intepreted as values mod 3
 \item Compute and output $y = \matB z$, where $\matB \in \Z_3^{m\times t}$ is public and randomly chosen as $\matA$ was. 
 \end{enumerate}
+\greg{Make this ``Key generation''}
 
 
 \paragraph{An $N$-party protocol.}
 There will be $N$ parties for our MPC protocol, each holding a secret share of
-$x$, who jointly compute $y = F(x)$.  The protocol is $N$-private, meaning that
-up to $N-1$ parties may be malicious, and the secret input remains private.
-Put another way, given the views of $N-1$ parties we can simulate the remaining
+$x$, who jointly compute $y = F(x)$.  The protocol tolerates up to  $N-1$ 
+corruptions: given the views of $N-1$ parties we can simulate the remaining
 party's view, to prove that the $N-1$ parties have no information about the
 remaining party's share. 
 
 The preprocessing phase is similar to that in Picnic.  Each party has a random
 tape that they can use to sample a secret sharing of a uniformly random value
 (e.g.,  a scalar, vector, or a matrix with terms in $\Z_2$ or $\Z_3$).  Each
-party samples their share $[r]$ and the shared value is implicitly defined as
-$r = \sum_{i=1}^N [r]_i$.  We use $[r]_i$ to denote party $i$'s share of $r$,
-or simply $[r]$ when the context makes the party's index clear.
+party samples their share $\share{r}$ and the shared value is implicitly defined as
+$r = \sum_{i=1}^N \share{r}^{(i)}$.  
+%We use $\share{r}^{(i)}$ to denote party $i$'s share of $r$,
+%or simply $\share{r}$ when the context makes the party's index clear.
 
 We must also be able to create a sharing mod 3, of a secret shared value mod 2.
 Let $\tilde{w}\in\Z_2$ be secret shared.  Then to establish shares of $r = \tilde{w} \pmod
-3$, the first $N-1$ parties sample a share $[r]$ from their random tapes. The
+3$, the first $N-1$ parties sample a share $\share{r}$ from their random tapes. The
 $N$-th party's share is chosen by the prover, so that the sum of the shares is
 $r$.  We refer to the last party's share as an \emph{auxiliary value}, since
 it's provided by the prover as part of pre-processing.  For efficiency, the random
@@ -116,9 +117,9 @@ auxiliary values, denoted $\aux$.
 
 After pre-processing, the parties enter the \emph{online} phase of the protocol. 
 The prover computes $\hat{x}= x + \tilde{x}$, where $\tilde{x}$ is a random value, established during
-preprocessing so that each party has a share $[\tilde{x}]$. 
+preprocessing so that each party has a share $\share{\tilde{x}}$. 
 The parties can then compute the OWF using the homomorphic properties of the secret sharing, 
-and a share conversion gadget (to convert shares mod 2 to mod 3, used when computing~$z$)
+and the share conversion gate (to convert shares mod 2 to mod 3, used when computing~$z$)
 setup during preprocessing that we describe below. 
 During the online phase, parties broadcast values to all other parties and we write $\msgs_i$
 to denote the broadcast messages of party $i$. 
@@ -130,31 +131,28 @@ to denote the broadcast messages of party $i$.
 \item $\tilde{x}$: a random vector in $\Z_2^{n}$,\algcomment{Sampled from random tapes}
 \item $\tilde{w}$: the vector $\matA \tilde{x}$ in $\Z_2^{m}$, 
 \item $r$: a sharing of $\tilde{w} \mod 3$, shares in $\Z_3^m$,  \algcomment{Tapes + one $\aux$ value}
-\item $\overline{r}$: a sharing of $1-\tilde{w} \mod 3$, shares in $\Z_3^m$. \algcomment{Computed from shares of $r$}
+\item $\overline{r}$: a sharing of $1-\tilde{w} \mod 3$, shares in $\Z_3^m$. \algcomment{Computed from $\share{r}$}
 \end{enumerate}
 The shares of $\overline{r}$ are computed from shares of $r$ as follows (all arithmetic in $\Z_3^m$): the first
-party computes $[\overline{r}] = 1 - [r]$, then the remaining parties compute
-$[\overline{r}] = -[r]$.  Then observe that 
-\[\sum_{i=1}^N [\overline{r}]_i = 1-[r]_1 - \ldots - [r]_N = 1 - \sum_{i=1}^{N}[r]_i = 1-r \]
+party computes $\share{\overline{r}} = 1 - \share{r}$, then the remaining parties compute
+$\share{\overline{r}} = - \share{r}$.  Then observe that 
+\[\sum_{i=1}^N \share{\overline{r}}^{(i)} = 1 - \share{r}^{(1)} - \ldots - \share{r}^{(N)} = 1 - \sum_{i=1}^{N} \share{r}^{(i)} = 1-r \]
  as required. 
 
 \paragraph{Online phase.}
 The public input to the online phase is $\hat{x} = x + \tilde{x}$. 
 \begin{enumerate}
 
-%\item The parties locally compute $[u] = \matA[\tilde{x}] - [\tilde{w}]$ and broadcast it, 
-%then sum the received values to get $u = \matA \tilde{x} - \tilde{w}$.  Then they locally compute
-%$\hat{w} = \matA\hat{x} - u = \matA x + \tilde{w}$, where $\hat{w} \in \Z_2^{m}$. Each party broadcasts $m$ bits in this step. 
 \item The parties locally compute $\hat{w} \in \Z_2^{m}$ as $\hat{w} = \matA\hat{x}$ (since both $\hat{x}$ and $\matA$ are public). 
 
 \item Let $z$ be a vector in $\Z_3^m$ and let $z_i$ denote the $i$-th component. Each party defines 
 \[
-    [z_i]  = \begin{cases}
-                [r_i]  & \text{if $\hat{w}_i = 0$} \algcomment{\text{Note that $[r_i] = [w_i']$}}\\
-                [\overline{r}_i]  & \text{if $\hat{w}_i = 1$} \algcomment{\text{Note that $[\overline{r}_i] = [1- w_i']$}}\\
+    \share{z_i}  = \begin{cases}
+                \share{r_i}  & \text{if $\hat{w}_i = 0$} \algcomment{\text{Note that $\share{r_i} = \share{w_i'}$}}\\
+                \share{\overline{r}_i}  & \text{if $\hat{w}_i = 1$} \algcomment{\text{Note that $\share{\overline{r}_i} = \share{1- w_i'}$}}\\
             \end{cases}
 \]
-then localy computes $[y] = \matB[z]$. All parties broadcast $[y]$ and reconstruct the output $y\in\Z_{3}^t$. 
+then localy computes $\share{y} = \matB\share{z}$. All parties broadcast $\share{y}$ and reconstruct the output $y\in\Z_{3}^t$. 
 In this step each party broadcasts $t$ values in $\Z_3$.
 \end{enumerate}
 
