@@ -71,11 +71,17 @@ The candidate constructions we introduce follow one of two broad styles which we
 
 
 \paragraph{Winning candidates.}
-
-
-
+Through cryptanalysis and considering the cost for each candidate, we find that some of our candidates are more suited (i.e., ``win'') for a particular setting. For instance, we found that the $(3,2)$-constructions are overshadowed by the corresponding the $(2,3)$-constructions in all settings we consider. Specifically, out of the candidates we consider, we find the following:
+\begin{enumerate}
+    \item \ttwPRF is the best wPRF candidate with no restriction for input and output space. 
+    \item LPN-wPRF is the best wPRF candidate where both the input and output need to be over $\Z_2$.
+    \item \ttOWF is the best OWF candidate with no restriction for input and output space.
+    \item LPN-PRG is the best PRG candidate.
+\end{enumerate}
+We provide formal descriptions and pictorial descriptions of our winning candidates in Figures~\ref{fig:primary-constructions} and~\ref{fig:lpn-constructions}.
 
 \input{Figures/23-constructions}
+~
 \input{Figures/lpn-constructions}
 
 
@@ -116,10 +122,7 @@ The constructions we described previously use general matrices in, e.g., $\Z_p^{
 
 We will usually instantiate our constructions using generalized circulant matrices to take advantage of their efficient representations. However, care must be taken while adding structure since this could potentially damage the security of a construction. This is particularly relevant in case of multi-element outputs since elements in the intermediate vectors will be correlated. For example, in the LPN-style construction, the noise for each deterministic LPN instance will be correlated since two columns of a circulant matrix are just cyclic rotations. 
 
-Our cryptanalysis in Section~\ref{sec:cryptanalysis} will therefore consider our constructions with structured matrices. Of course, general $m \times n$ matrices can also be used for all our constructions (with at least equal security) but this could result in substantially more communication costs.
-
-In many cases, it is also helpful to choose the matrices to be full-rank (see )
-\greg{finish sentence?}
+Our cryptanalysis in Section~\ref{sec:cryptanalysis} will therefore consider our constructions with structured matrices. Of course, general $m \times n$ matrices can also be used for all our constructions (with at least equal security) but this could result in substantially more communication costs. In many cases, it is also helpful to choose the matrices to be full-rank (see ~\ref{sec:cryptanalysis} for details).
 
 
 \greg{This section said earlier we were interested in (3,2) primitives as well, but there is isn't a figure for those, only (2,3).
