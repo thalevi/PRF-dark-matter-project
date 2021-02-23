@@ -64,15 +64,14 @@ The main technique by which we achieve all three of our design goals is to consi
 As the simplest possible instance of this approach, we consider alternating linear functions over $\Z_2$ and $\Z_3$. Boneh et al. found that linear functions over $\Z_2$ are highly nonlinear over $\Z_3$ while linear functions over $\Z_3$ are highly nonlinear over $\Z_2$. Furthermore, using small moduli allows for efficient designs for ``switching'' between the moduli. In fact, we show how conversions between the moduli are “small” nonlinear gates and can be implemented efficiently from OT and VOLE correlations.
 \fi
 
-A primary motivation for the above design was its MPC-friendliness. Indeed, several MPC protocols were proposed in~\cite{boneh2018-darkmatter} for its distributed evaluation. These protocols were shown to have significant advantages over earlier MPC-friendly designs, but this was argued either for the honest-majority 3-party case or for 2PC in the preprocessing model. Another, very different, motivation is the goal of identifying simple function classes that are ``hard to learn.''  Indeed,  the conjectures from~\cite{boneh2018-darkmatter} imply hardness of learning results for low complexity classes such as (depth-2) $\mathsf{ACC}^0$, sparse $\Z_3$ polynomials, or width-3 branching programs. These conjectures are of interest outside the field of cryptography~\cite{complexity-theory-works}.
+A primary motivation for the above design was its MPC-friendliness. Indeed, several MPC protocols were proposed in~\cite{boneh2018-darkmatter} for its distributed evaluation. These protocols were shown to have significant advantages over earlier MPC-friendly designs, but this was argued either for the honest-majority 3-party case or for 2PC in the preprocessing model. Another, very different, motivation is the goal of identifying simple function classes that are ``hard to learn.''  Indeed,  the conjectures from~\cite{boneh2018-darkmatter} imply hardness of learning results for low complexity functions such as (depth-2) $\mathsf{ACC}^0$ circuits, sparse $\Z_3$ polynomials, or width-3 branching programs. These conjectures are of interest outside the field of cryptography~\cite{complexity-theory-works}, which further motivates cryptanalysis efforts.
 
 \paragraph{Remaining challenges.} The initial works of~\cite{boneh2018-darkmatter,adventures} have only scratched the surface of the kind of questions one may ask. 
 \begin{itemize}
 \item
 What about simpler symmetric primitives such as OWFs and PRGs? MPC protocols for these primitives are motivated by many applications, including Picnic-style post-quantum digital signatures~\cite{Picnicrefs}. 
 \item Are there similar weak PRF candidates where the input, output, and key are all over $\Z_2$? This too is motivated by several applications. 
-\item Can the concrete MPC protocols given in~\cite{boneh2018-darkmatter} be further improved? Can preprocessing be eliminated at a low cost? 
-\item 
+\item Can the concrete MPC protocols given in~\cite{boneh2018-darkmatter} be further improved? Can preprocessing be eliminated or realized at a low amortized cost? 
 \end{itemize}
 
 % All the candidates we propose are based on similar interplays between linear mappings in $\Z_2$ and $\Z_3$.
@@ -81,23 +80,23 @@ What about simpler symmetric primitives such as OWFs and PRGs? MPC protocols for
 \subsection{Our Contribution}
 
 
-Motivated by the above challenges, we make the following contributions.
+Motivated by the above questions, we make the following contributions.
 
+\iffalse
 \paragraph{\bf \textnormal{OT} and \textnormal{VOLE} friendliness}.
     MPC protocols in the preprocessing modelcan take advantage of input-independent correlated randomness to better handle nonlinear gates~\cite{Beaver,BDOZ,SPDZ,PowerOfCorrelatedRandomness,TinyTables,BGI19}. However, some kinds of correlated randomness are better than other. Recent work~\cite{?} for instance, has shown how pseudorandom correlation generators (PCGs) can be used to generate millions of ``OT'' and ``VOLE'' correlations with very low and computation costs. Furthermore, it is not necessary to store all of these correlations; they can stored in a compressed form, and expanded only when needed~\cite{?}. Roughly speaking, an OT correlation is useful for evaluating a ``simple'' nonlinear gates (such as Boolean AND) and a VOLE correlation is useful for scalar-vector products. We would like to maximize the potential benefit from these recent techniques.
 
 
 \mahimna{still writing}
-
+\fi
 
 
 \subsubsection{New candidate constructions.}
-We introduce several candidate constructions for the (weak)PRF, OWF, and PRG primitives. Our candidates are all based on similar interplays between alternating modulo 2 and modulo 3 linear mappings.
+We introduce several candidate constructions for (weak) PRF, OWF, and PRG, all based on the principle of alternating between modulo 2 and modulo 3 linear mappings.
 
 \begin{itemize}
     \item \textbf{Candidate Weak PRFs.}
-    We start with the weak PRF candidate proposed in~\cite{boneh2018-darkmatter}
-
+    We start by recalling the main weak PRF candidate proposed in~\cite{boneh2018-darkmatter}:
     Let $\mat{K}$ be a secret key matrix in $\Z_2^{m \times n}$. For an input $x$, the $(2,3)$-wPRF candidate is defined as $\mathsf{F}_\mat{K}(x) = \mat{B}(\mat{K}x)$ where $\mat{B} \in \Z_3^{t \times m}$ is a public matrix and $w = \mat{K}x$ is first reinterpreted as a 0/1 vector over $\Z_3$.
 
 
@@ -151,6 +150,8 @@ Since our constructions use shares over both $\Z_2$ and $\Z_3$, it is necessary 
     \hspace*{1em} Now, the conversion protocol works as follows: First, the parties compute the sharing $\share{\hat{x}} = \share{x} + \share{\tilde{x}}$, and then exchange their shares to reconstruct $\share{\hat{x}}$.
 
 \end{itemize}
+
+\paragraph{Eliminating preprocessing.}
 
 
 \subsubsection{Applications.}
