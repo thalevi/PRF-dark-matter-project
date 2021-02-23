@@ -18,7 +18,7 @@ description of the (2,3)-OWF as an example).  }
 %-------------------------------------------%
 Symmetric-key primitives like one-way functions (OWFs)~\cite{?},
 % Not sure about citation for OWF, but can cite Levin's survey: https://arxiv.org/abs/cs/0012023 
- pseudorandom generators (PRGs)~\cite{BlumMicali,Yao}, 
+ pseudorandom generators (PRGs)~\cite{blum1984-prg,yao1982-prg}, 
 and pseudo-random functions (PRFs)~\cite{goldreich1984-prf} are deployed in innumerable settings, and serve as fundamental building blocks of modern cryptography. While traditional use cases primarily considered settings where the function evaluation was done by a single party, many applications (recently also arising in the context of cryptocurrencies \mahimna{cite more here}) require evaluation in a distributed fashion to avoid single points of failure. This motivates the study of secure multiparty computation (MPC) protocols for evaluating such symmetric-key primitives in a setting where inputs, outputs, and keys are secret-shared or distributed between two or more parties.
 
 Towards this goal, a long line of work~\cite{damgard2010-aes, pinkas2009-aes, wang2017-mpc} has made substantial progress on concretely efficient MPC protocols for distributing the computation of symmetric primitives, such as AES or SHA-256, which are widely used in practice. Unfortunately, the constructions themselves were not designed with distributed evaluation in mind, and are often clunky to optimize for. More recent work~\cite{albrecht2015-lowmc, grassi2016-mpcfriendly, boneh2018-darkmatter} has therefore proposed to start from scratch by designing \textit{MPC-friendly} primitives from the ground up. 
