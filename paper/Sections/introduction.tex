@@ -153,6 +153,29 @@ Since our constructions use shares over both $\Z_2$ and $\Z_3$, it is necessary 
 
 
 \subsubsection{Applications.}
+\greg{As I noted in the applications section, will the two applications be the OPRF and signatures?}
 
+Using the MPC-friendliness of candidates, we can efficiently prove knowledge of
+an input (e.g., of a OWF input, wPRF key or PRG seed), using proof protocols
+based on the MPC-in-the-head paradigm~\cite{STOC:IKOS07}.  This is the approach
+taken by many recently designed post-quantum signature
+schemes~\cite{CCS:CDGORR17,CCS:KatKolWan18,EC:Beullens20,PQCRYPTO:BeudeS20,SAC:dDOS19,banquet},
+as it only requires a secure OWF and hash function, and has opened up the range
+of hardness assumptions possible for public-key signatures.  We present the
+first public-key signature scheme based on alternating moduli cryptography. 
+
+We provide a detailed description of a signature scheme using our OWF candidate,
+as a modification to the Picnic
+algorithm~\cite{CCS:CDGORR17,CCS:KatKolWan18,TCHES:KalZav20,picnic-spec}, a
+third round candidate in the NIST Post-Quantum Cryptography Standardization
+Process.\footnote{See
+\url{https://csrc.nist.gov/projects/post-quantum-cryptography/}.} We replace
+the OWF in Picnic (an instance of the LowMC block cipher~\cite{EC:ARSTZ15}),
+update the MPC protocol accordingly, and quantify the resulting signature
+sizes.  We find that signatures sizes are slightly shorter, with signatures at
+the a 128-bit security level (64-bit quantum) having size 10.3--13.3KB.  This
+shows that OWFs based on alternating moduli are competitive with block-cipher
+based designs, and we can choose a OWF with an (arguably) simpler mathematical
+description, without sacrificing performance. 
 
 \newpage
