@@ -28,7 +28,7 @@ In this work, we continue this line of research by proposing a new suite of \tex
 \paragraph{Our design criteria.}  The above efficiency metrics for MPC are quite crude, since not all kinds of nonlinear gates are the same. However, they still serve as a good intuitive guideline for the design of MPC-friendly primitives. More concretely, we would like to design primitives with the following goals in mind.
 
 \begin{itemize}[itemsep=1ex]
-    \item \textit{Low nonlinear depth}. Minimizing round complexity calls for minimizing nonlinear depth. Unfortunately, constructions like AES or even MPC-friendly ones such as LowMC~\cite{cite} and Rasta~\cite{cite} have quite a high nonlinear depth, which leads to high-latency protocols when using the secret sharing approach.
+    \item \textit{Low nonlinear depth}. Minimizing round complexity calls for minimizing nonlinear depth. Unfortunately, constructions like AES or even MPC-friendly ones such as LowMC~\cite{cite} and Rasta~\cite{cite} have quite a high nonlinear depth, which leads to high-latency protocols when using the secret-sharing approach.
     
 \item \textit{Small nonlinear size}.
  For keeping the communication complexity low, we would like to minimize the number of nonlinear gates and make them as ``small'' and ``MPC-friendly'' as possible. 
@@ -140,7 +140,7 @@ to argue that its minimal distance is sufficiently large, except with negligible
 
 \subsubsection{Distributed protocols and optimized implementations.}
  
- \yuval{Start with a sharp statement on how we improve the online complexity of the wPRF protocols from~\cite{boneh2018-darkmatter}  (both communication and rounds). Give some concrete data points for fully distributed PRF, OPRF. Then say that this is achieved via a unified approach that applies also to the other primitives we design. This approach is explained below.}
+ \yuval{Start with a sharp statement on how we improve the online complexity of the wPRF protocols from~\cite{boneh2018-darkmatter}  (both communication and rounds). Give some concrete data points for fully distributed PRF, OPRF. Then explain our unified approach for achieving the improvement unified approach that applies also to the other primitives we design. This approach is explained below.}
  
 \paragraph{Efficient modulus conversion gates.}
 Since our constructions use shares over both $\Z_2$ and $\Z_3$, it is necessary to be able to switch between the two. We provide the following protocols to do this efficiently. 
@@ -159,6 +159,8 @@ Since our constructions use shares over both $\Z_2$ and $\Z_3$, it is necessary 
     \hspace*{1em} Now, the conversion protocol works as follows: First, the parties compute the sharing $\share{\hat{x}} = \share{x} + \share{\tilde{x}}$, and then exchange their shares to reconstruct $\share{\hat{x}}$.
 
 \end{itemize}
+
+\yuval{Include some data points comparing our protocols to other protocols, using TCC paper numbers. Point to table for concrete numbers. Explicitly compare to Legendre PRF. }
 
 \paragraph{Distributing the dealer at a low amortized cost.} The 2PC protocols presented in~\cite{boneh2018-darkmatter} rely on trusted preprocessing to generate two kinds of correlated randomness. The first kind, used to securely multiply the input and the key matrix, can be thought of as a standard multiplication triple over a ring. (Using a circulant matrix for the key, this involves a single multiplication in a ring of polynomials over $\Z_2$.)  It was also pointed out that using efficient pseudorandom correlation generators (PCGs) for {\em vector oblivious-linear evaluation} (VOLE) correlations~\cite{BCGI18,BoyleetalCCS19,SchopmanetalCCS19}, this kind of correlation can be generated at a low amortized cost when the same key is reused with multiple inputs. In fact, using more recent PCGs for independent OLE correlations~\cite{PCGRingLPNCrypto20} the latter restriction can be removed, albeit at a considerably higher cost.  The second kind of correlated randomness used in~\cite{boneh2018-darkmatter} is a standard oblivious transfer (OT) correlation, which can also be efficiently generated using either classical~\cite{IKNP} or ``silent''~\cite{PCGCrypto19,BoyleetalCCS19,Ferret} OT extension. The latter techniques use a PCG for OT to enable fast local generation of many random instances of OT from a pair of short, correlated seeds.  
 However, the main source of improvement of our protocols over the ones from~\cite{boneh2018-darkmatter}  is our use of the {\em modulus conversion} correlations described above. We show how to generate both kinds of correlations from a standard OT correlation using only a {\em single} message, where in the $\Z_2 \to \Z_3$ case the (amortized) communication is $<1.38$ bits per instance, and in the (less commonly used) $\Z_3 \to \Z_2$ case it is $6$ bits per instance. This means that the cost of distributing the dealer in our protocols is typically even lower than the cost of the online protocol that consumes the correlated randomness.
