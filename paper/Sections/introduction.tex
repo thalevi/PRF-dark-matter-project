@@ -100,7 +100,7 @@ We introduce several candidate constructions for OWF, PRG, and (weak) PRF, all b
 \begin{itemize}
     \item \textbf{Candidate Weak PRFs.}
     We start by recalling the main weak PRF candidate proposed in~\cite{boneh2018-darkmatter}:
-    Let $\mat{K}$ be a secret key matrix in $\Z_2^{m \times n}$. For an input $x$, the $(2,3)$-wPRF candidate is defined as $\mathsf{F}_\mat{K}(x) = \mat{B}(\mat{K}x)$ where $\mat{B} \in \Z_3^{t \times m}$ is a public matrix and $w = \mat{K}x$ is first reinterpreted as a 0/1 vector over $\Z_3$. \yuval{Describe LPN-friendly PRFs here. Maybe make this the last bullet, so that we can start with the new stuff?}
+    Let $\mat{K}$ be a secret key matrix in $\Z_2^{m \times n}$. For an input $x$, the $(2,3)$-wPRF candidate is defined as $\mathsf{F}_\mat{K}(x) = \mat{B}(\mat{K}x)$ where $\mat{B} \in \Z_3^{t \times m}$ is a public matrix and $w = \mat{K}x$ is first reinterpreted as a 0/1 vector over $\Z_3$. \yuval{Describe LPN-style PRFs here. Maybe make this the last bullet, so that we can start with the new stuff?}
 
 
     \item \textbf{Candidate OWFs.} 
