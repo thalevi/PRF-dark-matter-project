@@ -28,7 +28,7 @@ In this work, we continue this line of research by proposing a new suite of \tex
 \paragraph{Our design criteria.}  The above efficiency metrics for MPC are quite crude, since not all kinds of nonlinear gates are the same. However, they still serve as a good intuitive guideline for the design of MPC-friendly primitives. More concretely, we would like to design primitives with the following goals in mind.
 
 \begin{itemize}[itemsep=1ex]
-    \item \textit{Low nonlinear depth}. Minimizing round complexity calls for minimizing nonlinear depth. Unfortunately, constructions like AES or even MPC-friendly ones such as LowMC have quite a high nonlinear depth, which leads to high-latency protocols when using the secret sharing approach.
+    \item \textit{Low nonlinear depth}. Minimizing round complexity calls for minimizing nonlinear depth. Unfortunately, constructions like AES or even MPC-friendly ones such as LowMC~\cite{cite} and Rasta~\cite{cite} have quite a high nonlinear depth, which leads to high-latency protocols when using the secret sharing approach.
     
 \item \textit{Small nonlinear size}.
  For keeping the communication complexity low, we would like to minimize the number of nonlinear gates and make them as ``small'' and ``MPC-friendly'' as possible. 
@@ -56,7 +56,7 @@ Security of block ciphers and (weak) PRFs provably requires high algebraic degre
 
 The main weak PRF candidate from~\cite{boneh2018-darkmatter} has the following simple description: the input $x$ is a vector over  $\Z_2$ and the secret key specifies a matrix $K$ over  $\Z_2$. The PRF first computes the matrix-vector product $Kx$ over  $\Z_2$, then interprets the result as a vector over $\Z_3$ in the natural way,  and finally applies a public, compressive linear mapping over $\Z_3$ to obtain an output vector $y$ over $\Z_3$. 
 
-The above mapping from $x$ and $K$ to $y$ has two nonlinear steps: The first is the matrix-vector product over $\Z_2$, whose cost an be reduced when the matrix $K$ has a special form. The second is a {\em conversion} of a mod-2 vector to a mod-3 vector, which consists of small parallel (finite-size) nonlinear gates.  Overall, the nonlinear depth is 2. Why is this a high-degree function? Viewing both the input and the (binary representation of) the output as vectors over $\Z_2$, high degree over $\Z_2$ comes from the final linear mapping over $\Z_3$. Viewing the input as a vector over $\Z_3$, high degree comes from the linear mapping over $\Z_2$ defined by the key.  Despite its simplicity, the design can be conjectured to have a good level of security with small input and key size (say, 256 bits for 128-bit security). It mostly resisted the initial cryptanalysis, where attacks found in~\cite{adventures} require a very high sample complexity and are quite easy to circumvent by slightly modifying the design.   
+The above mapping from $x$ and $K$ to $y$ has two nonlinear steps: The first is the matrix-vector product over $\Z_2$, whose cost an be reduced when the matrix $K$ has a special form. The second is a {\em conversion} of a mod-2 vector to a mod-3 vector, which consists of small parallel (finite-size) nonlinear gates.  Overall, the nonlinear depth is 2. Why is this a high-degree function? Viewing both the input and the (binary representation of) the output as vectors over $\Z_2$, high degree over $\Z_2$ comes from the final linear mapping over $\Z_3$. Viewing the input as a vector over $\Z_3$, high degree comes from the linear mapping over $\Z_2$ defined by the key.  Despite its simplicity, the design can be conjectured to have a good level of security with small input and key size (say, 256 bits for 128-bit security). It mostly resisted the initial cryptanalysis, where attacks found in~\cite{adventures} require a very high sample complexity and are quite easy to circumvent by slightly modifying the design (as suggested in~\cite{adventures}).
 
 \iffalse
 The main technique by which we achieve all three of our design goals is to consider alternating linear functions over different (prime) moduli. The only nonlinear part of the constructions will now be to switch between the different moduli, which leads to a very small round complexity. Furthermore, Boneh et al.~\cite{boneh2018-darkmatter} showed that linear functions over one moduli cannot be well approximated by low degree polynomials over a different moduli. Consequently, even a simple design that alternates between different moduli can result in a highly non-linear overall computation. In other words, this approach provides high algebraic degree with low nonlinear depth. 
@@ -64,7 +64,9 @@ The main technique by which we achieve all three of our design goals is to consi
 As the simplest possible instance of this approach, we consider alternating linear functions over $\Z_2$ and $\Z_3$. Boneh et al. found that linear functions over $\Z_2$ are highly nonlinear over $\Z_3$ while linear functions over $\Z_3$ are highly nonlinear over $\Z_2$. Furthermore, using small moduli allows for efficient designs for ``switching'' between the moduli. In fact, we show how conversions between the moduli are “small” nonlinear gates and can be implemented efficiently from OT and VOLE correlations.
 \fi
 
-A primary motivation for the above design was its MPC-friendliness. Indeed, several MPC protocols were proposed in~\cite{boneh2018-darkmatter} for its distributed evaluation. These protocols were shown to have significant advantages over earlier MPC-friendly designs, but this was argued either for the honest-majority 3-party case or for 2PC in the preprocessing model. Another, very different, motivation is the goal of identifying simple function classes that are ``hard to learn.''  Indeed,  the conjectures from~\cite{boneh2018-darkmatter} imply hardness of learning results for low complexity functions such as (depth-2) $\mathsf{ACC}^0$ circuits, sparse $\Z_3$ polynomials, or width-3 branching programs. These conjectures are of interest outside the field of cryptography~\cite{complexity-theory-works}, which further motivates cryptanalysis efforts.
+A primary motivation for the alternating moduli paradigm was its MPC-friendliness. Indeed, several MPC protocols were proposed in~\cite{boneh2018-darkmatter}. These protocols were shown to have significant advantages over ones that apply to earlier MPC-friendly designs, but this was argued either for the honest-majority 3-party case or for 2PC in the preprocessing model. 
+
+Another, very different, motivation is the goal of identifying simple function classes that are ``hard to learn.''  Indeed,  the conjectures from~\cite{boneh2018-darkmatter} imply hardness of learning results for low complexity functions such as (depth-2) $\mathsf{ACC}^0$ circuits, sparse $\Z_3$ polynomials, or width-3 branching programs. These conjectures are of interest outside the field of cryptography~\cite{complexity-theory-works}, which further motivates cryptanalysis efforts.
 
 \paragraph{Remaining challenges.} The initial works of~\cite{boneh2018-darkmatter,adventures} have only scratched the surface of the kind of questions one may ask. 
 \begin{itemize}
@@ -93,7 +95,7 @@ Motivated by the above questions, we make the following contributions.
 
 
 \subsubsection{New candidate constructions.}
-We introduce several candidate constructions for (weak) PRF, OWF, and PRG, all based on the principle of alternating between modulo 2 and modulo 3 linear mappings.
+We introduce several candidate constructions for OWF, PRG, and (weak) PRF, all based on alternating between linear mappings over $\Z_2$ and $\Z_3$.
 
 \begin{itemize}
     \item \textbf{Candidate Weak PRFs.}
@@ -101,10 +103,9 @@ We introduce several candidate constructions for (weak) PRF, OWF, and PRG, all b
     Let $\mat{K}$ be a secret key matrix in $\Z_2^{m \times n}$. For an input $x$, the $(2,3)$-wPRF candidate is defined as $\mathsf{F}_\mat{K}(x) = \mat{B}(\mat{K}x)$ where $\mat{B} \in \Z_3^{t \times m}$ is a public matrix and $w = \mat{K}x$ is first reinterpreted as a 0/1 vector over $\Z_3$. \yuval{Describe LPN-friendly PRFs here. Maybe make this the last bullet, so that we can start with the new stuff?}
 
 
-    \item \textbf{Candidate OWFs}
+    \item \textbf{Candidate OWFs.} 
 
     \item \textbf{Candidate PRGs.}
-
 \end{itemize}
 
 \subsubsection{Cryptanalysis and implications on parameter choices.}
@@ -131,10 +132,15 @@ As this code is generated at random, we use the probabilistic method
 (in a similar way it is used to obtain the Gilbert–Varshamov bound for linear codes) 
 to argue that its minimal distance is sufficiently large, except with negligible probability. 
 
+\yuval{Give a concrete bottom line about the recommended choice of parameters for the OWF, PRG, wPRF primitives described above. Can include necessary disclaimers. }
+
+\yuval{Highlight the fact (?) that for OWFs and PRGs we can have the best possible input and output size. Motivate this in the context of applications. Contrast with the fact that for wPRF we lose a factor of 2 in input and key size compared to, say, AES. }
+
+
 
 \subsubsection{Distributed protocols and optimized implementations.}
  
- \yuval{Start with a sharp statement on how we improve the online complexity of the wPRF protocols from~\cite{boneh2018-darkmatter}  (both communication and rounds). Then say that this is achieved via a unified approach that applies also to the other primitives we design. This approach is explained below.}
+ \yuval{Start with a sharp statement on how we improve the online complexity of the wPRF protocols from~\cite{boneh2018-darkmatter}  (both communication and rounds). Give some concrete data points for fully distributed PRF, OPRF. Then say that this is achieved via a unified approach that applies also to the other primitives we design. This approach is explained below.}
  
 \paragraph{Efficient modulus conversion gates.}
 Since our constructions use shares over both $\Z_2$ and $\Z_3$, it is necessary to be able to switch between the two. We provide the following protocols to do this efficiently. 
@@ -154,7 +160,8 @@ Since our constructions use shares over both $\Z_2$ and $\Z_3$, it is necessary 
 
 \end{itemize}
 
-\paragraph{Eliminating preprocessing.} All of the 2PC protocols presented in~\cite{boneh2018-darkmatter} rely on preprocessing.
+\paragraph{Distributing the dealer at a low amortized cost.} The 2PC protocols presented in~\cite{boneh2018-darkmatter} rely on trusted preprocessing to generate two kinds of correlated randomness. The first kind, used to securely multiply the input and the key matrix, can be thought of as a standard multiplication triple over a ring. (Using a circulant matrix for the key, this involves a single multiplication in a ring of polynomials over $\Z_2$.)  It was also pointed out that using efficient pseudorandom correlation generators (PCGs) for {\em vector oblivious-linear evaluation} (VOLE) correlations~\cite{BCGI18,BoyleetalCCS19,SchopmanetalCCS19}, this kind of correlation can be generated at a low amortized cost when the same key is reused with multiple inputs. In fact, using more recent PCGs for independent OLE correlations~\cite{PCGRingLPNCrypto20} the latter restriction can be removed, albeit at a considerably higher cost.  The second kind of correlated randomness used in~\cite{boneh2018-darkmatter} is a standard oblivious transfer (OT) correlation, which can also be efficiently generated using either classical~\cite{IKNP} or ``silent''~\cite{PCGCrypto19,BoyleetalCCS19,Ferret} OT extension. The latter techniques use a PCG for OT to enable fast local generation of many random instances of OT from a pair of short, correlated seeds.  
+However, the main source of improvement of our protocols over the ones from~\cite{boneh2018-darkmatter}  is our use of the {\em modulus conversion} correlations described above. We show how to generate both kinds of correlations from a standard OT correlation using only a {\em single} message, where in the $\Z_2 \to \Z_3$ case the (amortized) communication is $<1.38$ bits per instance, and in the (less commonly used) $\Z_3 \to \Z_2$ case it is $6$ bits per instance. This means that the cost of distributing the dealer in our protocols is typically even lower than the cost of the online protocol that consumes the correlated randomness.
 
 
 \subsubsection{Applications.}
