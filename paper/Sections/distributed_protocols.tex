@@ -222,10 +222,6 @@ We describe several optimizations to reduce the total cost of preprocessing. We 
   % More specifically, for the $\BLMap$ gate, a dealer first samples a random triple $(\tilde{K}, \tilde{x}, \tilde{K}\tilde{x})$
 \end{itemize}
 
-\newpage
-
-
-
 \subsection{Distributed Evaluation in the Preprocessing Model}
 \label{subsec:distributed_protocol}
 Equipped with our technical overview, we now move to constructing distributed protocols (with preprocessing) for our candidate constructions. By distributed evaluation, we mean that all inputs are secret shared between all parties and the protocol provides parties with a sharing of the output. As a concrete example, we provide the complete details of a 2-party distributed evaluation protocol for our \ttwPRF candidate. 
@@ -356,12 +352,18 @@ For evaluating a client input, $\prot^{\textsf{oprf}}_2$ also takes 2 rounds and
 
 
 \subsubsection{Comparison}
-
+\label{subsec:oprf-comparison}
+Here, we compare the concrete efficiency of our protocols with other protocols in literature.
 \paragraph{DDH-based OPRF.}
 A simple and widely used OPRF is based on the Decision Diffie-Hellman (DDH) assumption. Abstractly, given a cyclic group $\mathbb{G}$ of prime order $q$, consider a PRF $\mathsf{F}$ defined as follows: For key $k \in \keyspace$ and input $x \in \inspace$, define $\mathsf{F}(k,x) = H(x)^k$ where $H:\inspace \to \mathbb{G}$ is a hash function modeled as a random oracle. $\mathsf{F}$ is a secure PRF under the DDH assumption in the random oracle model~\cite{naor1999-oprf}.
 
-The PRF $\mathsf{F}$ leads to a natural 2-party (semi-honest) protocol for oblivious evaluation. Concretely, suppose that the client holds $x$ and the server holds $k$. To evaluate the PRF obliviously, the client initiates the interaction by first sampling a mask $r \getsr \mathbb{Z}_q$ and then sending $a \gets H(x)^r$ to the server. The server responds with $b \gets a^k$. Finally, the client can retrieve the PRF computation as $y \gets b^{r^{-1}}$ where $r^{-1}$ is the multiplicative inverse of $r$ in $\Z_q$. Security of this OPRF protocol has been shown in~\cite{}, assuming the one-more discrete-log assumption~\cite{bellare2003-onemore}
-\mahimna{@todo Also cite the security papers}
+The PRF $\mathsf{F}$ leads to a natural 2-party (semi-honest) protocol for oblivious evaluation. Concretely, suppose that the client holds $x$ and the server holds $k$. To evaluate the PRF obliviously, the client initiates the interaction by first sampling a mask $r \getsr \mathbb{Z}_q$ and then sending $a \gets H(x)^r$ to the server. The server responds with $b \gets a^k$. Finally, the client can retrieve the PRF computation as $y \gets b^{r^{-1}}$ where $r^{-1}$ is the multiplicative inverse of $r$ in $\Z_q$. Security of this OPRF protocol has been shown in~\cite{jarecki2014-ddhoprf,jarecki2016-ddhoprf}, assuming the one-more discrete-log assumption~\cite{bellare2003-onemore}
+
+
+We instantiate a DDH-based OPRF over the Curve25519 elliptic curve and compare its efficiency to our OPRF constructions. We found that for both our constructions, the total computation time is smaller than the time it takes for a \textit{single} elliptic curve scalar multiplication. One caveat is that our protocols require preprocessing, as well as slightly higher communication. However, we show that for reasonable network speeds, the overall cost of our protocol is still smaller. We provide more details of this comparison as part of our evaluation in Section~\ref{subsec:performance}.
+
+
+
 
 \mahimna{also compare to other OPRFs}
 
