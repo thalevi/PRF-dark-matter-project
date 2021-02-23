@@ -57,6 +57,8 @@ The candidate constructions we introduce follow one of two broad styles which we
     Concretely, given an input $x \in \Z_p^n$, the construction output is of the form $y = \mat{B}w \in \Z_q^t$ where $w = \mat{A}{x}$ is first viewed over $\Z_q$. In this paper, we will analyze this style of constructions for $(p,q) = (2,3)$ and $(3,2)$ since these are arguably the simplest constructions that employ linear mappings over alternate moduli. We find that the $(2,3)$-constructions outperform the $(3,2)$-constructions and we will use primarily use the former style for our constructions.
 
     \greg{Why did we choose to focus on (2,3), (3,2)?}
+    \itai{At a high level the standard conversion from mod 3 to mod 2 loses information and is less efficient.
+    The LPN-style construction can be viewed as a variant of (3,2) that does not lose information.}
     
     \item \textbf{LPN-style-constructions.}
     These constructions have the following general structure: On input $x$ over $\Z_2$, first a linear $\bmod~2$ mapping given by the matrix $\mat{A}$ is applied to obtain $u$. Concurrently, the same linear mapping is also applied over $\Z_3$ (where both $x$ and $\mat{A}$ are now reinterpreted over $\Z_3$) and then reduced modulo $2$ to obtain $v$. The sum $w = u \oplus v$ is then multiplied by a second linear mapping (given by $\mat{B}$) over $\Z_2$. The mapping $\mat{B}$ is always public, while for keyed primitives, the key $\mat{K}$ is used instead of the first mapping $\mat{A}$.
