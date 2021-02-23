@@ -32,13 +32,13 @@ In this work, we continue this line of research by proposing a new suite of \tex
 
 \paragraph{Efficiency metrics for MPC.}   Concretely efficient MPC protocols can be divided into two broad categories: protocols based on {\em garbled circuits}~\cite{Yao} and protocols based on {\em linear secret sharing}~\cite{GMW,BGW,CCD}. Protocols based on garbled circuits have low round complexity but their communication cost will be prohibitively high for our purposes. We will therefore focus on protocols based on secret sharing. Roughly speaking, the complexity of evaluating  a given function $f$ using such protocols is determined by the {\em size} and the {\em depth} of a {\em circuit} $C$ that evaluates $f$.  Here we assume that $C$ is comprised of atomic gates of two kinds: {\em linear gates} (computing modular addition or multiplication by a public value) and MPC-friendly {\em nonlinear gates}  that are supported by efficient subprotocols. A typical example for a nonlinear gate is modular multiplication of two secret values. Given such a representation for $f$, the {\em communication} cost of an MPC protocol for $f$ scale linearly with the {\em size} of $C$, namely the number of gates weighted by the ``MPC cost'' of each gate, whereas the {\em round complexity} scales linearly with the {\em depth} of $C$, namely the of gates on a longest input-output path. Since linear gates do not require any interaction, they do not count towards the size or the depth. We use the term ``nonlinear size'' and ``nonlinear depth'' to refer to the size and the depth when excluding linear gates. 
 
-\paragraph{Our design criteria.}  The above efficiency metrics for MPC are quite crude, since not all kinds of nonlinear gates are the same, but they can still serve as an intuitive guideline for the design of MPC-friendly primitives. More concretely, we would like to design primitives with the following goals in mind.
+\paragraph{Our design criteria.}  The above efficiency metrics for MPC are quite crude, since not all kinds of nonlinear gates are the same. However, they still serve as a good intuitive guideline for the design of MPC-friendly primitives. More concretely, we would like to design primitives with the following goals in mind.
 
 \begin{itemize}[itemsep=1ex]
-    \item \textit{Low nonlinear depth}. To minimize round complexity, we would like our designs to have low nonlinear depth. Unfortunately, constructions like AES or even MPC-friendly ones such as LowMC have a high nonlinear depth, which leads to high-latency protocols when using the secret sharing approach.
+    \item \textit{Low nonlinear depth}. Minimizing round complexity calls for minimizing nonlinear depth. Unfortunately, constructions like AES or even MPC-friendly ones such as LowMC have quite a high nonlinear depth, which leads to high-latency protocols when using the secret sharing approach.
     
 \item \textit{Small nonlinear size}.
- For keeping the communication complexity low, we would like to minimize the number of nonlinear gates and make them as ``small,'' ``simple,'' and ``MPC-friendly'' as possible. 
+ For keeping the communication complexity low, we would like to minimize the number of nonlinear gates and make them as ``small'' and ``MPC-friendly'' as possible. 
 
 \item \textit{High algebraic degree}.
 Security of block ciphers and (weak) PRFs provably requires high algebraic degree. While there are low-degree implementations of weaker primitives such as OWF and PRG~\cite{MQref,Goldreich,AIK05}, these typically come at the price of bigger input and output size and high nonlinear size~\cite{AsiacryptCouteau}.
@@ -59,20 +59,30 @@ Security of block ciphers and (weak) PRFs provably requires high algebraic degre
     \hspace*{1em} This means that although our protocols are in the preprocessing model, the correlations we require can be efficiently generated and compressed without a trusted dealer. Furthermore, since we also aim for small nonlinear sized constructions, the upshot of our design is that distributed protocols will be efficient even in an online-only setting. 
 \fi
 
-\paragraph{\bf The alternating moduli paradigm.} The above design criteria seem inherently at odds with each other. How can ``high algebraic degree'' co-exist with ``small gates'' and ``low nonlinear depth''? A new design paradigm that may help settle this apparent conflict was recently proposed by Boneh et al.~\cite{boneh2018-darkmatter} and further analyzed by Cheon et al.~\cite{adventures}. The idea is to  break the computation of the primitive $f$ into two or more segments, where each segment computes a linear function over a {\em different modulus}. The simplest choice of moduli is 2 and 3. 
+\paragraph{\bf The alternating moduli paradigm.} The above design criteria seem inherently at odds with each other. How can ``high algebraic degree'' co-exist with ``small gates'' and ``low nonlinear depth''? A new design paradigm that may help simultaneously achieve our three goals was recently proposed by Boneh et al.~\cite{boneh2018-darkmatter} and further analyzed by Cheon et al.~\cite{adventures}. The idea is to break the computation into two or more parts, where each part includes a linear function over a {\em different modulus}. The simplest choice of moduli is 2 and 3. 
 
-The main weak PRF candidate from~\cite{boneh2018-darkmatter} has the following simple description: the input $x$ is a vector over  $\Z_2$ and the secret key specifies a matrix $K$ over  $\Z_2$. The PRF first computes the matrix-vector product over  $\Z_2$, then interprets the result as a vector over $\Z_3$ in the natural way,  and finally applies a public, compressive linear mapping over $\Z_3$ to obtain an output vector $y$ over $\Z_3$. 
+The main weak PRF candidate from~\cite{boneh2018-darkmatter} has the following simple description: the input $x$ is a vector over  $\Z_2$ and the secret key specifies a matrix $K$ over  $\Z_2$. The PRF first computes the matrix-vector product $Kx$ over  $\Z_2$, then interprets the result as a vector over $\Z_3$ in the natural way,  and finally applies a public, compressive linear mapping over $\Z_3$ to obtain an output vector $y$ over $\Z_3$. 
 
-The above mapping from $x$ and $K$ to $y$ has two nonlinear steps: The first is the matrix-vector over $\Z_2$, whose cost an be reduced when the matrix $K$ has a special form. The second is a {\em conversion} of a mod-2 vector to a mod-3 vector, which consists of small parallel (finite-size) nonlinear gates.  Overall, the nonlinear depth is 2. Why is this a high-degree function? Viewing both the input and the (binary representation of) the output as vectors over $\Z_2$, high degree over $\Z_2$ comes from the final linear mapping over $\Z_3$. Viewing the inputs as a vector over $\Z_3$, high degree comes from the bilinear mapping over $\Z_2$.    
+The above mapping from $x$ and $K$ to $y$ has two nonlinear steps: The first is the matrix-vector product over $\Z_2$, whose cost an be reduced when the matrix $K$ has a special form. The second is a {\em conversion} of a mod-2 vector to a mod-3 vector, which consists of small parallel (finite-size) nonlinear gates.  Overall, the nonlinear depth is 2. Why is this a high-degree function? Viewing both the input and the (binary representation of) the output as vectors over $\Z_2$, high degree over $\Z_2$ comes from the final linear mapping over $\Z_3$. Viewing the input as a vector over $\Z_3$, high degree comes from the linear mapping over $\Z_2$ defined by the key.  Despite its simplicity, the design can be conjectured to have a good level of security with small input and key size (say, 256 bits for 128-bit security). It mostly resisted the initial cryptanalysis, where attacks found in~\cite{adventures} require a very high sample complexity and are quite easy to circumvent by slightly modifying the design.   
 
+\iffalse
 The main technique by which we achieve all three of our design goals is to consider alternating linear functions over different (prime) moduli. The only nonlinear part of the constructions will now be to switch between the different moduli, which leads to a very small round complexity. Furthermore, Boneh et al.~\cite{boneh2018-darkmatter} showed that linear functions over one moduli cannot be well approximated by low degree polynomials over a different moduli. Consequently, even a simple design that alternates between different moduli can result in a highly non-linear overall computation. In other words, this approach provides high algebraic degree with low nonlinear depth. 
 
 As the simplest possible instance of this approach, we consider alternating linear functions over $\Z_2$ and $\Z_3$. Boneh et al. found that linear functions over $\Z_2$ are highly nonlinear over $\Z_3$ while linear functions over $\Z_3$ are highly nonlinear over $\Z_2$. Furthermore, using small moduli allows for efficient designs for ``switching'' between the moduli. In fact, we show how conversions between the moduli are “small” nonlinear gates and can be implemented efficiently from OT and VOLE correlations.
+\fi
+
+A primary motivation for the above design was its MPC-friendliness. Indeed, several MPC protocols were proposed in~\cite{boneh2018-darkmatter} for its distributed evaluation. These protocols were shown to have significant advantages over earlier MPC-friendly designs, but this was argued either for the honest-majority 3-party case or for 2PC in the preprocessing model. Another, very different, motivation is the goal of identifying simple function classes that are ``hard to learn.''  Indeed,  the conjectures from~\cite{boneh2018-darkmatter} imply hardness of learning results for low complexity classes such as (depth-2) $\mathsf{ACC}^0$ or sparse $\Z_3$ polynomials. These conjectures may have interesting implications outside the field of cryptography~\cite{complexity-theory-works}.
+
+The initial work of~\cite{boneh2018-darkmatter,adventures} have only scratched the surface of the kind of questions one may ask. Why focus on PRFs and not on simpler primitives such as OWFs and PRGs? Distributed evaluation of these primitives is motivated by many applications. 
+
+leave much to be desired. First, they all focus 
+
 
 % All the candidates we propose are based on similar interplays between linear mappings in $\Z_2$ and $\Z_3$.
-\mahimna{write something about complexity theory implications}
+%\mahimna{write something about complexity theory implications}
 
 \subsection{Our Contribution}
+
 
 
 
@@ -118,7 +128,7 @@ for solving subset-sum that are based on the
 Compared to a standard meet-in-the-middle approach, 
 this attack forced us to increase the parameters by about $30\%$.
 
-For the candidate PRF and PRG constructions, 
+For the candidate weak PRF and PRG constructions, 
 the security analysis is mainly focused on
 statistical distinguishers that exploit a bias in the output.
 The strength of such a bias depends on the minimal distance of the 
