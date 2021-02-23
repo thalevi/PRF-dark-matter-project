@@ -25,34 +25,45 @@ Towards this goal, a long line of work~\cite{damgard2010-aes, pinkas2009-aes, wa
 %So far, the primary focus has been on MPC-friendly PRFs. 
 
 In this work, we continue this line of research by proposing a new suite of \textit{simple} MPC-friendly candidate designs for a number of symmetric primitives: (weak)\footnote{A weak PRF is one whose security only holds when evaluated on {\em random} inputs. In many applications of strong PRF, a weak PRF can be used instead by first applying a hash function (modeled as a random oracle) to the input~\cite{someweakPRFref}.
-} PRFs, OWFs, and PRGs. We focus on the {\em semi-honest} setting of security for simplicity. While recent general techniques from the literature~\cite{BBCGI19,BGIN19} can be used to extend some of our protocols to the malicious security model with a low amortized cost, we leave such an extension to future work. 
+} PRFs, OWFs, and PRGs.
 
-\paragraph{Efficiency metrics for MPC.}   Concretely efficient MPC protocols can be divided into two broad categories: protocols based on {\em garbled circuits}~\cite{Yao} and protocols based on {\em secret sharing}~\cite{GMW,BGW,CCD}. Protocols based on garbled circuits have low round complexity but their communication cost will be prohibitively high for our purposes. We will therefore focus on protocols based on secret sharing. Roughly speaking, the complexity of evaluating  a given function $f$ using such protocols is determined by the {\em size} and the {\em depth} of a {\em circuit} $C$ representation of $f$.  Here we assume that $C$ is comprised of atomic gates of two kinds: {\em linear gates} (computing modular addition or multiplication by a public value) and MPC-friendly {\em nonlinear gates}  that are supported by efficient subprotocols. A typical example for a nonlinear gate is modular multiplication of two secret values. Given such a representation for $f$, the {\em communication} cost of an MPC protocol for $f$ scale linearly with the {\em size} of $C$, whereas the {\em round complexity} scales linearly with the {\em depth}. Since linear gates do not require any interaction, they do not count towards the size or the depth. We use the terms ``nonlinear size'' and ``nonlinear depth'' to refer to the size and depth excluding linear gates. In particular, 
 
-if a function is composed of ``MPC-friendly'' atomic gates that consists of linear gates (performing, say, modular addition) and nonlinear gates (performing multiplication or another nonlinear operation that can 
+\paragraph{The MPC setting.} We focus on the {\em semi-honest} setting of security for simplicity. While recent general techniques from the literature~\cite{BBCGI19,BGIN19} can be used to extend some of our protocols to the malicious security model with a low amortized cost, we leave such an extension to future work. We consider protocols for both two parties (2PC) and multiple parties, both with and without an honest majority assumption, and both with and without preprocessing. For concreteness, in the following we consider by default the standard setting of (semi-honest) 2PC with preprocessing. However, most of our contribution applies to the other models as well. 
 
-We consider protocols for both two parties (2PC) and multiple parties, both with and without an honest majority assumption, and both with and without preprocessing. For concreteness, consider by default the standard setting of (semi-honest) 2PC with preprocessing, though most of the following discussion applies to all other settings as well. 
+\paragraph{Efficiency metrics for MPC.}   Concretely efficient MPC protocols can be divided into two broad categories: protocols based on {\em garbled circuits}~\cite{Yao} and protocols based on {\em linear secret sharing}~\cite{GMW,BGW,CCD}. Protocols based on garbled circuits have low round complexity but their communication cost will be prohibitively high for our purposes. We will therefore focus on protocols based on secret sharing. Roughly speaking, the complexity of evaluating  a given function $f$ using such protocols is determined by the {\em size} and the {\em depth} of a {\em circuit} $C$ that evaluates $f$.  Here we assume that $C$ is comprised of atomic gates of two kinds: {\em linear gates} (computing modular addition or multiplication by a public value) and MPC-friendly {\em nonlinear gates}  that are supported by efficient subprotocols. A typical example for a nonlinear gate is modular multiplication of two secret values. Given such a representation for $f$, the {\em communication} cost of an MPC protocol for $f$ scale linearly with the {\em size} of $C$, namely the number of gates weighted by the ``MPC cost'' of each gate, whereas the {\em round complexity} scales linearly with the {\em depth} of $C$, namely the of gates on a longest input-output path. Since linear gates do not require any interaction, they do not count towards the size or the depth. We use the term ``nonlinear size'' and ``nonlinear depth'' to refer to the size and the depth when excluding linear gates. 
 
-The efficienty are designed with the following goals in mind:
+\paragraph{Our design criteria.}  The above efficiency metrics for MPC are quite crude, since not all kinds of nonlinear gates are the same, but they can still serve as an intuitive guideline for the design of MPC-friendly primitives. More concretely, we would like to design primitives with the following goals in mind.
 
 \begin{itemize}[itemsep=1ex]
-    \item \textit{High nonlinearity but low nonlinear depth}.
-Garbled circuit based protocols usually have better round complexity (independent of circuit depth) while secret-sharing based protocols have much smaller communication complexity (especially in the preprocessing model). The round complexity of the latter scales with \textit{nonlinear depth} since linear functions can be computing non-interactively given a linear secret-sharing scheme. Unfortunately, constructions like AES or even MPC-friendly ones such as LowMC have a high nonlinear depth, which forms a latency bottleneck in their distributed evaluation.
+    \item \textit{Low nonlinear depth}. To minimize round complexity, we would like our designs to have low nonlinear depth. Unfortunately, constructions like AES or even MPC-friendly ones such as LowMC have a high nonlinear depth, which leads to high-latency protocols when using the secret sharing approach.
+    
+\item \textit{Small nonlinear size}.
+ For keeping the communication complexity low, we would like to minimize the number of nonlinear gates and make them as ``small,'' ``simple,'' and ``MPC-friendly'' as possible. 
 
-    \hspace*{1em} In this paper, we strive to find the best of both worlds. The first design goal for our constructions therefore, is to achieve high nonlinearity for the overall computation while maintaining a low nonlinear \textit{depth}. Intuitively, this will enable us to achieve low round complexity (using a secret-sharing based approach) without the communication overhead of garbled circuits.
+\item \textit{High algebraic degree}.
+Security of block ciphers and (weak) PRFs provably requires high algebraic degree. While there are low-degree implementations of weaker primitives such as OWF and PRG~\cite{MQref,Goldreich,AIK05}, these typically come at the price of bigger input and output size and high nonlinear size~\cite{AsiacryptCouteau}.
+    
+    \item \textit{Simplicity}.  A simple design is almost always easier to implement and prone to fewer errors and attacks. This is particularly valuable since a substantial amount of work~\cite{?} has previously gone into implementations that resist timing and cache side-channels. Simpler constructions are also easier to reason about and cryptanalyze, which builds confidence in their security, and may draw enough interest to be analyzed outside the cryptography community.
+\end{itemize}
 
-    \item \textit{Small nonlinear size}.
-    While our first design goal focused on reducing the number of (sequential) nonlinear gates, we would also like to reduce the communication complexity for evaluating the nonlinear gates. Our second design goal therefore, is to incorporate ``simple'' nonlinear gates that can be evaluated with low communication overhead. 
-
-    \hspace*{1em} Simplicity also has several independently valuable consequences. A simple design is almost always easier to implement and prone to fewer errors and attacks. This is particularly valuable since a substantial amount of work~\cite{?} has previously gone into implementations that resist timing and cache side-channels. Simpler constructions are also easier to reason about and cryptanalyze which builds confidence in their security.
-
-    \item \textit{\textnormal{OT} and \textnormal{VOLE} friendliness}.
-    MPC protocols in the preprocessing model can take advantage of structured randomness that is independent of the protocol inputs and can be generated in the \textit{offline} phase. This randomness is usually assumed to be given to the protocol parties by a trusted dealer. Several MPC protocols~\cite{?} have used a varying types correlated randomness to increase efficiency in the input-dependent \textit{online} phase.
+\iffalse     
+    Recent techniques for securely generating many instances of ``OT'' and ``VOLE'' correlations  with low communication and computation costs~\cite{BCGI18,BCGKIS19,more} motivate primitives that can benefit from these
+    
+    and can be generated in the \textit{offline} phase. This randomness is usually assumed to be given to the protocol parties by a trusted dealer. Several MPC protocols~\cite{?} have used a varying types correlated randomness to increase efficiency in the input-dependent \textit{online} phase.
 
     \hspace*{1em} Our final goal is to design candidates that take advantage of two special types of correlations: Obvious transfer (OT) correlations, and (vector) oblivious linear evaluation (OLE/VOLE) correlations. A major selling point for these correlations over other types is their ease of generation even without a trusted dealer. Recent work~\cite{?} for instance, has shown how pseudorandom correlation generators (PCGs) can be used to generate millions of OT and VOLE correlations with little to no communication. Furthermore, it is not necessary to store all of these correlations; they can stored in a compressed form, and expanded only when needed~\cite{?}.
 
+
+    \hspace*{1em} In this paper, we strive to find the best of both worlds. The first design goal for our constructions therefore, is to achieve high nonlinearity for the overall computation while maintaining a low nonlinear \textit{depth}. Intuitively, this will enable us to achieve low round complexity (using a secret-sharing based approach) without the communication overhead of garbled circuits.
+
     \hspace*{1em} This means that although our protocols are in the preprocessing model, the correlations we require can be efficiently generated and compressed without a trusted dealer. Furthermore, since we also aim for small nonlinear sized constructions, the upshot of our design is that distributed protocols will be efficient even in an online-only setting. 
-\end{itemize}
+\fi
+
+\paragraph{\bf The alternating moduli paradigm.} The above design criteria seem inherently at odds with each other. How can ``high algebraic degree'' co-exist with ``small gates'' and ``low nonlinear depth''? A new design paradigm that may help settle this apparent conflict was recently proposed by Boneh et al.~\cite{boneh2018-darkmatter} and further analyzed by Cheon et al.~\cite{adventures}. The idea is to  break the computation of the primitive $f$ into two or more segments, where each segment computes a linear function over a {\em different modulus}. The simplest choice of moduli is 2 and 3. 
+
+The main weak PRF candidate from~\cite{boneh2018-darkmatter} has the following simple description: the input $x$ is a vector over  $\Z_2$ and the secret key specifies a matrix $K$ over  $\Z_2$. The PRF first computes the matrix-vector product over  $\Z_2$, then interprets the result as a vector over $\Z_3$ in the natural way,  and finally applies a public, compressive linear mapping over $\Z_3$ to obtain an output vector $y$ over $\Z_3$. 
+
+The above mapping from $x$ and $K$ to $y$ has two nonlinear steps: The first is the matrix-vector over $\Z_2$, whose cost an be reduced when the matrix $K$ has a special form. The second is a {\em conversion} of a mod-2 vector to a mod-3 vector, which consists of small parallel (finite-size) nonlinear gates.  Overall, the nonlinear depth is 2. Why is this a high-degree function? Viewing both the input and the (binary representation of) the output as vectors over $\Z_2$, high degree over $\Z_2$ comes from the final linear mapping over $\Z_3$. Viewing the inputs as a vector over $\Z_3$, high degree comes from the bilinear mapping over $\Z_2$.    
 
 The main technique by which we achieve all three of our design goals is to consider alternating linear functions over different (prime) moduli. The only nonlinear part of the constructions will now be to switch between the different moduli, which leads to a very small round complexity. Furthermore, Boneh et al.~\cite{boneh2018-darkmatter} showed that linear functions over one moduli cannot be well approximated by low degree polynomials over a different moduli. Consequently, even a simple design that alternates between different moduli can result in a highly non-linear overall computation. In other words, this approach provides high algebraic degree with low nonlinear depth. 
 
@@ -61,9 +72,20 @@ As the simplest possible instance of this approach, we consider alternating line
 % All the candidates we propose are based on similar interplays between linear mappings in $\Z_2$ and $\Z_3$.
 \mahimna{write something about complexity theory implications}
 
-\subsection{Our contributions}
+\subsection{Our Contribution}
+
+
+
 In this section, we provide a detailed overview of the main contributions of this paper.
+
+
+\paragraph{\bf \textnormal{OT} and \textnormal{VOLE} friendliness}.
+    MPC protocols in the preprocessing modelcan take advantage of input-independent correlated randomness to better handle nonlinear gates~\cite{Beaver,BDOZ,SPDZ,PowerOfCorrelatedRandomness,TinyTables,BGI19}. However, some kinds of correlated randomness are better than other. Recent work~\cite{?} for instance, has shown how pseudorandom correlation generators (PCGs) can be used to generate millions of ``OT'' and ``VOLE'' correlations with very low and computation costs. Furthermore, it is not necessary to store all of these correlations; they can stored in a compressed form, and expanded only when needed~\cite{?}. Roughly speaking, an OT correlation is useful for evaluating a ``simple'' nonlinear gates (such as Boolean AND) and a VOLE correlation is useful for scalar-vector products. We would like to maximize the potential benefit from these recent techniques.
+
+
 \mahimna{still writing}
+
+
 
 \subsubsection{New candidate constructions.}
 We introduce several candidate constructions for the (weak)PRF, OWF, and PRG primitives. Our candidates are all based on similar interplays between alternating modulo 2 and modulo 3 linear mappings.
