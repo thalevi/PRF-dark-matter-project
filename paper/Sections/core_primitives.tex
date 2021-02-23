@@ -115,9 +115,6 @@ The constructions we described previously use general matrices in, e.g., $\Z_p^{
 
     \item (Generalized circulant matrices). 
     An generalized circulant matrix is a matrix where each row after the first, is a cyclic rotation of the first row. Specifically, if the first row of generalized circulant matrix $\mat{M}$ is the vector $(a_1, \dots, a_n)$, then the $m^\thtext$ row of $\mat{M}$ will be given by the same vector cyclically rotated $m-1$ times. In general, $m \neq n$, but the special case of $m = n$ (i.e., when the matrix is square) is called a (square) circulant matrix. Unless specified, for brevity, we will often use the term \textit{circulant} to denote either generalized circulant matrices or the more specific (square) circulant matrices. This will not matter for our setting, since both can be efficiently represented using just $n$ field elements.
-
-    % Alternatively, a different generalization of circulant matrices can also be used where the blocks (instead of individual elements) are permuted
-    \item \mahimna{maybe we could also mention block circulant matrices.}
 \end{itemize}
 
 We will usually instantiate our constructions using generalized circulant matrices to take advantage of their efficient representations. However, care must be taken while adding structure since this could potentially damage the security of a construction. This is particularly relevant in case of multi-element outputs since elements in the intermediate vectors will be correlated. For example, in the LPN-style construction, the noise for each deterministic LPN instance will be correlated since two columns of a circulant matrix are just cyclic rotations. 

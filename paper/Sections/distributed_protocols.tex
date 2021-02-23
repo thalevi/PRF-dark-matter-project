@@ -288,9 +288,7 @@ In this section, we provide a 3-party (semi-honest) protocol for computing the \
 \paragraph{Functionality.}
 Denote the servers by $\party_1, \party_2$, and $\party_3$. We assume that the servers hold replicated additive shares of the key $\mat{K}$ and the input $x$. The key is assumed to be circulant and can be represented by $k \in \Z_2^n$. Concretely, let $(k_1, k_2, k_3)$ and $(x_1,x_2,x_3)$ be additive shares of $k$ and $x$ respectively. Then, each party $\party_i$ is given $k_j$, $x_j$ with $j \neq i$. At the end of the protocol, $\party_2$ and $\party_3$ should hold $y_2$ and $y_3$ respectively such that $(y_2, y_3)$ is a sharing of the wPRF output $y$.
 
-\paragraph{Protocol.}
-
-
+\paragraph{Protocol details.}
 \begin{itemize}
   \item First, the three servers compute additive shares of the linear mapping $\mat{K}{x}$ locally using their replicated shares. Note that this can be locally since for two secret shared values $a = a_1 + a_2 + a_3$ and $b = b_1 + b_2 + b_3$, their product can be computed as $ab = \sum_{1 \leq j,k \leq 3} a_jb_k$. Since each party holds two shares of $a,b$ in a replicated sharing scheme, each term $a_jb_k$ can be computed by at least 1 party. Suppose that the share of $\party_i$ is denoted by $\sharei{\mat{K}x}$.
 
@@ -301,8 +299,7 @@ Denote the servers by $\party_1, \party_2$, and $\party_3$. We assume that the s
 
 
 \paragraph{Cost analysis.}
-\mahimna{todo}
-
+The protocol requires only 1 round, with two messages sent by $\party_1$ and one message each sent by $\party_2$ and $\party_3$. $\party_1$ sends a total of $2m + 2 \log_2(3)\cdot m$ bits while the other two parties send $m$ bits each. $\party_1$ can also generate a reusable PRG seed and provide it to one of the parties which saves $\log_2(3)\cdot m$ bits of communication.  
 
 
 
@@ -381,20 +378,24 @@ problem with our primitives?
 %-------------------%
 \subsection{Generating the correlated randomness.}
 \label{subsec:preprocessing}
-While our distributed protocols are primarily built for use in the preprocessing model, in this section we will show how to generate the preprocessing we require efficiently and without a  trusted dealer. We will focus on the 2-party setting specifically. The key technique is to convert OT correlations 
+While our distributed protocols are primarily built for use in the preprocessing model, in this section we will also show how to generate the preprocessing we require efficiently and without a trusted dealer. We will focus on the 2-party setting specifically. Three of our gate protocols, namely $\prot_\BLMap$, $\prot_\Convert^{(2,3)}$, and $\prot_\Convert^{(3,2)}$, require correlated randomness as preprocessing. In this section, we will show how to efficiently generate the randomness they require.
 
-We start by recalling OT correlations in the 2-party setting. An OT correlation over $\Z_3$ has the following form: $\party_1$ is given $(w_1, r_1)$ and $\party_2$ is given $(w_2, r_2)$ such that $w_1, w_2 \in \Z_2^l; r_1, r_2 \in \Z_3^l$ and $(w_1 + w_2) \bmod 2 = (r_1 + r_2) \bmod 3$.
+
+\subsubsection{Bilinear correlations}
+To compute a secure multiplication $\mat{K}x$ where $\mat{K}$ and $x$ are both secret shared, our bilinear gate protocol requires Beaver-style preprocessed shares of the form $(\share{\tilde{\mat{K}}}, \share{\tilde{x}}, \share{\tilde{\mat{K}}\tilde{x}})$. These triples can be compressed using variants of existing PCGs for VOLE / OLE as shown by recent work~\cite{boyle2019-pcg, boyle2020-lpn-pcg}. Using these techniques, $n$ correlations can be generated with $\ll n$ bits of communication.
 
 
 \subsubsection{$(2,3)$-correlations from OT correlations.}
-Recall that for the $\Z_2 \to \Z_3$ conversion protocol $\prot_{\Convert}^{(2,3)}$, as preprocessing, a dealer provides the parties with shares of a bit-vector both over $\Z_2$ and $\Z_3$. To convert the sharing for a single bit, the dealer provides the following correlated randomness to the parties: $\party_1$ is given $(w_1, r_1)$ and $\party_2$ is given $(w_2, r_2)$ such that $w_1, w_2 \in \Z_2; r_1, r_2 \in \Z_3$ and $(w_1 + w_2) \bmod 2 = (r_1 + r_2) \bmod 3$. We call the $(w_1, r_1)$ and 
+We provide a new technique to generate the correlations needed for the $\prot_\Convert^{(2,3)}$ protocol. The key technique we use is to convert OT correlations to the types of correlations our protocols require. Since prior work~\cite{?} has shown how to efficiently create OT correlations, this implies that the correlations required for our protocols can also be efficiently generated.
 
+We start by recalling OT correlations in the 2-party setting. 
 
+\paragraph{1-out-of-2 OT correlation over $\Z_3$.} An OT correlation over $\Z_3$ has the following form: $\party_1$ holds $(z_0, z_1)$ and $\party_2$ holds $(c, z_c)$ where $z_0, z_1 \getsr \Z_3$, $c \in \Z_2$ and $z_c = z_0$ if $c=0$ and $z_c = z_1$ if $c=1$. We refer to $((z_0,z_1), (c, z_c))$ as an OT correlation pair.
 
- Specifically, in the 2-party setting, to convert shares of $x \in \Z_2^l$ over $\Z_2$ to shares over $\Z_3$, the dealer provides the following correlated randomness to the parties: $\party_1$ is given $(w_1, r_1)$ and $\party_2$ is given $(w_2, r_2)$ such that $w_1, w_2 \in \Z_2^l; r_1, r_2 \in \Z_3^l$ and $(w_1 + w_2) \bmod 2 = (r_1 + r_2) \bmod 3$.
+\paragraph{Conversion technique.}
+Recall that for the $\Z_2 \to \Z_3$ conversion protocol $\prot_{\Convert}^{(2,3)}$, as preprocessing, a dealer provides the parties with shares of a bit-vector both over $\Z_2$ and $\Z_3$. For simplicity, we first consider the correlated randomness for a single element. To convert the sharing for a single bit, the dealer provides the following correlated randomness to the parties: $\party_1$ is given $(w_1, r_1)$ and $\party_2$ is given $(w_2, r_2)$ such that $w_1, w_2 \in \Z_2; r_1, r_2 \in \Z_3$ and $(w_1 + w_2) \bmod 2 = (r_1 + r_2) \bmod 3$. We refer to $((w_1, r_1), (w_2, r_2))$ as a $(2,3)$ correlation pair.
 
-
-Recall that an OT correlation (over $\Z_3$) has the following form: $\party_1$ holds $(z_0, z_1)$ and $\party_2$ has $(c, z_c)$ where $z_0, z_1 \getsr \Z_3$, $c \in \Z_2$ and $z_c = z_0$ if $c=0$ and $z_c = z_1$ if $c=1$. Suppose for now, that we have the ability to ``throw'' away OT correlations where $z_0 = z_1$. We will get rid of this assumption later by communicating a single message from $\party_1$ to $\party_2$.
+We now show how to convert an OT correlation into a $(2,3)$ correlation. Suppose for now that we have the ability to ``throw'' away OT correlations where $z_0 = z_1$. We will get rid of this assumption later by communicating a single message from $\party_1$ to $\party_2$ which will intuitively detail which OT correlations to discard.
 
 Now, to generate a $(2,3)$-correlation, the parties proceed as follows:
 \begin{itemize}
@@ -407,16 +408,19 @@ Now, to generate a $(2,3)$-correlation, the parties proceed as follows:
   \]
   \item $\party_2$ computes $(w_2, r_2) = (c, -z_c \bmod 3)$.
 \end{itemize}
-
-Now, if $(z_0, z_1) = (0,1)$
-(0,1), (0,2), (1,0), (1,2), (2,0), (2,1)
 \begin{lemma}
   The algorithm above generates a random $(2,3)$-correlation.
 \end{lemma}
 \begin{proof}
-Notice now that $r_1 + r_2 \bmod 3 = 0$
+The proof is straightforward by iterating through all the possible cases and we omit the details.
 \end{proof}
 
+This means that an OT correlation can locally be converted to a $(2,3)$ correlation when $z_0 \neq z_1$. Since $\party_1$ knows these values, it still needs to communicate to $\party_2$ whether to use a given correlation or not. 
+For this, $\party_1$ sends a single message which describes the set of instances to consider. Specifically, for a sequence of $k$ OT correlations, $\party_1$ can send a $k$ bit message where each bit signals whether to use the corresponding correlations. 
+
+Therefore, to the obtain $l$ single-element $(2,3)$ correlations necessary for an $x \in \Z_2^l$, on expectation, $1.5l$ OT correlations will be required. Na{\"i}vely, this would require a $1.5l$ length message from $\party_1$ to $\party_2$. This can be easily compressed however, using the binary entropy function $\textsf{H}_b(p)$ which computes the entropy of a Bernoulli process with probability $p$. Specifically, since we expect to throw away $p = 1/3$ fraction of the OT correlations, the message from $\party_1$ to $\party_2$ can be compressed to only $1.5l \cdot \textsf{H}_b(1/3) \approx 1.377l$ bits. Consequently, on expectation, a single $(2,3)$ correlation can be generated using just $1.377$ bits of communication.
+
+As another upshot, this means that the required $(2,3)$ correlations can be generated on the fly even during the online phase. For example, in the \ttwPRF protocol, the $(2,3)$ correlations required can be generated along with the first round of the online protocol without needing them to be given earlier as preprocessing. Note that the number of communication rounds still stays the same.
 
 
 
@@ -435,16 +439,7 @@ Notice now that $r_1 + r_2 \bmod 3 = 0$
 
 
 
-
-
-
-
-
-
-
-
-
-\section{Table}
+\subsection{Table}
 
 \mahimna{Placeholder section for cost table. Will some somewhere else later}
 
@@ -476,7 +471,7 @@ Notice now that $r_1 + r_2 \bmod 3 = 0$
 
   \hline
 
-  \multirow{1}{*}{OWF} & \makecell{\ttOWF} & $(128, 452, 81)$ & $(904,2,1)$ & $(2337, 717)$ & & & - & - & - \\
+  \multirow{1}{*}{OWF} & \makecell{\ttOWF} & $(128, 452, 81)$ & $(904,2,1)$ & $(2337, 717)$ & & $(2525,4,1)$ & - & - & - \\
   % & \makecell{$(3,2)$-OWF} &  &  &  & & & - & - & - \\
   % & \makecell{LPN-OWF} &  &  &  & & & - & - & - \\
 
