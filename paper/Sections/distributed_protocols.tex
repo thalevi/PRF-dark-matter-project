@@ -381,20 +381,41 @@ problem with our primitives?
 %-------------------%
 \subsection{Generating the correlated randomness.}
 \label{subsec:preprocessing}
+While our distributed protocols are primarily built for use in the preprocessing model, in this section we will show how to generate the preprocessing we require efficiently and without a  trusted dealer. We will focus on the 2-party setting specifically. The key technique is to convert OT correlations 
+
+We start by recalling OT correlations in the 2-party setting. An OT correlation over $\Z_3$ has the following form: $\party_1$ is given $(w_1, r_1)$ and $\party_2$ is given $(w_2, r_2)$ such that $w_1, w_2 \in \Z_2^l; r_1, r_2 \in \Z_3^l$ and $(w_1 + w_2) \bmod 2 = (r_1 + r_2) \bmod 3$.
 
 
-In this section, we show how to efficiently generate these correlations given OT correlations.
-
-
-
-
-
-
-
+\subsubsection{$(2,3)$-correlations from OT correlations.}
+Recall that for the $\Z_2 \to \Z_3$ conversion protocol $\prot_{\Convert}^{(2,3)}$, as preprocessing, a dealer provides the parties with shares of a bit-vector both over $\Z_2$ and $\Z_3$. To convert the sharing for a single bit, the dealer provides the following correlated randomness to the parties: $\party_1$ is given $(w_1, r_1)$ and $\party_2$ is given $(w_2, r_2)$ such that $w_1, w_2 \in \Z_2; r_1, r_2 \in \Z_3$ and $(w_1 + w_2) \bmod 2 = (r_1 + r_2) \bmod 3$. We call the $(w_1, r_1)$ and 
 
 
 
+ Specifically, in the 2-party setting, to convert shares of $x \in \Z_2^l$ over $\Z_2$ to shares over $\Z_3$, the dealer provides the following correlated randomness to the parties: $\party_1$ is given $(w_1, r_1)$ and $\party_2$ is given $(w_2, r_2)$ such that $w_1, w_2 \in \Z_2^l; r_1, r_2 \in \Z_3^l$ and $(w_1 + w_2) \bmod 2 = (r_1 + r_2) \bmod 3$.
 
+
+Recall that an OT correlation (over $\Z_3$) has the following form: $\party_1$ holds $(z_0, z_1)$ and $\party_2$ has $(c, z_c)$ where $z_0, z_1 \getsr \Z_3$, $c \in \Z_2$ and $z_c = z_0$ if $c=0$ and $z_c = z_1$ if $c=1$. Suppose for now, that we have the ability to ``throw'' away OT correlations where $z_0 = z_1$. We will get rid of this assumption later by communicating a single message from $\party_1$ to $\party_2$.
+
+Now, to generate a $(2,3)$-correlation, the parties proceed as follows:
+\begin{itemize}
+  \item $\party_1$ computes
+  \[ (w_1, r_1) = 
+  \begin{cases} 
+      (0, z_0) & \text{if } z_1=z_0-1 \bmod 3 \\
+      (1, z_1) & \text{if } z_0=z_1-1 \bmod 3 \\
+   \end{cases}
+  \]
+  \item $\party_2$ computes $(w_2, r_2) = (c, -z_c \bmod 3)$.
+\end{itemize}
+
+Now, if $(z_0, z_1) = (0,1)$
+(0,1), (0,2), (1,0), (1,2), (2,0), (2,1)
+\begin{lemma}
+  The algorithm above generates a random $(2,3)$-correlation.
+\end{lemma}
+\begin{proof}
+Notice now that $r_1 + r_2 \bmod 3 = 0$
+\end{proof}
 
 
 
