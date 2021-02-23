@@ -33,13 +33,6 @@ We make use of just five types of basic operations, or ``gates,'' which we detai
 
 \noindent Note that the difference between the $\LMap$ and the $\BLMap$ gates is seen in the context of their distributed protocols. For $\LMap$, the matrix $\mat{A}$ will be publicly available to all parties, while the input $x$ will be secret shared. On the other hand, for $\BLMap$, both the key $\mat{K}$ and the input $x$ will be secret shared. We call this gate \textit{bilinear} because its output is linear in both of its (secret-shared) inputs. Also note that although the $\Convert_{(2,3)}$ gate is effectively a no-op in a centralized evaluation, in the distributed setting, the gate will be used to convert an additive sharing over $\Z_2$ to an additive sharing over $\Z_3$.
 
-\greg{At this point I feel that Lin and BL not that descriptive.  It's
-vector-matrix multiply, and for Lin the matrix is public.  Readers know what
-vector-matrix multiplication is, so why call it a Bilinear gate? Maybe as I
-read further it'll be clearer why they have these names.  If it's to contrast
-these against the non-linear operations (as is typical in symmtric-key
-literature), then maybe point out what the nonlinear operations are.  }
-
 As described previously, for the (bi)linear mappings, we focus only on constructions that use mod-2 and mod-3 mappings. In \fig~\ref{fig:graphical_gates}, we provide a pictorial representation for each circuit gate. We will connect these pieces together to also provide clean visual representations for all our constructions. 
 
 The homomorphic properties of additive secret sharing directly imply that the gates $\LMap$ and $\textsf{Add}$ can be computed locally without any preprocessing or communication. For the other gates, we provide protocols to evaluate them in a distributed setting (i.e., where all inputs and outputs are secret shared) in Section~\ref{sec:distributed_protocols}.
@@ -59,6 +52,7 @@ The candidate constructions we introduce follow one of two broad styles which we
     \greg{Why did we choose to focus on (2,3), (3,2)?}
     \itai{At a high level the standard conversion from mod 3 to mod 2 loses information and is less efficient.
     The LPN-style construction can be viewed as a variant of (3,2) that does not lose information.}
+    \greg{But why not (5,7) or (17, 101), etc. I think a sentence explaining why these two primes would help.}
     
     \item \textbf{LPN-style-constructions.}
     These constructions have the following general structure: On input $x$ over $\Z_2$, first a linear $\bmod~2$ mapping given by the matrix $\mat{A}$ is applied to obtain $u$. Concurrently, the same linear mapping is also applied over $\Z_3$ (where both $x$ and $\mat{A}$ are now reinterpreted over $\Z_3$) and then reduced modulo $2$ to obtain $v$. The sum $w = u \oplus v$ is then multiplied by a second linear mapping (given by $\mat{B}$) over $\Z_2$. The mapping $\mat{B}$ is always public, while for keyed primitives, the key $\mat{K}$ is used instead of the first mapping $\mat{A}$.

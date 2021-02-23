@@ -367,14 +367,6 @@ We instantiate a DDH-based OPRF over the Curve25519 elliptic curve and compare i
 
 \mahimna{also compare to other OPRFs}
 
-\greg{One drawback of this is if the client becomes malicious, they can send a
-previous server output back as input, and get the sequence $g, g^k, g^{k^2},
-\ldots, g^{k^t}$. This is sometimes called a DH oracle, which lets one solve an
-instance of the strong DH problem, which is easier than the DH problem
-($O(\sqrt{q/t})$ group operations instead of $O(\sqrt{q})$).  Is there a similar
-problem with our primitives? 
- } \yuval{We consider semi-honest security here, so this concern doesn't apply in this setting.}
-
 
 
 %-------------------%
