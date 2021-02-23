@@ -61,8 +61,7 @@ $B \in \mathbb{F}_3^{t \times m}$:
 
 The parameters $n,m,t$ satisfy $n \geq m$, $m \geq t$.
 The secret input is $k \in \mathbb{F}_2^{n}$.
-Let $K \in \mathbb{F}_2^{m \times n}$ be a circulant matrix of 
-full rank $m$
+Let $K \in \mathbb{F}_2^{m \times n}$ be a circulant matrix 
 whose rows include all cyclic rotations of $k$.
 Given a public input vector $x \in \mathbb{F}^{2}_n$ and
 and a public matrix $B \in \mathbb{F}_3^{t \times m}$:
@@ -86,7 +85,7 @@ $B \in \mathbb{F}_2^{t \times m}$:
 
 The parameters $n,m,t$ satisfy $n \geq m$, $m \geq t$.
 The secret input is $k \in \mathbb{F}_2^{n}$.
-Let $K \in \mathbb{F}_2^{m \times n}$ be a circulant matrix of full rank $n$
+Let $K \in \mathbb{F}_2^{m \times n}$ be a circulant matrix 
 whose rows include all cyclic rotations of $k$.
 Given a public input vector $x \in \mathbb{F}^{m}_2$ and
 a public matrix $B \in \mathbb{F}_2^{t \times m}$:
@@ -117,10 +116,74 @@ In terms of security, the choice of fixing $B$ does allow for a wider range of a
 that we need to consider, as we demonstrate in the security analysis.
 
 \subsubsection{Restricted public matrices.}
-In order to optimize performance, we select the public matrices 
-for the schemes as random Toeplitz matrices. These matrices 
-define a pairwise independent hash family and are known to satisfy the 
+In order to optimize performance, we select the public matrices
+for the schemes as random Toeplitz matrices. These matrices
+define a pairwise independent hash family and are known to satisfy the
 Gilbert–Varshamov bound for linear codes, which is the main tool we use in the analysis.
+
+\subsubsection{Private matrices for PRF constructions.}
+The private matrix $K$ in the PRF constructions is a circulant matrix 
+defined by rotations of a secret $k \in \{0,1\}^n$.
+While a choice of $K$ with a small rank deficiency does not seem to 
+have a significant impact on the security, 
+some attacks on the schemes (particularly on the 2-3 PRF) may exploit 
+matrices of particularly low rank 
+(as $w = Kx \bmod 2$ resides in a subspace of small dimension).
+
+Thus, if possible, it is preferable to select $k$ such that $K$ 
+is a full rank matrix. Yet, this may require additional communication 
+is distributed protocols. 
+Otherwise, we need to understand the rank distribution of $K$
+when $k$ is selected uniformly at random and prove that $K$ 
+has very small rank with negligible probability.
+For particular choices of $n$ the analysis is simple.
+\begin{proposition}
+\label{prop:rank}
+Let $n = 2^{n'}$ for a positive integer $n'$ 
+and let $K \in \mathbb{F}_2^{n \times n}$ 
+be a circulant matrix selected uniformly at random.
+Then, for any $a \in \{0,\ldots n\}$, 
+$\Pr[rank(K) \leq a] = 2^{-n+a}$.
+\end{proposition}
+
+\begin{proof}
+For every vector $u \in \mathbb{F}_2^{n}$
+we associate a polynomial of degree at most $n-1$,
+$u(x) = \sum_{j=0}^{n-1} u_j x^{j} \in \mathbb{F}_2[x]$. 
+
+Assume that $K$ is formed by rotations 
+of $k \in \mathbb{F}_2^{n}$.
+Then for $i \in \{0,\ldots, n-1\}$,
+the $i$'th column of $K$ is associated with the polynomial
+$x^i \cdot k(x) \bmod x^n - 1$. 
+Thus, for $u \in \mathbb{F}_2^{n}$, $Ku$ is given 
+by the coefficients of the polynomial
+$u(x) \cdot k(x) \bmod x^n - 1$,
+and $Ku = 0$ if and only if 
+$u(x) \cdot k(x)$ divides $x^n - 1$.
+
+Therefore, there is a bijection between the kernel space of $K$ 
+of the subspace of polynomials $u(x) \in \mathbb{F}_2[x]$ 
+of degree at most $n-1$  
+that satisfy $u(x) \cdot k(x) \bmod x^n - 1 = 0$.
+The dimension of this subspace of polynomials is equal to 
+the degree of $\gcd(k(x), x^n - 1)$ over $\mathbb{F}_2[x]$.
+
+Recalling that $n = 2^{n'}$, over $\mathbb{F}_2[x]$ we have 
+$x^{2^{n'}} - 1 = (x - 1)^{2^{n'}} = (x - 1)^n$.
+To conclude the proof,
+$rank(K) \leq a$ if and only if
+the kernel dimension of $K$ is at least $n-a$.
+Equivalently, the degree of $\gcd(k(x), (x - 1)^n)$
+is at least $n-a$, or
+$k(x)$ divides $(x - 1)^{n-a}$.
+There are exactly $2^a$ polynomials of degree at most
+$n-1$ that divide $(x - 1)^{n-a}$
+and the probability of selecting one of them is 
+$\tfrac{2^{a}}{2^n} = 2^{-n+a}$ as claimed. 
+\end{proof}
+ 
+  
 
 
 \subsection{Security Goals}
@@ -129,7 +192,7 @@ $s$-bit security, as defined below, while achieving good performance in distribu
 
 \subsubsection{OWF security.}
 
-Given a OWF scheme $F(\cdot)$ (applied to a secret input, where the public parameters are embedded into $F$), 
+Given a OWF scheme $F(\cdot)$ (applied to a secret input, where the public parameters are embedded into $F$),
 we define an inversion attack game by choosing $\hat{x} \in \mathbb{F}_2^n$
 uniformly at random and giving $\hat{y}= F(\hat{x})$ to the adversary, whose
 goal to output some $x \in \mathbb{F}_2^n$ such that $F(x) = \hat{y}$.
@@ -140,8 +203,7 @@ We say that $F(\cdot)$ has $s$ bits of security if no adversary can win the inve
 
 We refer to both PRFs listed above.
 
-The key $k \in \mathbb{F}_2^n$ that defines the secret matrix $K$ is chosen uniformly at random such that
-$K \in \mathbb{F}_2^{m \times n}$ is of rank $m$.
+The key $k \in \mathbb{F}_2^n$ that defines the secret matrix $K$ is chosen uniformly at random.
 Moreover, the public matrix
 $B \in \mathbb{F}_3^{t \times m}$ (or $B^{(i)} \in \mathbb{F}_2^{t \times m}$) is chosen uniformly at random
 (or as a random Toeplitz matrix).
@@ -151,17 +213,17 @@ where each $x^{(i)} \in \mathbb{F}_2^n$ is chosen independently and uniformly at
 We will place a restriction of $r \leq 40$,
 corresponding to a practical limit of $2^{40}$ on the number of samples available to the adversary.
 
-We consider two types of adversaries. 
+We consider two types of adversaries.
 The first type is a distinguisher that attempts to distinguish $2^r$ samples where each $y^{(i)}$
 is generated using the PRF with a fixed $k$ from
 $2^r$ samples where each vector $y^{(i)}$ is chosen uniformly at random.
 The second type attempts to find the secret key given samples generated using the PRF.
 
-We say that the PRF has $s$ bits of security if given (at most) $2^r$ samples both conditions below hold. 
+We say that the PRF has $s$ bits of security if given (at most) $2^r$ samples both conditions below hold.
 \begin{enumerate}
   \item The advantage of a distinguishing adversary that runs in time $2^\tau$ is at most $2^{(\tau - s)/2}$.
   \item The probability that an adversary that runs in time $2^\tau$ find the key is at most $2^{\tau - s}$.
-\end{enumerate} 
+\end{enumerate}
 This definition is aligned with the work of Micciancio and Walter~\cite{Micciancio018}.
 
 
@@ -169,7 +231,7 @@ This definition is aligned with the work of Micciancio and Walter~\cite{Miccianc
 
 The secret seed $x \in \mathbb{F}_2^n$ is chosen uniformly at random, along with the public parameters $A,B$.
 The adversary is given a single sample $A,B,y$.
-As for PRFs, security is defined against the two types of adversaries and the definition is similar. 
+As for PRFs, security is defined against the two types of adversaries and the definition is similar.
 
 \subsection{Algebraic Attacks}
 
@@ -249,8 +311,8 @@ Note that the expected number of $w \in \{0,1\}^m$ that satisfy $B w = \hat{y}$ 
 Given the scheme $\OWF(\cdot)$ with a matrix $B$ and output $y$ such that $Bw = y$, and any positive integer $r$, we can left-multiply both sides by any $r \times t$ matrix $C$ over $\mathbb{F}_3$ to obtain $CBw = Cy$. Note that each row of the matrix $CB$ is a linear combination of the rows of $B$. Using such a matrix $C$, we can perform Gaussian elimination on the rows of $B$.
 
 We denote the resultant induced scheme by $\OWF_C(\cdot)$. Observe that if $\OWF(x) = y$, then $\OWF_C(x) = Cy$.
-In addition, assuming that the rank of $C$ is $r \leq t$, we estimate that an arbitrary $x$ that satisfies $F_C(x) = Cy$ also satisfies $F(x) = y$ with probability $3^{-(t - r)}$.
-We now describe a simple attack that uses an induced scheme with $r=1$. Another attack is described in Appendix~\ref{app:bilinearity}.
+In addition, assuming that the rank of $C$ is $rank(C) \leq t$, we estimate that an arbitrary $x$ that satisfies $F_C(x) = Cy$ also satisfies $F(x) = y$ with probability $3^{-(t - rank(C))}$.
+We now describe a simple attack that uses an induced scheme with $rank(C)=1$. Another attack is described in Appendix~\ref{app:bilinearity}.
 
 \subsubsection{Low Hamming weight combinations of the rows of $B$.}
 Assume that there is a vector $v \in \mathbb{F}_3^m$ of Hamming weight $\ell$ in the row space of $B$, namely, there exists a vector $u \in \mathbb{F}_3^t$ for which $u B = v$. If $\ell$ is sufficiently small, then we could use the induced scheme $\OWF_u(\cdot)$ to speed up exhaustive search.
@@ -430,7 +492,7 @@ The key recovery attacks described above make use of a minimal number of samples
 
 \subsubsection{Output bias.}
 We consider a single sample $(x,B,y)$ and analyze the bias of linear combinations of the entries of $y$ over $\mathbb{F}_3$.
-If any such linear combination has a sufficiently high bias towards some constant, 
+If any such linear combination has a sufficiently high bias towards some constant,
 then an attacker can exploit it in a distinguishing attack.
 
 Similarly to the case analyzed for the corresponding OWF, assume there are vectors $v \in \mathbb{F}_3^m$ and $u \in \mathbb{F}_3^t$ such that $u B = v$ and the Hamming weight of $v$ is $\ell$. Given $y = Bw \bmod 3$, the attacker computes $uy \bmod 3 = vw \bmod 3$ and thus obtains the value of a linear combination $\bmod$ 3 of $\ell$ entries of $w \in \{0,1\}^m$.
@@ -447,7 +509,7 @@ We use Proposition~\ref{prop:hw} to deduce
 that the subspace spanned by the rows of $B$ contains a vector of Hamming weight at most $\ell$ with probability at most
 $2 \cdot 2^{m (H(\ell/m) - \log 3) + \ell + \log 3 \cdot t}$.
 
-Our analysis is conservative, as we ignore the work performed 
+Our analysis is conservative, as we ignore the work performed
 by the attacker to find a low Hamming weight vector $v$ spanned by the rows of $B$.
 Thus, we will be interested in $\ell \approx s/2$,
 as we would like to avoid having a linear combination of the output with bias at least $2^{-s/2}$
@@ -471,17 +533,17 @@ can be as large as about $2^{-0.21\ell}$.
 While this is still exponentially small in $\ell$,
 it is more significant than the unconditional bias.
 
-The PRF candidate proposed in~\cite{BonehIPSW18} and analyzed in~\cite{CheonCKK20} 
+The PRF candidate proposed in~\cite{BonehIPSW18} and analyzed in~\cite{CheonCKK20}
 is similar to the one we analyze for $n = m$,
 yet the matrix $B$ contains a single row that sums $\bmod$ 3 all the entries of $w$.
-Moreover, since $K$ is a circulant matrix and $x$ has even Hamming weight, 
+Moreover, since $K$ is a circulant matrix and $x$ has even Hamming weight,
 then $\sum_{i \in [m]} w_i \bmod 2 = 0$ and the distinguishing attack is applicable.
-In our case, $B$ is selected at random and the parameters are chosen 
+In our case, $B$ is selected at random and the parameters are chosen
 such that the attacker cannot obtain $\sum_{i \in I} w_i \bmod 3$ for any fixed set $I$ (and particularly $I = [m]$),
-except with negligible probability. 
+except with negligible probability.
 The general distinguishing attack is analyzed below.
 
-Assume that given a sample $(x,B,y)$, 
+Assume that given a sample $(x,B,y)$,
 there exists a set $I \subseteq [m]$ (that depends of $x$)
 such that $\sum_{i \in I} w_i \bmod 2$ is known to the attacker.
 Moreover, assume that there exists $v$ in the row span of $B$
@@ -514,7 +576,7 @@ the attacker may guess a parity of key bits and calculate the conditional bias o
 attempting to amplify it.
 Note that the desired vector $v$ changes for each sample according to $x$.
 By similar calculation, once the attacker has fixed the guess given a sample,
-almost all additional samples would not allow to amplify the conditional bias, 
+almost all additional samples would not allow to amplify the conditional bias,
 as a good vector is unlikely to be in the row span of $B$.
 
 \subsubsection{Differential cryptanalysis and low Hamming weight samples.}
@@ -648,9 +710,10 @@ the probability of having bias $\tfrac{2}{2^{s/2}}$ is bounded by
 \end{align*}
 which we consider negligible.
 
-%The advantage of the collision attack is $2^{2r - rank(K)} \leq 2^{80 - rank(K)}$.
-%Given that $m = 2s \geq 128$, 
-
+The advantage of the collision attack is $2^{2r - rank(K)} \leq 2^{80 - rank(K)}$.
+Given that $m = 2s \geq 256$, if we choose $n$ as a power of 2,
+based on Proposition~\ref{prop:rank},
+the advantage is much smaller than $2^{s/2}$ (except with negligible probability).
 
 Finally, we consider the simultaneous 4-sum distinguisher,
 and recall that the probability of having such a 4-sum in the output is estimated
@@ -702,8 +765,7 @@ Nevertheless, the attacker is required to solve $2^{m - t}$ related LPN instance
 and perhaps can amortize the complexity. Moreover, the matrix $A$ is structured.
 Thus, we (conservatively) estimate the total complexity of such attacks by $2^{m - t}$.
 
-\subsection{Obtaining Noisy Linear Equations}
-
+\subsection{Noisy Linear Equations}
 
 As noted above, each bit $w_i$ for $i \in [m]$ can be viewed as a noisy linear equation over $\mathbb{F}_2$
 with noise of about $1/3$, or bias $2/3 - 1/2 = 1/6$.
@@ -747,7 +809,7 @@ where $\ell$ is the Hamming weight of $a$.
 This property was exploited in a distinguishing attack.
 
 Our PRG construction seems to be immune to this type of analysis
-because the attacker only has access to dense linear combinations of samples
+because the attacker only has access to sufficiently dense linear combinations of (structured) samples
 of the alternative PRF construction.
 \end{remark}
 
@@ -777,20 +839,45 @@ as the consequences of the this unlikely event are mild.
 
 The overall structure of the compressed LPN-Style PRF is similar to the PRG.
 However, unlike PRG, in the first transformation, the key is part of the matrix and
-$x$ is a public value. 
-Thus, $w$ can be viewed as $m$ outputs of (another) more 
+$x$ is a public value.
+Thus, $w$ can be viewed as $m$ outputs of (another) more
 structured version of the construction of~\cite{BonehIPSW18}.
 
-In terms of parameters, the main differences are that we have $n \geq m$ 
+In terms of parameters, the main differences are that we have $n \geq m$
 and $t$ is not constraint to $2n$ (in fact, we will propose to set it smaller than $n$).
-Furthermore, we assume that the attacker obtains $2^r$ samples for $r \leq 40$ instead of a single sample. 
+Furthermore, we assume that the attacker obtains $2^r$ samples for $r \leq 40$ instead of a single sample.
 
-\subsubsection{Key Recovery Attacks}
+We note that variants of the basic attacks that were analyzed for the 2-3 PRF (such as the collision attack
+and the multi-target attack) are also applicable to this construction. 
+As in the case of the 2-3 PRF, 
+they do not seem to be a threat for our choice of parameters.
 
-As for the PRG, we estimate the total complexity of such attacks by $2^{m - t}$.
-Although we have more samples for the PRF, it is not clear how to exploit them to reduce the complexity.
+Overall, we have not found any class of attacks that are 
+applicable to this construction, but not to the previous ones.
+Below we briefly consider the most important attacks that influence the 
+choice of parameters.
 
-%TODO continue
+\subsubsection{Summary of attacks.}
+As for the PRG, we estimate the total complexity of key recovery attacks by $2^{m - t}$.
+Although we have more samples that for the PRF, 
+it is not clear how to exploit them to obtain better complexity.
+
+In addition, similarly to the PRG,
+we require that each linear combination of the output 
+has bias of at most $2^{-0.1 s}$
+(toward some linear combination of the key over $\mathbb{F}_2$).
+
+\subsubsection{Parameter selection for the Compressed LPN-style PRF.}
+For $s$-bit security, we set $n=m= 2s$ and $t =s$.
+By our analysis, exhaustive search requires $2^{m - t} = 2^s$ time.
+
+We consider the maximal bias of linear combinations according to~(\ref{eq:bias_linear}),
+with $\ell = 0.07 s$.
+By Proposition~\ref{prop:hw},
+the probability of having a vector of Hamming weight more than $0.07 s$
+in the row span of $B$ is
+$0.07 s \cdot 2^{2s (H(0.07/2) - 1) + s} < 0.07 s \cdot 2^{-0.56 s}$,
+which we consider negligible.
 
 
 \bibliographystyle{abbrv}
@@ -801,9 +888,9 @@ Although we have more samples for the PRF, it is not clear how to exploit them t
 \section{Analysis of Random Linear Codes}
 \label{app:distance}
 
-We analyze the distance of random linear codes defined by a random matrix 
+We analyze the distance of random linear codes defined by a random matrix
 or a random Toeplitz matrix.
-The analysis is based on the probabilistic method and 
+The analysis is based on the probabilistic method and
 similar to the analysis used to obtain the Gilbert–Varshamov bound.
 
 \begin{proposition}
@@ -871,7 +958,7 @@ The testing algorithm is as follows.
 The correctness of the algorithm follows directly from the bilinear property.
 
 It remains to describe how to find sets $X$ and $X'$ that satisfy the bilinear property with sizes as large as possible.
-For this purpose, it will be convenient to work with an induced scheme $\OWF_C(\cdot)$ for an appropriate choice of a $r \times t$ matrix $C$ of rank $r \leq t$.
+For this purpose, it will be convenient to work with an induced scheme $\OWF_C(\cdot)$ for an appropriate choice of a $r \times t$ matrix $C$ of rank $r$ such that $r \leq t$.
 Thus, we construct sets $X$ and $X'$ for $\OWF_C(\cdot)$ and use the above algorithm to find
 about $3^{t - r}$ preimages to $C \hat{y}$ for $\OWF_C(\cdot)$. Consequently, we expect at least one of them to also be a preimage of $\hat{y}$ for the original scheme $\OWF(\cdot)$.
 
