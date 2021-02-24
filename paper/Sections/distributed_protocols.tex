@@ -51,7 +51,7 @@ $\prot_{\Convert}^{(3,2)}$ & $\hat{x}$ (over $\Z_3$) & - & \makecell{$u = \tilde
 \end{tabular}
 }
 }
-\caption{Summary of input, output, and randomness for the circuit gate protocols.
+\caption{Summary of input, output, and randomness for circuit gate protocols.
 % \greg{Change ``over base group'' to ``over group''?}
 }
 \label{table:gate_protocol_summary}
@@ -120,11 +120,16 @@ Consider two cases:
 
 \item If $\hat{x}_j = 1$, then $x_j = 1 - \tilde{x}_j$. Therefore, $\sum_{\party_i \in \parties} \sharei{x^*}_j = 1 + 2\tilde{x}_j \bmod 3$. If $\tilde{x}_j = 0$, this evaluates to $1 = x_j$, while if $\tilde{x}_j = 1$, it evaluates to $0 = 1 - \tilde{x}_j = x_j$
 \end{itemize}
-In other words, in all cases, each component of the sum ($\bmod~3$) of shares $\sharei{x^*}$ is the same as the corresponding component of $x$. Therefore, 
+\iffull
+In other words, in all cases, each component of the sum ($\bmod~3$) of shares $\sharei{x^*}$ is the same as the corresponding component of $x$.
+Therefore,
 \[
 \sum_{\party_i \in \parties} \sharei{x^*} (\bmod~3) = x
 \]
 will hold.
+\else
+Therefore, $\sum_{\party_i \in \parties} \sharei{x^*} (\bmod~3) = x$ will hold.
+\fi
 \end{itemize}
 
 
@@ -227,7 +232,7 @@ We describe several optimizations to reduce the total cost of preprocessing. We 
   % More specifically, for the $\BLMap$ gate, a dealer first samples a random triple $(\tilde{K}, \tilde{x}, \tilde{K}\tilde{x})$
 \end{itemize}
 \else
-\iffull\else In Appendix~\ref{appendix:protocol_generic}, we show a generic technique to evaluate any construction circuit built using the previous five gates in a distributed fashion. We also analyze the communication and preprocessing costs. Abstractly, communication will only be needed before $\BLMap, \Convert_{(2,3)}$, and $\Convert_{(3,2)}$ gates to reconstruct the masked input. In terms of preprocessing, if PRG seeds are used for compression, then the computation for the $\BLMap_p^{k,l}, \Convert^l_{(2,3)}$, and $\Convert^l_{(3,2)}$ gates will require a preprocessing of $\log_2{p} \cdot k$ bis, $\log_2{3} \cdot l$ bits, and $2l$ bits respectively. Table~\ref{table:construction_costs} provides the concrete efficiency costs for our constructions in a variety of settings.
+\iffull\else\noindent In Appendix~\ref{appendix:protocol_generic}, we show a generic technique to evaluate any construction built using the previous five gates in a distributed fashion. We also analyze the communication and preprocessing costs. Abstractly, communication will only be needed before $\BLMap, \Convert_{(2,3)}$, and $\Convert_{(3,2)}$ gates to reconstruct the masked input. In terms of preprocessing, if PRG seeds are used for compression, then the computation for the $\BLMap_p^{k,l}, \Convert^l_{(2,3)}$, and $\Convert^l_{(3,2)}$ gates will require a preprocessing of $\log_2{p} \cdot k$ bis, $\log_2{3} \cdot l$ bits, and $2l$ bits respectively. Table~\ref{table:construction_costs} provides the concrete efficiency costs for our constructions in a variety of settings.
 \fi
 
 
@@ -428,7 +433,7 @@ For evaluating a client input, $\prot^{\textsf{oprf}}_2$ also takes 2 rounds and
 
 \subsection{Oblivious Evaluation}
 \label{subsec:oprf_protocol}
-While our distributed evaluation protocols from Section~\ref{subsec:distributed_protocol} can be used directly for semi-honest \textit{oblivious} PRF, or OPRF, evaluation in the preprocessing model, here we provide two protocols in this setting whose efficiency rivals that of DDH-based OPRF protocols. Recall that in the OPRF setting, one party $\party_1$ (called the ``server'') holds the key $\mat{K}$ and the other party $\party_2$ (called the ``client'') holds the input $x$. The goal of the protocol is to have the client learn the output of the PRF for key $\mat{K}$ and input $x$, while the server learns nothing. We provide only a brief description of our protocols next, and defer the full details to Appendix~\ref{appendix:oprf_protocol}.
+While our distributed evaluation protocols from Section~\ref{subsec:distributed_protocol} can be used directly for semi-honest \textit{oblivious} PRF, or OPRF, evaluation in the preprocessing model, here we provide two protocols in this setting whose efficiency rivals that of DDH-based OPRF protocols. Recall that in the OPRF setting, one party $\party_1$ (called the ``server'') holds the key $\mat{K}$ and the other party $\party_2$ (called the ``client'') holds the input $x$. The goal of the protocol is to have the client learn the output of the PRF for key $\mat{K}$ and input $x$, while the server learns nothing. We provide only a brief description of our protocols next, and defer the full details as well as a comparison to other protocols to Appendix~\ref{appendix:oprf_protocol}.
 
 \subsubsection{OPRF Protocol $\prot^{\textsf{oprf}}_1$}
 \label{subsec:oprf1}
@@ -436,7 +441,7 @@ Our first OPRF protocol is in spirit similar to the distributed evaluation for t
 
 \subsubsection{OPRF Protocol $\prot^{\textsf{oprf}}_2$}
 \label{subsec:oprf2}
-For the second protocol, the server masks the PRF in a different way; a multiplicative mask is used instead of an additive one. For simplicity, suppose that $n=m$ and that the key $\mat{K}$ is a random full-rank circulant matrix. Then to mask $\mat{K}$, the server computes $\bar{\mat{K}} = \mat{R}\mat{K}$ using a random matrix $\mat{R}$ that is also full-rank and circulant. $\mat{R}$ will be provided as preprocessing to the server, and can be reused for multiple PRF evaluations. The server will send $\bar{\mat{K}}$ to the client in the key-update phase. Note that since the product of two circulant matrices is also circulant, this message is only $n$ bits. Additionally, since the product $\mat{R}\mat{K}$ is essentially a convolution, it can be efficiently computed in $\Theta(n\log n)$ asymptotic runtime using the fast Fourier transform (FFT) algorithm. The rest of the evaluation is somewhat similar in structure to $\prot^{\textsf{oprf}}_1$ and we defer the full details to Appendix~\ref{appendix:oprf_protocol}. For our parameters ($n = m = 256,t = 81$), $\prot^{\textsf{oprf}}_2$ has 641 bits of total online communication for input evaluation. To update the key, the server sends a 256-bit message to the client.
+For the second protocol, the server masks the PRF in a different way; a multiplicative mask is used instead of an additive one. For simplicity, suppose that $n=m$ and that the key $\mat{K}$ is a random full-rank circulant matrix. Then to mask $\mat{K}$, the server computes $\bar{\mat{K}} = \mat{R}\mat{K}$ using a random matrix $\mat{R}$ that is also full-rank and circulant. $\mat{R}$ will be provided as preprocessing to the server, and can be reused for multiple PRF evaluations. The server will send $\bar{\mat{K}}$ to the client in the key-update phase. Note that since the product of two circulant matrices is also circulant, this message is only $n$ bits. Additionally, since the product $\mat{R}\mat{K}$ is essentially a convolution, it can be efficiently computed in $\mathrm{\Theta}(n\log n)$ asymptotic runtime using the fast Fourier transform (FFT) algorithm. The rest of the evaluation is somewhat similar in structure to $\prot^{\textsf{oprf}}_1$ and we defer the full details to Appendix~\ref{appendix:oprf_protocol}. For our parameters ($n = m = 256,t = 81$), $\prot^{\textsf{oprf}}_2$ has 641 bits of total online communication for input evaluation. To update the key, the server sends a 256-bit message to the client.
 \fi
 
 \iffull
@@ -454,7 +459,6 @@ We instantiate a DDH-based OPRF over the Curve25519 elliptic curve and compare i
 \paragraph{Other OPRFs.}
 Many prior OPRF constructions~\cite{freedman2005-oprf,jarecki2009-oprf} require expensive exponentiations because they are based on algebraic PRFs. This means that we can expect similar performance tradeoffs for our protocols when compared to them (i.e., much faster computation, slightly more communication).~\cite{kolesnikov2016-oprf} provides an efficient batched-OPRF protocol based on OT extension in the preprocessing. While we did not perform with the same setup, based on their performance results, we found that our protocol is substantially more efficient for a single (or a small number of) evaluation, but becomes more comparable in performance as the batch-size increases which is unsurprising considering our protocols are not optimized for the batched evaluation. Recent work~\cite{seres2021-legendre} constructs an OPRF protocol from the Legendre PRF~\cite{damgard1988-legendre}. For 128-bit security, their protocol has a communication cost of $\approx 13$KB which is substantially higher than ours.
 \else
-We compare our constructions to other OPRF protocols in Appendix~\ref{appendix:oprf-comparison}
 \fi
 
 %-------------------%
