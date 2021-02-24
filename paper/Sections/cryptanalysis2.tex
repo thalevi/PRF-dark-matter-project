@@ -26,7 +26,7 @@ We attempt to find such $w$ by a reduction to subset-sum, as detailed below.
 
 Suppose we find a set $J \subseteq [m]$ such that
 $$\left( \sum_{j \in J} \mat{P}e_j  \bmod 2, \sum_{j \in J} \mat{B}e_j  \bmod 3 \right) = (\vec{0},\hat{y}),$$
-where $e_i \in \{0,1\}^m$ be the $i$'th unit vector.
+where $e_i \in \{0,1\}^m$ is the $i$'th unit vector.
 Then, the preimage $x$ can be computed by solving the linear equation system
 $\mat{A}x = \sum_{j \in J} e_j  \bmod 2$.
 
@@ -70,7 +70,7 @@ may guess the Hamming weight of the solution and
 repeat the algorithm accordingly a polynomial number of times.} of $m/2$
 (which occurs with probability $\Omega(1/\sqrt{m})$),
 it has $2^{m/2}$ different \emph{representations}.
-Consequently, we may focus of finding only one of these representations
+Consequently, we may focus on finding only one of these representations
 by solving two subset-sum problems of Hamming weight $m/4$.
 Focusing on a single representation of the solution
 allows to beat the standard meet-in-the-middle approach which requires time $2^{m/2}$.
@@ -99,7 +99,7 @@ For the \ttwPRF, the attacker obtains several samples
 $(x^{(1)},\mat{B},y^{(1)}) ,\ldots, (x^{(2^r)},
 \mat{B},y^{(2^r)})$
 and tries to
-mount a key recovery and or a distinguishing attack.
+mount a key recovery and/or a distinguishing attack.
 We restrict the number of samples produced with a single secret to $2^{40}$.
 
 We will set the parameters such that $n - \log 3 \cdot t \geq s$,
