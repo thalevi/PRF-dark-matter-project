@@ -96,12 +96,12 @@ secret key, and a random seed $s \in \{0,1\}^{\secpar}$ such that $s$
 expands to matrices $\matA \in \Z_2^{m\times n}$ and $\matB\in \Z_3^{m\times t}$ that is full rank (using a suitable cryptographic
 function, such as the SHAKE extendable output function~\cite{sp800-185}).
 Compute $y = \sfF(x)$ and set $(y, s)$ as the public key.
-Recall that the \ttOWF is defined as $y = \sfF(x)$ where $x \in \Z_2^{n}$ and $y\in \Z_3^{t}$, and is computed as follows: 
-\begin{enumerate}
-\item Compute $w = \matA x \in \Z_2^{m}$.
-\item Let $z\in\Z_3^{m}$ be $w$, where entries are intepreted as values mod 3.
-\item Compute and output $y = \matB z$.
-\end{enumerate}
+Recall that the \ttOWF is defined as $y = \sfF(x)$ where $x \in \Z_2^{n}$ and $y\in \Z_3^{t}$, and is computed as $y = \mat{B}(\mat{A}x)$ where $\mat{A}x$ is first reinterpreted over $\Z_3$. 
+% \begin{enumerate}
+% \item Compute $w = \matA x \in \Z_2^{m}$.
+% \item Let $z\in\Z_3^{m}$ be $w$, where entries are intepreted as values mod 3.
+% \item Compute and output $y = \matB z$.
+% \end{enumerate}
 We use unique $\matA$ and $\matB$ per signer in order to avoid multi-target attacks against $\sfF$.
 We specify the scheme using random matrices, however, it could also be instantiated
 with circulant matrices, which may improve the performance of sign and verify operations.
@@ -185,7 +185,7 @@ $(256,906,162)$ & $(64, 322, 82)$   & 51.23 \\
                 & $(64, 604, 57)$   & \textbf{43.45} \\ 
 Picnic2-L5      & $(64, 604, 58)$   & 46.18 \\ \hline
 \end{tabular}
-\caption{ \label{table:sig-sizes}Signature size estimates for Picnic using the
+\caption{ \label{table:sig-sizes}Signature size estimates for Picnic using
 \ttOWF, compared to Picnic using LowMC.  The first half of the table shows
 security level L1 (128 bits) with $N=16$ and $N=64$ parties, and the second
 half shows level L5 (256 bits).}
