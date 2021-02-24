@@ -115,10 +115,18 @@ Given a single sample $(x,\mat{B},y)$, assume there exist
 $v \in \Z_3^m$ and $u \in \Z_3^t$ such that $u \mat{B} = v$ and the Hamming weight of $v$ is $\ell$.
 As $y = \mat{B}w \bmod 3$, the attacker computes $uy \bmod 3 = vw \bmod 3$
 and thus obtains the value of a linear combination $\bmod$ 3 of $\ell$ entries of $w \in \{0,1\}^m$.
-Since $w \in \Z_2^m$, if $\ell$ is sufficiently small, then this linear combination is biased.
+Since $w \in \Z_2^m$, this linear combination is biased, 
+and the strength of the bias depends on how small $\ell$ is.
 The bias can be amplified using several samples.
 Consequently, we require that the rows of $\mat{B}$ do not span a vector of low Hamming weight.
 This analysis is probabilistic and leads to a lower bound on $m$.
+
+Another important attack we consider exploits the fact that $\mat{K}$
+is circulant and preserves symmetric properties of the input $x$ (e.g., the two halves of $x$ are equal). 
+This attack imposes a lower bound on $n$ so that such a symmetric vector in not found
+in the data, except with negligible probability. 
+We leave it as an open problem to extend this basic attack.
+
 
 Overall, we set $n=m=2s$ and $t = s/\log 3$.
 These are somewhat aggressive parameters as the security margin against the above attacks
@@ -157,4 +165,6 @@ resistance against the considered attacks.
 
 \subsection{Summary of Security Evaluation of the LPN-PRF}
 
-\itai{To be written}
+The attacks we consider against this primitive include a union of some
+of the attacks considered for the LPN-PRG and for the \ttwPRF constructions
+with some adjustments. Overall, we propose to set $n=m= 2s$ and $t =s$.
