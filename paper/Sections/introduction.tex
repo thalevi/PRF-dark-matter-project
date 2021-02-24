@@ -24,7 +24,7 @@ In this work, we continue this line of research by proposing a new suite of \tex
 %} PRFs, OWFs, and PRGs.
 
 
-\paragraph{Our MPC setting.} We focus on the {\em semi-honest} setting of security for simplicity. This is considered adequate in many cases, and suffices for the construction of signature
+\paragraph{Our MPC setting.} We focus on the {\em semi-honest} setting of security for simplicity. This is considered adequate in many cases. In particular, it suffices for the construction of signature
 schemes via an ``MPC-in-the-head'' technique~\cite{ishai2007-zkmpc,chase2017-picnic}.
 While recent general techniques from the literature~\cite{BBCGI19,BGIN19} can be used to extend some of our protocols to the malicious security model with a low amortized cost, we leave such an extension to future work. We consider protocols for both two parties (2PC) and multiple parties, both with and without an honest majority assumption, and both with and without preprocessing. For concreteness, in the following we consider by default the standard setting of (semi-honest) 2PC with preprocessing. However, most of our contributions apply to the other settings as well. 
 
@@ -79,7 +79,7 @@ Another, very different, motivation is the goal of identifying simple function c
 What about simpler symmetric primitives such as OWFs and PRGs? MPC protocols for these primitives are motivated by many applications, including Picnic-style post-quantum digital signatures~\cite{Picnicrefs} and lightweight distributed key generation for function secret sharing~\cite{Doernershelat,FSS-EC21}.
 \item Are there similar wPRF candidates where the input, output, and key are all over $\Z_2$? This too is motivated by natural applications.
 %\item Does reversing the order of mod-2 and mod-3 lead to a better design? 
-\item Can the concrete MPC protocols given in~\cite{boneh2018-darkmatter} be further improved? Can preprocessing be eliminated or realized at a low amortized cost? This motivates an additional design criterion: ``PCG-friendliness,'' leveraging recent advances in pseudorandom correlation generators~\cite{BCGI18,BoyleetalCCS19,Ferret}.
+\item Can the concrete MPC protocols given in~\cite{boneh2018-darkmatter} be further improved? Can the preprocessing be realized at a low amortized cost? This motivates an additional design criterion: ``PCG-friendliness,'' leveraging recent advances in pseudorandom correlation generators~\cite{BCGI18,BoyleetalCCS19,Ferret}.
 \end{itemize}
 
 % All the candidates we propose are based on similar interplays between linear mappings in $\Z_2$ and $\Z_3$.
@@ -106,13 +106,12 @@ We introduce several candidate constructions for OWF, PRG, and (weak) PRF, all b
     \item \textbf{Candidate OWF.} 
     We expand on the general structure of the $(2,3)$-wPRF candidate from~\cite{boneh2018-darkmatter} to construct a candidate OWF. Recall that the wPRF candidate computes $\mat{B}(\mat{K}x)$ where $\mat{K}$ is the secret key (over $\Z_2$) and $\mat{B}$ is a compressive $\Z_3$ linear mapping. For our $(2,3)$-OWF candidate, we replace the secret key matrix with another randomly sampled (expanding) public matrix $\mat{A}$. Specifically, given $\mat{A} \in \Z_2^{m \times n}$ and $\mat{B} \in \Z_3^{t \times m}$ where $m \geq n,t$, our OWF candidate is defined as $\mathsf{F}(x) = \mat{B}(\mat{A}x)$ where $\mat{A}x$ is first reinterpreted as a 0/1 vector over $\Z_3$.
 
-
     \item \textbf{Candidate wPRF.}
     The wPRF candidate from~\cite{boneh2018-darkmatter} had inputs over $\Z_2$ but outputs over $\Z_3$ which is not sufficient for many practical applications. Therefore, here we introduce an LPN-style wPRF candidate where both the input and output are over $\Z_2$. Specifically, given a secret key matrix $\mat{K} \in \Z_2^{m \times n}$ and a public compressive mapping $\mat{B} \in \Z_2^{t \times m}$, for an input $x \in \Z_2^n$, our LPN-wPRF candidate first computes an intermediate vector
     \[
         w = [(\mat{K}x \bmod 2) + (\mat{K}x \bmod 3) \bmod 2] \bmod 2
     \]
-    where for $\mat{K}x \bmod 3$, both $\mat{K}$ and $x$ are first reinterpreted over $\Z_3$. Then, the candidate is defined as $\mathsf{F}_\mat{K}(x) = \mat{B}w$. A similar candidate was considered in~\cite{boneh2018-darkmatter} (as their alternate candidate) but it only outputs a single bit (it uses $\mat{K} \in \Z_2^{1 \times n}$ and outputs the intermediate vector directly). Our candidate generalizes this to multiple output bits. But more importantly, it also does not output the intermediate vector directly and instead first applies an additional compressive linear mapping (using $\mat{B}$). We show how this allows our candidate to restrict standard attacks on LPN.
+    where for $\mat{K}x \bmod 3$, both $\mat{K}$ and $x$ are first reinterpreted over $\Z_3$. Then, the candidate is defined as $\mathsf{F}_\mat{K}(x) = \mat{B}w$. Intuitively, each intermediate vector bit can be thought of as a deterministic Learning-Parity-with-Noise (LPN) instance with a noise rate of 1/3. The noise is deterministically generated and is dependent on the input $x$ and a specific column of $\mat{A}$. A similar candidate was considered in~\cite{boneh2018-darkmatter} (as their alternate candidate) but it only outputs a single bit (it uses $\mat{K} \in \Z_2^{1 \times n}$ and outputs the intermediate vector directly). Our candidate generalizes this to multiple output bits. But more importantly, it also does not output the intermediate vector directly and instead first applies an additional compressive linear mapping (using $\mat{B}$). We show how this allows our candidate to restrict standard attacks on LPN.
 
 
     \item \textbf{Candidate PRG.}
@@ -197,7 +196,11 @@ LPN-PRF         & $(2s, 2s, s)$          &              \\ \hline
 We provide efficient protocols for our wPRF candidate constructions in a variety of settings: 2PC with preprocessing, 3PC with one passive corruption, and Oblivious 2PC. For the \ttwPRF candidate, our protocols when compared to the ones from~\cite{boneh2018-darkmatter} in exactly the same setting perform roughly 1.5-5x better in both online communication and preprocessing size. Specifically, in the 2PC setting, our protocol requires 2 rounds, 1536 bits of online communication, and 662 bits of preprocessing. In contrast, the protocol from~\cite{boneh2018-darkmatter} for the same setting requires 4 rounds, roughly 2600 bits of online communication and roughly 3500 bits of preprocessing. Similarly, our OPRF protocol requires 2 rounds, 641 bits of online communication while the one from~\cite{boneh2018-darkmatter} requires 4 rounds and roughly 1800 bits of online communication.
 
 \paragraph{Efficient modulus conversion gates.}
+<<<<<<< HEAD
 The key ingredient which gives our protocols their efficiency is our modulus conversion gates that switch between shares in $\Z_2$ and $\Z_3$. While~\cite{boneh2018-darkmatter} used OT in their protocols, we use these modulus conversion gates for better efficiency. We note that these conversion gates can also be used to construct efficient distributed protocols for alternate variants of our constructions.
+=======
+Since our constructions use shares over both $\Z_2$ and $\Z_3$, it is necessary to be able to switch between the two. We provide the following protocols to do this efficiently. \yuval{This may be slightly too low-level for intro. }
+>>>>>>> 94aa3642e4f6ab21e3fe303956751a628946afa1
 
 \begin{itemize}
     \item \textbf{$\Z_2 \to \Z_3$ conversion.} Consider $x \in \Z_2^l$. Given a sharing $\share{x}$ over $\Z_2$, the goal is to convert to a sharing of the same $x$ but over $\Z_3$. For this, the dealer provides the parties with a shares of a random bit-vector $\tilde{x} \in \Z_2^l$ over $\Z_2$, and shares of the same vector $r = \tilde{x}$, but over $\Z_3$. The conversion protocol starts with the parties reconstructing $\hat{x} = x + \tilde{x}$. Now, a $\Z_3$ sharing of $x^* \in \Z_3^l; x^* = x$ can be computed as:
@@ -255,11 +258,12 @@ shows that OWFs based on alternating moduli are competitive with block-cipher
 based designs, and we can choose a OWF with an (arguably) simpler mathematical
 description, without sacrificing performance. 
 
+\paragraph{Oblivious pseudorandom functions.} \yuval{Literature pointers, compare with DDH-based (better computation, post-quantum), compare with Legendre-based.}
 \paragraph{[Steven's application].} \yuval{Motivates wPRF where inputs, outputs, and keys are over $\Z_2$. Explain the problem with using $(2,3)-wPRF$ by distinguishing between applications for which the output is given in the clear and ones where it needs to be kept secret and reused (such as this one).}
 
 \paragraph{Distributed FSS key generation.} \yuval{First considered by Doerner-shelat in the context of 2PC for RAM programs. Then used for PCG seed generation and MPC for mixed-mode and fixed-point operations. Key ingredient: length-doubling PRG.}
 
-\subsubsection{Future work.} Our work leaves several interesting avenues for further work. One direction is designing MPC protocols with malicious security while minimizing the extra cost. Recent techniques from~\cite{cite} can be helpful towards this goal. Another direction is designing and analyzing other symmetric primitives based on the alternating moduli paradigm. Relevant examples include hash functions, strong PRFs, and block ciphers. \yuval{Include a pointer to an appendix with Itai's preliminary results on the hash functions front?} In fact, a strong PRF candidate was already suggested in~\cite{boneh2018-darkmatter}. 
+\subsubsection{Future directions.} Our work leaves several interesting avenues for further work. One direction is designing MPC protocols with malicious security while minimizing the extra cost. Recent techniques from~\cite{cite} can be helpful towards this goal. Another direction is designing and analyzing other symmetric primitives based on the alternating moduli paradigm. Relevant examples include hash functions, strong PRFs, and block ciphers. \yuval{Include a pointer to an appendix with Itai's preliminary results on the hash functions front?} In fact, a strong PRF candidate was already suggested in~\cite{boneh2018-darkmatter}. 
 
 
 %\newpage
