@@ -59,15 +59,15 @@ shortest signatures.
 Abstractly, a signature scheme can be built from any one-way function $\sfF$
 that has an MPC protocol to evaluate it, by setting the public key to $y =
 \sfF(x)$ for a random secret $x$, and then proving knowledge of $x$, using a
-proof system based on the MPC-in-the-head paradigm~\cite{STOC:IKOS07}.  In
+proof system based on the MPC-in-the-head paradigm~\cite{ishai2007-zkmpc}.  In
 addition to assuming the OWF is secure, the only other assumption required is a
 secure hash function. As no additional number-theoretic assumptions are
 required, these type of signatures are often proposed as secure post-quantum
 schemes. 
 
-Concretely, our design follows the Picnic signature scheme~\cite{CCS:CDGORR17},
+Concretely, our design follows the Picnic signature scheme~\cite{chase2017-picnic},
 specifically the variant instantiated with the KKW proof
-system~\cite{CCS:KatKolWan18} (named Picnic2 and Picnic3).  We chose to use the
+system~\cite{katz2018-pqsigs} (named Picnic2 and Picnic3).  We chose to use the
 KKW, rather than ZKB++ proof system since our MPC protocol to evaluate the
 \ttOWF is most efficient with a pre-processing phase, and KKW generally
 produces shorter signatures.  We replace the LowMC block cipher~\cite{albrecht2015-lowmc} in Picnic 

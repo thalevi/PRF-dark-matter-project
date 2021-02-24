@@ -7,15 +7,16 @@ We implemented our 2-party protocols to compute the \ttwPRF candidate (Construct
 
 \subsection{Optimizations}
 \label{subsec:implementation_opt}
-We start with a centralized implementation of the 23-wPRF. We find optimizations that provide 5x better performance over a na\"ive implementation, which we detail below. Later, in Table~\ref{table:optimization_benchmarks}, we compare the performance gain from these optimizations.
+We start with a centralized implementation of the 23-wPRF. We find optimizations that provide 25x better performance over a na\"ive implementation, which we detail below. Later, in Table~\ref{table:optimization_benchmarks}, we compare the performance gain from these optimizations.
 
 \paragraph{Bit packing for $\Z_2$ vectors.} 
 Instead of representing each element in a $\Z_2$ vector separately, we pack several elements into a machine word and operate on them together in an SIMD manner. For our architecture with 64-bit machine words, we can pack a vector in $\Z_2^{256}$ (e.g., the input $x$) into 4 words. Since the key $\mat{K}$ is circulant and can be represented with $n=256$ bits, it can also be represented by 4 words. This results in a theoretical $\times64$ maximum speedup in run-time for operations involving $\mat{K}$ and $x$. 
 
 \paragraph{Bit slicing for $\Z_3$ vectors.}
-We represent each element in $\Z_3$ using the two bits from its binary representation. For $z \in \Z_3$, the two bits are the least significant bit (LSB) $l_z = z \bmod 2$, and the most significant bit (MSB) $h_z$ which is $1$ if $z=2$ and $0$ otherwise. $\Z_3$ vectors are now also represented by two binary vectors, one containing the MSBs, and one containing the LSBs. Operations involving a $\Z_3$ vector are done on these binary vectors instead. In Table~\ref{table:z3_operations}, we specify how we perform common operations on $\Z_3$ elements using our bit slicing approach. We also take advantage of the bit packing optimization when operating on the binary vectors.
+We represent each element in $\Z_3$ using the two bits from its binary representation. For $z \in \Z_3$, the two bits are the least significant bit (LSB) $l_z = z \bmod 2$, and the most significant bit (MSB) $h_z$ which is $1$ if $z=2$ and $0$ otherwise. $\Z_3$ vectors are now also represented by two binary vectors, one containing the MSBs, and one containing the LSBs. Operations involving a $\Z_3$ vector are translated to operations on these binary vectors instead. We also take advantage of the bit packing optimization when operating on the binary vectors.
+%In Table~\ref{table:z3_operations}, we specify how we perform common operations on $\Z_3$ elements using our bit slicing approach. 
 
-
+\iffalse
 \begin{table}[ht]
 \begin{center}
     \begin{tabular}{|c|c|c|}
@@ -33,6 +34,7 @@ We represent each element in $\Z_3$ using the two bits from its binary represent
 \label{table:z3_operations}
 \mahimna{I'm debating whether we need to have this table at all. Once we specify that we split $\Z_3$ elements into 2 bits, for any $\Z_3$ operation, the corresponding operation on the bits can easily be computed using a truth table.}
 \end{table}
+\fi
 
 
 \paragraph{Lookup table for matrix multiplication.} Recall that the \ttwPRF evaluation contains a mod-3 linear map using a public matrix $\mat{B} \in \Z_3^{81\times256}$. Specifically, it computes the matrix-vector product $\mat{B}w$ where $w \in \Z_3^{256}$. Since $\mat{B}$ is known prior to evaluation, we can use a lookup table to speedup the multiplication by $\mat{B}$. The same preprocessing can also by reused for multiple evaluations of the wPRF.
@@ -217,8 +219,8 @@ We also implement the 2-party semi-honest distributed protocol detailed in Secti
 \end{tabular}
 		
 \caption{Comparison of 2-party semi-honest protocols for distributed evaluation of the \ttwPRF candidate (Construction~\ref{construction:23-central-wprf}) in the preprocessing model. The parameters $n=m=256$ and $t=81$ were used for the wPRF. The runtime reported is the maximum between the two parties.}
-\mahimna{The preprocessing costs do not take into account optimizations (e.g., using a PRG seed). Should we report the na\"{i}ve cost here or the optimized cost? Using a PRG, the total preprocessing (with $\Z_3$ compression) is 918 bits.}
-\mahimna{If we are comparing only the TCC18 protocol with ours does it even make sense to have a table? Should we just provide the comparison in text?}
+% \mahimna{The preprocessing costs do not take into account optimizations (e.g., using a PRG seed). Should we report the na\"{i}ve cost here or the optimized cost? Using a PRG, the total preprocessing (with $\Z_3$ compression) is 918 bits.}
+% \mahimna{If we are comparing only the TCC18 protocol with ours does it even make sense to have a table? Should we just provide the comparison in text?}
 \label{table:distributed_wprf}
 }
 \end{table}
@@ -255,7 +257,6 @@ We point out that both of our OPRF protocols are much faster than the DDH-based 
 	\caption{Comparison of protocols for (semi-honest) OPRF evaluation in the preprocessing model. Runtimes in microseconds ($\mu$s) are provided separately for refreshing the key (Key Update) and for evaluating an input (Evaluation). Communication and preprocessing are also provided separately for the two stages.}
 	\label{table:oprf_comparison}
 }
-\mahimna{ToDo: better naming for the protocols.}
 \end{table}
 
 
@@ -271,11 +272,9 @@ We point out that both of our OPRF protocols are much faster than the DDH-based 
 
 
 
-
-
-
-
-\newpage
+%-----------------------------------------------------------------%
+% Ignore below this
+%-----------------------------------------------------------------%
 
 %==================== Start comment=========
 \iffalse

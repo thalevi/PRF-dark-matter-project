@@ -151,9 +151,9 @@ In our case, the output of the schemes we define
 mix between the sums $\bmod$ 2 and $\bmod$ 3.
 For example, in the \ttOWF and PRF constructions each output entry is a sum $\bmod$ 3 of entries of $w$,
 where each such entry is a sum $\bmod$ 2 of the unknown bits of the secret input.
-Due to the mix between the sums $\bmod$ 2 and $\bmod$ 3 we conjecture (similarly to~\cite{BonehIPSW18}) that
+Due to the mix between the sums $\bmod$ 2 and $\bmod$ 3 we conjecture (similarly to~\cite{boneh2018-darkmatter}) that
 the output cannot be represented (or well-approximated) by a low degree polynomial over any specific polynomial ring.
-In particular, it was shown in~\cite{BonehIPSW18} that the sum $\bmod$ 3 of $\ell$ binary-valued variables is
+In particular, it was shown in~\cite{boneh2018-darkmatter} that the sum $\bmod$ 3 of $\ell$ binary-valued variables is
 a high-degree polynomial over $\Z_2$,
 as long as $\ell$ is large (e.g., $\ell \approx n$).
 Crucially, our choice of parameters will ensure that the sums $\bmod$ 2 and $\bmod$ 3
@@ -434,7 +434,7 @@ can be as large as about $2^{-0.21\ell}$.
 While this is still exponentially small in $\ell$,
 it is more significant than the unconditional bias.
 
-The PRF candidate proposed in~\cite{BonehIPSW18} and analyzed in~\cite{CheonCKK20}
+The PRF candidate proposed in~\cite{boneh2018-darkmatter} and analyzed in~\cite{CheonCKK20}
 is similar to the one we analyze for $n = m$,
 yet the matrix $\mat{B}$ contains a single row that sums $\bmod$ 3 all the entries of $w$.
 Moreover, since $\mat{K}$ is a circulant matrix and $x$ has even Hamming weight,
@@ -629,7 +629,7 @@ We analyze the security of the compressed LPN-Style PRG.
 
 If the matrix $\mat{A}$ was a random matrix, then
 the first step would consist of generating $m$ samples from the alternative weak PRF construction proposed
-in~\cite{BonehIPSW18}. Each sample
+in~\cite{boneh2018-darkmatter}. Each sample
 $w_i = \mat{A}[i] x \bmod 2 + ((\mat{A}[i] x \bmod 3) \bmod 2) \bmod 2 \in \Z_2^m$
 can be viewed as adding noise $((\mat{A}[i] x \bmod 3) \bmod 2)$ to the inner product $\mat{A}[i] x \bmod 2$.
 Given that $\mat{A}[i]$ is of sufficiently large Hamming weight, then
@@ -653,7 +653,7 @@ In a different approach for recovering the key, given a sample $\mat{A},\mat{B},
 the attacker enumerates over the subspace of $w$ values that satisfy $\mat{B} w = y \bmod 2$.
 This subspace contains $2^{m - t}$ vectors. For each such vector, the attacker attempts to recover $x$
 given $\mat{A}$ and $w$. Thus, given $\mat{A},w$ the attacker has $m$ samples
-generated from the LPN-like construction proposed in~\cite{BonehIPSW18} as a weak PRF
+generated from the LPN-like construction proposed in~\cite{boneh2018-darkmatter} as a weak PRF
 (although we a structured matrix $\mat{A}$).
 Given that $m$ is not too large (i.e., it is a small multiple of $n$),
 then the best attack we have on this scheme simply tries to break the LPN instance (which has noise of $1/3$),
@@ -699,7 +699,7 @@ at least $s \cdot 0.1/\log 3 < 0.07 s$ (except with small probability).
 
 
 \begin{remark}
-In~\cite{CheonCKK20} the authors analyze the constructions presented in~\cite{BonehIPSW18}.
+In~\cite{CheonCKK20} the authors analyze the constructions presented in~\cite{boneh2018-darkmatter}.
 In particular, for the alternative PRF construction,
 given a sample $(a \in \Z_2^n, x \cdot a)$,
 they show that there exists $j \in [n]$ such that
@@ -740,7 +740,7 @@ The overall structure of the compressed LPN-Style PRF is similar to the PRG.
 However, unlike PRG, in the first transformation, the key is part of the matrix and
 $x$ is a public value.
 Thus, $w$ can be viewed as $m$ outputs of (another) more
-structured version of the construction of~\cite{BonehIPSW18}.
+structured version of the construction of~\cite{boneh2018-darkmatter}.
 
 In terms of parameters, the main differences are that we have $n \geq m$
 and $t$ is not constraint to $2n$ (in fact, we will propose to set it smaller than $n$).
@@ -928,7 +928,7 @@ For the parameters
 $(n,m,t)=(128, 453, 81)$ the total is 972 bits (L1 security: 128-bit classical, 64-bit quantum)
 and when $(n,m,t) = (256, 906, 162)$ the total is 1943 bits (L5 security: 256-bit classical, 128-bit quantum).  This compares favorably to
 Picnic at the same security level, which communicates 1161--1328 bits at L1
-and 2295--2536 bits at L5, depending on whether LowMC uses a full or partial S-box layer~\cite{TCHES:KalZav20}.
+and 2295--2536 bits at L5, depending on whether LowMC uses a full or partial S-box layer~\cite{kales2020-picnic}.
 
 \paragraph{Signature scheme}
 Given the MPC protocol above, we can compute the values $\hat{x}$, $\aux$ and
@@ -965,7 +965,7 @@ digests.
 
 Finally, \cref{fig:23-picnic} omits a random salt, included in each signature, as well as counter
 inputs to the hash functions to prevent multi-target
-attacks~\cite{EC:DinNad19}. Also, hashing the public key when computing the
+attacks~\cite{dinur2019-picnic-attacks}. Also, hashing the public key when computing the
 challenge, and prefixing the inputs to $\hash$ in each use for domain
 separation should also be done, as in~\cite{picnic-spec}. 
 
