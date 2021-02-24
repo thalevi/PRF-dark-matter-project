@@ -174,7 +174,8 @@ and can perhaps utilize the structured matrices to
 combine their information in more efficient attacks.
 
 
-\begin{table}
+\begin{table}[t]
+\small
 \begin{centering}
 \begin{tabular}{l|l|l}
 Construction    & Parameters             & Comment\\
@@ -189,9 +190,6 @@ LPN-PRF         & $(2s, 2s, s)$          &              \\ \hline
 \caption{ \label{table:concrete} Concrete parameters for $s$-bit security.}
 \end{centering}
 \end{table}
-
-
-
 
 \subsubsection{Distributed protocols and optimized implementations.}
  
@@ -270,7 +268,7 @@ We construct an OPRF protocol that computes our \ttwPRF candidate in an obliviou
 Compared to a standard DDH-based OPRF~\cite{jarecki2014-ddhoprf,jarecki2016-ddhoprf}, which require 512 bits of communication for $128$-bit security, our protocol requires slightly higher communication but has a much better performance. Our implementation shows that our total OPRF protocol is faster than a \textit{single} scalar multiplication over the Curve25519 elliptic curve. Consequently, we expect our protocol to be faster than a number of OPRF protocols~\cite{freedman2005-oprf,jarecki2009-oprf} that are based on algebraic PRFs and require expensive exponentiations. In another direction, recent works~\cite{grassi2016-mpcfriendly,seres2021-legendre} construct an OPRF protocol from the Legendre PRF~\cite{damgard1988-legendre}. For 128-bit security and only a {\em single} output bit, the recent protocol from~\cite{seres2021-legendre} has online communication cost of $13$KB, substantially higher than ours (with 128 output bits), and with a higher computational cost.
 
 
-\paragraph{Hierarchical key derivation functions.} 
+% \paragraph{Hierarchical key derivation functions.} 
 %\yuval{Motivates wPRF where inputs, outputs, and keys are over $\Z_2$. Explain the problem with using $(2,3)-wPRF$ by distinguishing between applications for which the output is given in the clear and ones where it needs to be kept secret and reused (such as this one).}
 
 \paragraph{Applications with secret outputs.} 
