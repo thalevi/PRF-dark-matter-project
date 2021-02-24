@@ -2,11 +2,7 @@
 
 \section{Introduction}
 \label{sec:introduction}
-
 %\greg{Does anyone know why the PDF doesn't have the index on the left hand side with links to all of the sections?}
-
-
-\medskip
 
 %-------------------------------------------%
 Symmetric-key primitives like one-way functions (OWFs)~\cite{levin1985-owf},
@@ -32,7 +28,7 @@ While recent general techniques from the literature~\cite{BBCGI19,BGIN19} can be
 
 \paragraph{Our design criteria.}  The above efficiency metrics for MPC are quite crude, since not all kinds of nonlinear gates are the same. However, they still serve as a good intuitive guideline for the design of MPC-friendly primitives. More concretely, we would like to design primitives with the following goals in mind.
 
-\begin{itemize}[itemsep=1ex]
+\begin{itemize}
     \item \textit{Low nonlinear depth}. Minimizing round complexity calls for minimizing nonlinear depth. Unfortunately, constructions like AES or even MPC-friendly ones such as LowMC~\cite{albrecht2015-lowmc}
     %and Rasta~\cite{cite} 
     have quite a high nonlinear depth, which leads to high-latency protocols when using the secret-sharing approach.
