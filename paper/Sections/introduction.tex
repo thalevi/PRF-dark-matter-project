@@ -59,7 +59,7 @@ Security of block ciphers and (weak) PRFs provably requires high algebraic degre
 
 \paragraph{\bf The alternating moduli paradigm.} The above design goals seem inherently at odds with each other. How can ``high algebraic degree'' co-exist with ``small gates'' and ``low nonlinear depth''? Towards settling this apparent paradox, a new design paradigm was recently proposed by Boneh et al.~\cite{boneh2018-darkmatter} and further analyzed by Cheon et al.~\cite{cheon2020-adventures}. The idea is to break the computation into two or more parts, where each part includes a linear function over a {\em different modulus}. The simplest choice of moduli, which also seems to lead to the best efficiency, is 2 and 3. 
 
-Boneh et al.~\cite{boneh2018-darkmatter} proposed a weak PRF\footnote{A weak PRF is one whose security only holds when evaluated on {\em random} inputs. In many applications of strong PRF, a weak PRF can be used instead by first applying a hash function (modeled as a random oracle) to the input~\cite{someweakPRFref}.} (wPRF) candidate with the following simple description: the input $x$ is a vector over  $\Z_2$ and the secret key specifies a matrix $K$ over  $\Z_2$. The PRF first computes the matrix-vector product $Kx$ over  $\Z_2$, then interprets the result as a vector over $\Z_3$ in the natural way,  and finally applies a public, compressive linear mapping over $\Z_3$ to obtain an output vector $y$ over $\Z_3$. 
+Boneh et al.~\cite{boneh2018-darkmatter} proposed a weak PRF\footnote{A weak PRF is one whose security only holds when evaluated on {\em random} inputs. In many applications of strong PRF, a weak PRF can be used instead by first applying a hash function (modeled as a random oracle) to the input~\cite{someweakPRFref}.} (wPRF) candidate with the following simple description: the input $x$ is a vector over  $\Z_2$ and the secret key specifies a matrix $\mat{K}$ over  $\Z_2$. The PRF first computes the matrix-vector product $\mat{Kx}$ over  $\Z_2$, then interprets the result as a vector over $\Z_3$ in the natural way,  and finally applies a public, compressive linear mapping over $\Z_3$ to obtain an output vector $y$ over $\Z_3$.
 
 The above mapping from $x$ and $K$ to $y$ has two nonlinear steps: The first is the matrix-vector product over $\Z_2$, whose cost an be reduced when the matrix $K$ has a special form. The second is a {\em conversion} of a mod-2 vector to a mod-3 vector, which consists of small parallel (finite-size) nonlinear gates.  Overall, the nonlinear depth is 2. Why is this a high-degree function? Viewing both the input and the (binary representation of) the output as vectors over $\Z_2$, high degree over $\Z_2$ comes from the final linear mapping over $\Z_3$. Viewing the input as a vector over $\Z_3$, high degree comes from the linear mapping over $\Z_2$ defined by the key.  Despite its simplicity, the design can be conjectured to have a good level of security with small input and key size (say, 256 bits for 128-bit security). It mostly resisted the initial cryptanalysis, where attacks found in~\cite{cheon2020-adventures} require a very high sample complexity and are quite easy to circumvent by slightly modifying the design (as suggested in~\cite{cheon2020-adventures}).
 
@@ -103,14 +103,22 @@ Motivated by the above questions, we make the following contributions.
 We introduce several candidate constructions for OWF, PRG, and (weak) PRF, all based on alternating between linear mappings over $\Z_2$ and $\Z_3$.
 
 \begin{itemize}
-    \item \textbf{Candidate Weak PRFs.}
-    We start by recalling the main wPRF candidate proposed in~\cite{boneh2018-darkmatter}:
-    Let $\mat{K}$ be a secret key matrix in $\Z_2^{m \times n}$. For an input $x$, the $(2,3)$-wPRF candidate is defined as $\mathsf{F}_\mat{K}(x) = \mat{B}(\mat{K}x)$ where $\mat{B} \in \Z_3^{t \times m}$ is a public matrix and $w = \mat{K}x$ is first reinterpreted as a 0/1 vector over $\Z_3$. \yuval{Describe LPN-style PRFs here. Maybe make this the last bullet, so that we can start with the new stuff?}
+    \item \textbf{Candidate OWF.} 
+    We expand on the general structure of the $(2,3)$-wPRF candidate from~\cite{boneh2018-darkmatter} to construct a candidate OWF. Recall that the wPRF candidate computes $\mat{B}(\mat{K}x)$ where $\mat{K}$ is the secret key (over $\Z_2$) and $\mat{B}$ is a compressive $\Z_3$ linear mapping. For our $(2,3)$-OWF candidate, we replace the secret key matrix with another randomly sampled (expanding) public matrix $\mat{A}$. Specifically, given $\mat{A} \in \Z_2^{m \times n}$ and $\mat{B} \in \Z_3^{t \times m}$ where $m \geq n,t$, our OWF candidate is defined as $\mathsf{F}(x) = \mat{B}(\mat{A}x)$ where $\mat{A}x$ is first reinterpreted as a 0/1 vector over $\Z_3$.
 
 
-    \item \textbf{Candidate OWFs.} 
+    \item \textbf{Candidate wPRF.}
+    The wPRF candidate from~\cite{boneh2018-darkmatter} had inputs over $\Z_2$ but outputs over $\Z_3$ which is not sufficient for many practical applications. Therefore, here we introduce an LPN-style wPRF candidate where both the input and output are over $\Z_2$. Specifically, given a secret key matrix $\mat{K} \in \Z_2^{m \times n}$ and a public compressive mapping $\mat{B} \in \Z_2^{t \times m}$, for an input $x \in \Z_2^n$, our LPN-wPRF candidate first computes an intermediate vector
+    \[
+        w = [(\mat{K}x \bmod 2) + (\mat{K}x \bmod 3) \bmod 2] \bmod 2
+    \]
+    where for $\mat{K}x \bmod 3$, both $\mat{K}$ and $x$ are first reinterpreted over $\Z_3$. Then, the candidate is defined as $\mathsf{F}_\mat{K}(x) = \mat{B}w$. A similar candidate was considered in~\cite{boneh2018-darkmatter} (as their alternate candidate) but it only outputs a single bit (it uses $\mat{K} \in \Z_2^{1 \times n}$ and outputs the intermediate vector directly). Our candidate generalizes this to multiple output bits. But more importantly, it also does not output the intermediate vector directly and instead first applies an additional compressive linear mapping (using $\mat{B}$). We show how this allows our candidate to restrict standard attacks on LPN.
 
-    \item \textbf{Candidate PRGs.}
+
+    \item \textbf{Candidate PRG.}
+    We also propose a candidate length-doubling PRG that is similar to our LPN-wPRF. Specifically, we use a public matrix $\mat{A} \in \Z_2^{m \times n}$ instead of the key for the first linear mappings. It follows the same structure as the LPN-wPRF, by first expanding the input to the intermediate vector $w$ and then applying a contracting $\Z_2$ linear mapping $\mat{B}$. Choosing $m$, i.e., the length of the intermediate vector, to be large enough, we can ensure that the final compressive mapping still results in an output of size $t = 2n$.
+
+    % Let $\mat{K}$ be a secret key matrix in $\Z_2^{m \times n}$. For an input $x$, the $(2,3)$-wPRF candidate is defined as $\mathsf{F}_\mat{K}(x) = \mat{B}(\mat{K}x)$ where $\mat{B} \in \Z_3^{t \times m}$ is a public matrix and $w = \mat{K}x$ is first reinterpreted as a 0/1 vector over $\Z_3$. \yuval{Describe LPN-style PRFs here. Maybe make this the last bullet, so that we can start with the new stuff?}
 \end{itemize}
 
 \subsubsection{Cryptanalysis and implications on parameter choices.}
@@ -183,23 +191,32 @@ LPN-PRF         & $(2s, 2s, s)$          &              \\ \hline
 
 \subsubsection{Distributed protocols and optimized implementations.}
  
- \yuval{Start with a sharp statement on how we improve the online complexity of the wPRF protocols from~\cite{boneh2018-darkmatter}  (both communication and rounds). Give some concrete data points for fully distributed PRF, OPRF. Then explain our unified approach for achieving the improvement unified approach that applies also to the other primitives we design. This approach is explained below.}
+\yuval{Start with a sharp statement on how we improve the online complexity of the wPRF protocols from~\cite{boneh2018-darkmatter}  (both communication and rounds). Give some concrete data points for fully distributed PRF, OPRF. Then explain our unified approach for achieving the improvement unified approach that applies also to the other primitives we design. This approach is explained below.}
  
+\paragraph{Efficient protocols.} 
+We provide efficient protocols for our wPRF candidate constructions in a variety of settings: 2PC with preprocessing, 3PC with one passive corruption, and Oblivious 2PC. For the \ttwPRF candidate, our protocols when compared to the ones from~\cite{boneh2018-darkmatter} in exactly the same setting perform roughly 1.5-5x better in both online communication and preprocessing size. Specifically, in the 2PC setting, our protocol requires 2 rounds, 1536 bits of online communication, and 662 bits of preprocessing. In contrast, the protocol from~\cite{boneh2018-darkmatter} for the same setting requires 4 rounds, roughly 2600 bits of online communication and roughly 3500 bits of preprocessing. Similarly, our OPRF protocol requires 2 rounds, 641 bits of online communication while the one from~\cite{boneh2018-darkmatter} requires 4 rounds and roughly 1800 bits of online communication.
+
 \paragraph{Efficient modulus conversion gates.}
-Since our constructions use shares over both $\Z_2$ and $\Z_3$, it is necessary to be able to switch between the two. We provide the following protocols to do this efficiently. 
+The key ingredient which gives our protocols their efficiency is our modulus conversion gates that switch between shares in $\Z_2$ and $\Z_3$. While~\cite{boneh2018-darkmatter} used OT in their protocols, we use these modulus conversion gates for better efficiency. We note that these conversion gates can also be used to construct efficient distributed protocols for alternate variants of our constructions.
 
 \begin{itemize}
-    \item \textbf{$\Z_2 \to \Z_3$ conversion.} Consider $x \in \Z_2^l$. Given a sharing $\share{x}$ over $\Z_2$, the goal is to convert to a sharing of the same $x$ but over $\Z_3$. For this, the dealer provides the parties with a shares of a random bit-vector $\tilde{x} \in \Z_2^l$ over $\Z_2$, and shares of the same vector $r = \tilde{x}$, but over $\Z_3$. The conversion protocol now works as follows. First the parties locally add their shares to get $\share{\hat{x}} = \share{x} + \share{\tilde{x}} \bmod 2$. The parties then reconstruct $\hat{x}$ by exchanging their shares. Now, a $\Z_3$ sharing of $x^* \in \Z_3^l; x^* = x$ can be computed as:
-
+    \item \textbf{$\Z_2 \to \Z_3$ conversion.} Consider $x \in \Z_2^l$. Given a sharing $\share{x}$ over $\Z_2$, the goal is to convert to a sharing of the same $x$ but over $\Z_3$. For this, the dealer provides the parties with a shares of a random bit-vector $\tilde{x} \in \Z_2^l$ over $\Z_2$, and shares of the same vector $r = \tilde{x}$, but over $\Z_3$. The conversion protocol starts with the parties reconstructing $\hat{x} = x + \tilde{x}$. Now, a $\Z_3$ sharing of $x^* \in \Z_3^l; x^* = x$ can be computed as:
     \[
         \share{x^*} = \share{\hat{x}} + \share{r} + (\hat{x} \odot \share{r}) \bmod 3
     \]
-    where $\odot$ denotes the Hammard (element-wise) product modulo 3.
+    where $\odot$ denotes the Hadamard (element-wise) product modulo 3.
 
     \item \textbf{$\Z_3 \to \Z_2$ conversion.}
-    Consider $x \in \Z_3^l$. Given a sharing $\share{x}$ over $\Z_3$, the goal is to convert to a sharing over $\Z_2$ of $x^* = x \bmod 2$. For this, the dealer provide the parties with the following correlated randomness. First it samples a random $\Z_3$ vector $\tilde{x}$ as a mask for $x$. It then computes $u = \tilde{x} \bmod 2$ and $v = (\tilde{x} + \textbf{1}^l \bmod 3) \bmod 2$ where $\textbf{1}^l$ is the all-ones vector of length $l$. Finally, the dealer provides the sharings $\share{x}$ (over $\Z_3$), $\share{u}$ (over $\Z_2$) and $\share{v}$ (over $\Z_2$) to the parties.
-
-    \hspace*{1em} Now, the conversion protocol works as follows: First, the parties compute the sharing $\share{\hat{x}} = \share{x} + \share{\tilde{x}}$, and then exchange their shares to reconstruct $\share{\hat{x}}$.
+    Consider $x \in \Z_3^l$. Given a sharing $\share{x}$ over $\Z_3$, the goal is to convert to a sharing over $\Z_2$ of $x^* = x \bmod 2$. For this, the dealer provide the parties with the following correlated randomness. First it samples a random $\Z_3$ vector $\tilde{x}$ as a mask for $x$. It then computes $u = \tilde{x} \bmod 2$ and $v = (\tilde{x} + \textbf{1}^l \bmod 3) \bmod 2$ where $\textbf{1}^l$ is the all-ones vector of length $l$. Finally, the dealer provides the sharings $\share{x}$ (over $\Z_3$), $\share{u}$ (over $\Z_2$) and $\share{v}$ (over $\Z_2$) to the parties. The conversion protocol starts with the parties reconstructing $\hat{x} = x + \tilde{x}$. Now, each party computes its share of $x^*$ as follows: For each position $j \in [l]$, it sets its share $\share{x^*}_j$ as
+    \[
+    \share{x^*}_j = 
+    \begin{cases*}
+           1 - \share{u}_j - \share{v}_j  & \quad if $\hat{x}_j = 0$ \\
+           \share{v}_j & \quad if $\hat{x}_j = 1$ \\
+           \share{u}_j & \quad if $\hat{x}_j = 2$
+    \end{cases*}
+    \]
+    This can also be thought of an optimized version of sharing a truth table for the function. We only require 2 bits (instead of 3) per element since the third bit of the truth table can be computed as a function of the other two.
 
 \end{itemize}
 
