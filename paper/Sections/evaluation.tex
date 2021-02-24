@@ -228,7 +228,6 @@ We also implement the 2-party semi-honest distributed protocol detailed in Secti
 	\makecell{\ttwPRF Protocol \\ (Section~\ref{subsec:2pc-wprf})} & 12.12 & 82K & 662 & 1536 \\
 	\hline	
 \end{tabular}
-		
 \caption{Comparison of 2-party semi-honest protocols for distributed evaluation of the \ttwPRF candidate (Construction~\ref{construction:23-central-wprf}) in the preprocessing model. The parameters $n=m=256$ and $t=81$ were used for the wPRF. The runtime reported is the maximum between the two parties.}
 % \mahimna{The preprocessing costs do not take into account optimizations (e.g., using a PRG seed). Should we report the na\"{i}ve cost here or the optimized cost? Using a PRG, the total preprocessing (with $\Z_3$ compression) is 918 bits.}
 % \mahimna{If we are comparing only the TCC18 protocol with ours does it even make sense to have a table? Should we just provide the comparison in text?}
@@ -255,7 +254,7 @@ We point out that both of our OPRF protocols are much faster than the DDH-based 
 \begin{table}[t!]
 {
 \centering
-\resizebox{\textwidth}{!}{%
+\resizebox{0.9\textwidth}{!}{%
 	\begin{tabular}{|ccc|c|c|c|c|c|c|}%8 columns	
 		\hline
 		\multicolumn{3}{|c|}{\multirow{2}{*}{Protocol}} & \multicolumn{2}{c|}{Runtime ($\mu$s)} & \multirow{2}{*}{Preprocessing (bits)} & \multicolumn{2}{c|}{Communication (bits)}\\

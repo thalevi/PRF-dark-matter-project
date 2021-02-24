@@ -171,7 +171,8 @@
 
 % Boxes
 \newcommand{\boxsize}{0.95}
-\newcommand{\protbox}[2]{\noindent\fbox{\small\hbox{\quad\begin{minipage}{\boxsize\columnwidth}\begin{center}{\bf #1}\end{center}#2\end{minipage}\quad}}}
+\iffull\newcommand{\finalsize}{1}\else\newcommand{\finalsize}{0.87}\fi
+\newcommand{\protbox}[2]{\centering\resizebox{\finalsize\textwidth}{!}{\centering\fbox{\small\hbox{\quad\begin{minipage}{\boxsize\columnwidth}\begin{center}{\bf #1}\end{center}#2\end{minipage}\quad}}}}
 
 \newcommand{\lncsresize}[1]{\iffull#1\else\resizebox{\textwidth}{!}{#1}}
 
