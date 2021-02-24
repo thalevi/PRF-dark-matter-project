@@ -8,7 +8,7 @@
 \textbf{Public values.}
 Let $\mat{A} \in \Z_2^{m \times n}$ and $\mat{B} \in \Z_2^{t \times m}$ be fixed public matrices chosen uniformly at random. Alternatively, the matrices can also be chosen to be full-rank circulant matrices.
 
-\begin{construction}[LPN-wPRF Candidate~\cite{boneh2018-darkmatter}]
+\begin{construction}[LPN-wPRF Candidate]
 The \textnormal{LPN-wPRF} candidate is a family of functions $\PRFfunc : \Z_2^{m \times n} \times \Z_2^n \to \Z_2^t$ with key-space $\keyspace_\secparam = \Z_2^{m \times n}$, input space $\inspace_\secparam = \Z_2^n$ and output space $\outspace_\secparam = \Z_2^t$. For a key $\mat{K} \in \keyspace_\secparam$, we define $\sfF_{\mat{K}}(x) = \PRFfunc(\mat{K}, x)$ as follows:
 
 \begin{enumerate}[topsep=0pt]

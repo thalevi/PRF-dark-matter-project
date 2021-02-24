@@ -39,7 +39,7 @@ While recent general techniques from the literature~\cite{BBCGI19,BGIN19} can be
  For keeping the communication complexity low, we would like to minimize the number of nonlinear gates and make them as ``small'' and ``MPC-friendly'' as possible. 
 
 \item \textit{High algebraic degree}.
-Security of block ciphers and (weak) PRFs provably requires high algebraic degree. While there are low-degree implementations of weaker primitives such as OWF and PRG~\cite{MQref,Goldreich,AIK04}, these typically come at the price of bigger input size and higher nonlinear size~\cite{AsiacryptCouteau}.
+Security of block ciphers and (weak) PRFs provably requires high algebraic degree. While there are low-degree implementations of weaker primitives such as OWF and PRG~\cite{MQref,Goldreich,ApplebaumIK04}, these typically come at the price of bigger input size and higher nonlinear size~\cite{couteau2018-goldreich-prg}.
     
     \item \textit{Simplicity}.  A simple design is almost always easier to implement and prone to fewer errors and attacks. This is particularly valuable since a substantial amount of work~\cite{?} has previously gone into implementations that resist timing and cache side-channels. Simple constructions are also easier to reason about and cryptanalyze, which builds confidence in their security, and may serve as interesting objects of study from a theory perspective~\cite{Goldreich,MilesViola,Akaviaetal}.
 \end{itemize}

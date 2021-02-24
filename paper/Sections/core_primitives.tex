@@ -41,13 +41,13 @@ The homomorphic properties of additive secret sharing directly imply that the ga
 
 
 \paragraph{Construction styles.}
-The candidate constructions we introduce follow one of two broad styles which we detail below. wPRFs constructions for both styles were first proposed by~\cite{boneh2018-darkmatter}. Here, we also propose a suite of symmetric primitives (e.g., OWFs, PRGs) with the same basic structure.
+The candidate constructions we introduce follow one of two broad styles which we detail below. A wPRFs construction for the first style was first proposed by~\cite{boneh2018-darkmatter}. Here, we also propose a suite of symmetric primitives (e.g., OWFs, PRGs) with the same basic structure.
 
 \begin{itemize}
     \item \textbf{$(p,q)$-constructions.}
     For distinct primes $p, q$, the $(p,q)$-constructions have the following structure: On an input $x$ over $\Z_p$, first a linear $\bmod~p$ mapping is applied, followed by a linear $\bmod~q$ mapping. Note that after the $\bmod~p$ mapping, the input is first reinterpreted as a vector over $\Z_q$. For unkeyed primitives (e.g., OWF), both mappings are public, while for keyed primitives (e.g., wPRF), the key is used for the first linear mapping. The construction is parameterized by positive integers $n, m, t$ (functions of the security parameter $\secparam$) denoting the length of the input vector (over $\Z_p$), the length of the intermediate vector, and the length of the output vector (over $\Z_q$) respectively. The two linear mappings can be represented by matrices $\mat{A} \in \Z_p^{m \times n}$ and $\mat{B} \in \Z_q^{t \times m}$. For keyed primitives, the key $\mat{K} \in \Z_p^{m \times n}$ will be used instead of $\mat{A}$.
 
-    Concretely, given an input $x \in \Z_p^n$, the construction output is of the form $y = \mat{B}w \in \Z_q^t$ where $w = \mat{A}{x}$ is first viewed over $\Z_q$. In this paper, we will analyze this style of constructions for $(p,q) = (2,3)$ and $(3,2)$ since these are arguably the simplest constructions that employ linear mappings over alternate moduli. We find that the $(2,3)$-constructions outperform the $(3,2)$-constructions and we will use primarily use the former style for our constructions.
+    \hspace*{1em} Concretely, given an input $x \in \Z_p^n$, the construction output is of the form $y = \mat{B}w \in \Z_q^t$ where $w = \mat{A}{x}$ is first viewed over $\Z_q$. In this paper, we will analyze this style of constructions for $(p,q) = (2,3)$ and $(3,2)$ since these are arguably the simplest constructions that employ linear mappings over alternate moduli. We find that the $(2,3)$-constructions outperform the $(3,2)$-constructions and we will use primarily use the former style for our constructions.
 
     \greg{Why did we choose to focus on (2,3), (3,2)?}
     \itai{At a high level the standard conversion from mod 3 to mod 2 loses information and is less efficient.
@@ -57,17 +57,19 @@ The candidate constructions we introduce follow one of two broad styles which we
     \item \textbf{LPN-style-constructions.}
     These constructions have the following general structure: On input $x$ over $\Z_2$, first a linear $\bmod~2$ mapping given by the matrix $\mat{A}$ is applied to obtain $u$. Concurrently, the same linear mapping is also applied over $\Z_3$ (where both $x$ and $\mat{A}$ are now reinterpreted over $\Z_3$) and then reduced modulo $2$ to obtain $v$. The sum $w = u \oplus v$ is then multiplied by a second linear mapping (given by $\mat{B}$) over $\Z_2$. The mapping $\mat{B}$ is always public, while for keyed primitives, the key $\mat{K}$ is used instead of the first mapping $\mat{A}$.
 
-    The construction is parameterized by positive integers $n,m,t$ (as functions of the security parameter $\secparam$) denoting the size of the input vector, the intermediate vector(s), and the output vector (all over $\Z_p$).
-    Concretely, given $\mat{A} \in \Z_2^{m \times n}$ and a public $\mat{B} \in \Z_2^{t \times m}$, for an input $x \in \Z_2^n$, the construction computes an output of the form:
+    \hspace*{1em} The construction is parameterized by positive integers $n,m,t$ (as functions of the security parameter $\secparam$) denoting the size of the input vector, the intermediate vector(s), and the output vector (all over $\Z_p$).
+    Concretely, given $\mat{A} \in \Z_2^{m \times n}$ and a public $\mat{B} \in \Z_2^{t \times m}$, for an input $x \in \Z_2^n$, the construction first computes the intermediate vector:
     \[
-        y = \left[(\mat{A}x \bmod 2) + (\mat{A}x \bmod 3) \bmod 2\right] \bmod 2.
+        w = \left[(\mat{A}x \bmod 2) + (\mat{A}x \bmod 3) \bmod 2\right] \bmod 2.
     \]
-    The upshot of this style of constructions is that both the input and the output are both over $\Z_2$. Intuitively, each output bit can be thought of as a deterministic Learning-Parity-with-Noise (LPN) instance with a noise rate of $1/3$. The noise is deterministically generated and is dependent on the input $x$ and a specific column of $\mat{A}$. The noise for the $i^\thtext$ instance will be $1$ if and only if $\left<\mat{A}_i, x\right> = 1$.
+    The output $y$ is then computed as $y = \mat{B}w \bmod 2$. The upshot of this style of constructions is that both the input and the output are both over $\Z_2$. Intuitively, each intermediate vector bit can be thought of as a deterministic Learning-Parity-with-Noise (LPN) instance with a noise rate of $1/3$. The noise is deterministically generated and is dependent on the input $x$ and a specific column of $\mat{A}$. The noise for the $i^\thtext$ instance will be $1$ if and only if $\left<\mat{A}_i, x\right> = 1$.
+
+    \hspace*{1em} A similar construction was considered in~\cite{boneh2018-darkmatter} but only for a single-bit output. Specifically, they considered $\mat{A} \in \Z_2^{1 \times n}$ and output the single bit $w$. In our construction, we additionally apply a length-contracting linear mapping (using $\mat{B}$) to get the final output. This is done resist standard attacks on LPN (see Section~\ref{sec:cryptanalysis} and Appendix~\ref{appendix:cryptanalysis} for details).
 \end{itemize}
 
 
 \paragraph{Winning candidates.}
-Through cryptanalysis and considering the cost for each candidate, we find that some of our candidates are more suited (i.e., ``win'') for a particular setting. For instance, we found that the $(3,2)$-constructions are overshadowed by the corresponding the $(2,3)$-constructions in all settings we consider. Specifically, out of the candidates we consider, we find the following:
+Through cryptanalysis and considering the cost for each candidate (See Sections~\ref{sec:cryptanalysis} for details), we find that some of our candidates are more suited (i.e., ``win'') for a particular setting. For instance, we found that the $(3,2)$-constructions are overshadowed by the corresponding the $(2,3)$-constructions in all settings we consider. Specifically, out of the candidates we consider, we find the following:
 \begin{enumerate}
     \item \ttwPRF is the best wPRF candidate with no restriction for input and output space. 
     \item LPN-wPRF is the best wPRF candidate where both the input and output need to be over $\Z_2$.
@@ -80,7 +82,7 @@ We provide formal descriptions and pictorial descriptions of our winning candida
 ~
 \input{Figures/lpn-constructions}
 
-
+\iffull
 \paragraph{Circuit description of constructions.}
 We can represent our constructions by circuits consisting of the gates described previously. This approach is similar to that of~\cite{boyle2019-fss-preprocess}. We formally define computation circuit representations for our constructions in Definition~\ref{def:computation_circuit}.
 
@@ -100,7 +102,7 @@ A computation circuit $C$ with input space $\Gin = \prod \Gin_i$ and output spac
 Let $\mathsf{F} = \{\mathsf{F}_\secparam\}_{\secparam \in \N}$ denote a family of functions $\mathsf{F}_\secparam:\mathcal{X}_\secparam \to \mathcal{Y}_\secparam$. We say that $\{C_\secparam\}_{\secparam \in \N}$ is a family of computation circuits for $\mathsf{F}$ if all $C_\secparam$ have the same topological structure, and for all $\secparam \in \N$, $\mathsf{F}_\secparam(x) = \textsf{Eval}_C(x)$ for all $x \in \mathcal{X}_\secparam$.
 \label{def:computation_circuit}
 \end{definition}
-
+\fi
 
 \paragraph{Structured keys.}
 The constructions we described previously use general matrices in, e.g., $\Z_p^{m \times n}$. For keyed primitives, this results in a key size of $mn$ elements of $\Z_p$ which is expensive to communicate within distributed protocols. Therefore, we will instead take advantage of structured matrices whose representation is only linear in $n$ and $m$. Since both $n$ and $m$ are $O(\secparam)$ in our constructions, this reduces the communication complexity from quadratic to linear in $\secparam$. Furthermore, some structured matrices also benefit from asymptotically faster algorithms (e.g., FFT-based) for matrix multiplications and matrix-vector products. We briefly describe the types of structured matrices we utilize below. For this, consider a matrix $\mat{M} \in \Z_p^{m \times n}$.

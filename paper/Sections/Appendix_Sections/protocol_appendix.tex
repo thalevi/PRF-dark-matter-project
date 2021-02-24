@@ -1,0 +1,21 @@
+\section{Deferred Protocol Details}
+
+\paragraph{Circuit description of constructions.}
+We can represent our constructions by circuits consisting of the gates described previously. This approach is similar to that of~\cite{boyle2019-fss-preprocess}. We formally define computation circuit representations for our constructions in Definition~\ref{def:computation_circuit}.
+
+\begin{definition}[Computation circuit]
+A computation circuit $C$ with input space $\Gin = \prod \Gin_i$ and output space $\Gout = \prod \Gout_i$ is a (labeled) directed acyclic graph $(\mathcal{V},\mathcal{E})$ where $\mathcal{V}$ denotes the set of vertices and $\mathcal{E}$ denotes the set of edges according to the following:
+\begin{itemize}
+
+\item Each source vertex corresponds to exactly one $\Gin_i$ and vice versa. The label for the vertex is the identity function on the corresponding $\Gin_i$. Each sink vertex corresponds to exactly one $\Gout_i$ and vice versa. The label for the vertex is the identity function on the corresponding $\Gout_i$. Each non-source $V \in \mathcal{V}$ is labeled with a gate $\mathcal{G}_V \in \gateset$ that computes the function $\mathcal{G}_V: \mathbb{G}^{\textsf{in}}_V \to \mathbb{G}^{\textsf{out}}_V$. The depth of a vertex $V \in \mathcal{V}$, denoted by $\textsf{depth}(V)$ is the length of the largest directed path from a source vertex to $V$.
+
+
+\item For an edge $(V_a, V_b)$, let $\Gout_{V_a} = \prod \Gout_{V_a,i}$ and $\Gin_{V_b} = \prod \Gin_{V_b, i}$. Then, there exists indices $j$ and $k$ such that $\Gout_{V_a,j} = \Gin_{V_b,k}$. Further, for each input $\Gin_{V_b,i}$ for $V_b$, there is some edge $(V_c, V_b)$ that satisfies the above.
+
+\item The evaluation of the gate for vertex $V$ on input $x \in \Gin_V$ is defined as $y = \mathcal{G}_V(x)$. The evaluation of the circuit $C$, denoted by $\textsf{Eval}_C(x)$, where $x \in \Gin$ is the value $y \in \Gout$, that is obtained by recursively evaluating each gate function in the circuit.
+\end{itemize}
+
+
+Let $\mathsf{F} = \{\mathsf{F}_\secparam\}_{\secparam \in \N}$ denote a family of functions $\mathsf{F}_\secparam:\mathcal{X}_\secparam \to \mathcal{Y}_\secparam$. We say that $\{C_\secparam\}_{\secparam \in \N}$ is a family of computation circuits for $\mathsf{F}$ if all $C_\secparam$ have the same topological structure, and for all $\secparam \in \N$, $\mathsf{F}_\secparam(x) = \textsf{Eval}_C(x)$ for all $x \in \mathcal{X}_\secparam$.
+\label{def:computation_circuit}
+\end{definition}
