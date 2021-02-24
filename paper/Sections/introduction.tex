@@ -79,7 +79,7 @@ Another, very different, motivation is the goal of identifying simple function c
 What about simpler symmetric primitives such as OWFs and PRGs? MPC protocols for these primitives are motivated by many applications, including Picnic-style post-quantum digital signatures~\cite{Picnicrefs} and lightweight distributed key generation for function secret sharing~\cite{Doernershelat,FSS-EC21}.
 \item Are there similar wPRF candidates where the input, output, and key are all over $\Z_2$? This too is motivated by natural applications.
 %\item Does reversing the order of mod-2 and mod-3 lead to a better design? 
-\item Can the concrete MPC protocols given in~\cite{boneh2018-darkmatter} be further improved? Can preprocessing be eliminated or realized at a low amortized cost? This motivates an additional design criterion: compatibility with recent advances in pseudorandom correlation generators.
+\item Can the concrete MPC protocols given in~\cite{boneh2018-darkmatter} be further improved? Can preprocessing be eliminated or realized at a low amortized cost? This motivates an additional design criterion: ``PCG-friendliness,'' leveraging recent advances in pseudorandom correlation generators~\cite{BCGI18,BoyleetalCCS19,Ferret}.
 \end{itemize}
 
 % All the candidates we propose are based on similar interplays between linear mappings in $\Z_2$ and $\Z_3$.
@@ -237,5 +237,12 @@ on parameter choice).  This
 shows that OWFs based on alternating moduli are competitive with block-cipher
 based designs, and we can choose a OWF with an (arguably) simpler mathematical
 description, without sacrificing performance. 
+
+\paragraph{[Steven's application].} \yuval{Motivates wPRF where inputs, outputs, and keys are over $\Z_2$. Explain the problem with using $(2,3)-wPRF$ by distinguishing between applications for which the output is given in the clear and ones where it needs to be kept secret and reused (such as this one).}
+
+\paragraph{Distributed FSS key generation.} \yuval{First considered by Doerner-shelat in the context of 2PC for RAM programs. Then used for PCG seed generation and MPC for mixed-mode and fixed-point operations. Key ingredient: length-doubling PRG.}
+
+\subsubsection{Future work.} Our work leaves several interesting avenues for further work. One direction is designing MPC protocols with malicious security while minimizing the extra cost. Recent techniques from~\cite{cite} can be helpful towards this goal. Another direction is designing and analyzing other symmetric primitives based on the alternating moduli paradigm. Relevant examples include hash functions, strong PRFs, and block ciphers. \yuval{Include a pointer to an appendix with Itai's preliminary results on the hash functions front?} In fact, a strong PRF candidate was already suggested in~\cite{boneh2018-darkmatter}. 
+
 
 %\newpage
