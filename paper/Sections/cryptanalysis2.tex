@@ -3,7 +3,7 @@
 \label{sec:cryptanalysis}
 
 We give a summary of cryptanalysis of our constructions,
-focusing on the main attacks that influence our choice of parameters.
+focusing on the main attacks that influence our parameters.
 The details are found in Appendix~\ref{appendix:cryptanalysis}.
 
 %In general, for obtaining $s$-bit security given that the adversary performs $2^{\tau}$ work,
@@ -18,8 +18,7 @@ The attacker is given $\hat{y} \in \Z_3^t$ and tries to invert it.
 Our most interesting attack on the \ttOWF is based on a reduction to subset-sum.
 We give the full details below.
 
-\subsubsection{Reduction to subset-sum.}
-
+\paragraph{Reduction to subset-sum.}
 For a vector $w \in \Z_2^m$, there is an $(m -n) \times m$ (parity check) matrix $\mat{P}$ such that there exists $x \in \Z_2^n$ for which $\mat{A}x = w$ if and only if $\mat{P} w=0$.
 Assume that $\hat{y}$ is the output of the \ttOWF on $x \in \Z_2^n$, and let $w = \mat{A}x$. Then,
 $w$ satisfies the conditions $\mat{P} w = 0$ (over $\Z_2$) and $\mat{B}w = \hat{y}$ (over $\Z_3$).
@@ -37,7 +36,7 @@ with $$(\mat{P}e_i, \mat{B}e_i) \in \Z_2^{m-n} \times \Z_3^t,$$
 and define the target
 as $(\vec{0},\hat{y}) \in \Z_2^{m-n} \times \Z_3^t$.
 
-\subsubsection{Solving the subset-sum problem.}
+\paragraph{Solving the subset-sum problem.}
 We can now apply the advanced subset-sum algorithm by
 Howgrave{-}Graham and Joux~\cite{Howgrave-GrahamJ10} and the more recent ones
 ~\cite{BeckerCJ11,BonnetainBSS20},
@@ -76,7 +75,7 @@ by solving two subset-sum problems of Hamming weight $m/4$.
 Focusing on a single representation of the solution
 allows to beat the standard meet-in-the-middle approach which requires time $2^{m/2}$.
 
-\subsubsection{Adaptation of previous subset-sum algorithms.}
+\paragraph{Adaptation of previous subset-sum algorithms.}
 The algorithm of~\cite{Howgrave-GrahamJ10} can be easily adapted
 to our specialized subset-sum problem (although it is not defined over the integers).
 Moreover the improved algorithm of~\cite{BeckerCJ11} considers additional representations
