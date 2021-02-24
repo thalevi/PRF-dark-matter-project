@@ -3,7 +3,7 @@
 \begin{figure}[p]
 \protbox{LPN-style-constructions}{
 
-\textbf{Parameters.} Let $\secparam$ be the security parameter and define parameters $n, m, t$ as functions of $\secparam$.
+\textbf{Parameters.} $n, m, t$ are functions of the security parameter $\secparam$.
 
 \textbf{Public values.}
 Let $\mat{A} \in \Z_2^{m \times n}$ and $\mat{B} \in \Z_2^{t \times m}$ be fixed public matrices chosen uniformly at random. Alternatively, the matrices can also be chosen to be full-rank circulant matrices.
@@ -18,7 +18,7 @@ The \textnormal{LPN-wPRF} candidate is a family of functions $\PRFfunc : \Z_2^{m
 \end{enumerate}
 \label{construction:23-central-wprf}
 \end{construction}
-\begin{center} \input{Figures/tikzfigs/lpnwPRF_fig} \end{center}
+% \begin{center} \input{Figures/tikzfigs/lpnwPRF_fig} \end{center}
 
 \begin{construction}[LPN-PRG Candidate]
 The \textnormal{LPN-PRG} is a length-doubling PRG candidate defined as the function $\mathsf{F}_\secparam : \Z_2^n \to \Z_2^{2n}$ with input space $\inspace_\secparam = \Z_2^n$ and output space $\outspace_\secparam = \Z_2^{2n}$. For this construction, we consider the parameters $n,m,t$ with $m \geq n, t$ and $t = 2n$. We define $\mathsf{F}(x) = \mathsf{F}_\secparam$ as follows:
@@ -28,7 +28,17 @@ The \textnormal{LPN-PRG} is a length-doubling PRG candidate defined as the funct
     \item Compute $w = u \xor v$ and output $y = \LMap_2^{\mat{B}}(w)$.
     \end{enumerate}
 \end{construction}
+% \begin{center} \input{Figures/tikzfigs/lpnPRG_fig} \end{center}
+
+\medskip
+
+\begin{minipage}{0.5\textwidth}
+\begin{center} \input{Figures/tikzfigs/lpnwPRF_fig} \end{center}
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
 \begin{center} \input{Figures/tikzfigs/lpnPRG_fig} \end{center}
+\end{minipage}
+
 
 }
 \caption{LPN-style-constructions}

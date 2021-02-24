@@ -11,7 +11,7 @@ For distributed protocols with $N$ parties, we use $\parties = \{\party_1, \dots
 For a value $v$ in a group $\mathbb{G}$, we use $\randval{v}$ to denote a random mask value sampled from the same group, and $\masked{v} = v + \randval{v}$ (where + is the group operation for $\mathbb{G}$) to denote $v$ masked by $\randval{v}$. We use the $+$ operator quite liberally and unless specified, it denotes the group operation (e.g., component-wise addition $\bmod~p$ for $\Z_p^l$) for the summands.
 
 
-\subsection{Primitives}
+\iffull\subsection{Primitives}\else\paragraph{Primitives.}\fi
 
 We briefly recall the standard definitions for the symmetric primitives we consider.
 
