@@ -1,10 +1,11 @@
 %!TEX root = ../main.tex
 
-
-\section{Cryptanalysis}
+\section{Detailed Cryptanalysis}
 \label{appendix:cryptanalysis}
 \itai{Need to align notation and write summary in the body of the paper.}
 
+In this appendix we describe in detail the cryptanalysis of our new constructions.
+We start with some general remarks and then analyze each construction.
 
 \subsubsection{Choosing public inputs.}
 
@@ -213,7 +214,7 @@ We use this observation in the following algorithm, whose complexity as claimed 
 \end{enumerate}
 
 Note that the expected number of $w \in \{0,1\}^m$ that satisfy $\mat{B} w = \hat{y}$ is $2^{m - \log 3 \cdot t}$. Hence, we cannot hope to obtain better complexity than $2^{m - \log 3 \cdot t}$ without exploiting additional constraints on $w$, imposed by the matrix $\mat{A}$. Our
-subset-sum reduction shows how this can be done.
+subset-sum reduction (given in Section~\ref{sec:cryptanalysis}) shows how this can be done.
 
 \paragraph{Induced schemes.}
 Given the scheme \ttOWF with a matrix $\mat{B}$ and output $y$ such that $\mat{B}w = y$, and any positive integer $r$, we can left-multiply both sides by any $r \times t$ matrix $\mat{C}$ over $\Z_3$ to obtain $\mat{C}\mat{B}w = \mat{C}y$. Note that each row of the matrix $\mat{CB}$ is a linear combination of the rows of $\mat{B}$. Using such a matrix $\mat{C}$, we can perform Gaussian elimination on the rows of $\mat{B}$.
@@ -233,83 +234,6 @@ If more such low Hamming weight vectors are available, then the complexity of th
 although it seems unlikely to obtain a significant advantage over exhaustive search with this approach.
 
 
-\subsubsection{Reduction to subset-sum.}
-
-We now show how to reduce the problem of inverting the \ttOWF to solving an instance of subset-sum (for a particular definition of the sum operation) over the space $\{0,1\}^m$.
-
-\paragraph{The reduction.}
-For a vector $w \in \Z_2^m$, there is an $(m -n) \times m$ (parity check) matrix $\mat{P}$ such that there exists $x \in \Z_2^n$ for which $\mat{A}x = w$ if and only if $\mat{P} w=0$.
-Assume that $\hat{y}$ is the output of the \ttOWF on $x \in \Z_2^n$, and let $w = \mat{A}x$. Then,
-$w$ satisfies the conditions $\mat{P} w = 0$ (over $\Z_2$) and $\mat{B}w = \hat{y}$ (over $\Z_3$).
-We attempt to find such $w$ by a reduction to subset-sum, as detailed below.
-
-Suppose we find a set $J \subseteq [m]$ such that
-$$\left( \sum_{j \in J} \mat{P}e_j  \bmod 2, \sum_{j \in J} \mat{B}e_j  \bmod 3 \right) = (\vec{0},\hat{y}),$$
-where $e_i \in \{0,1\}^m$ be the $i$'th unit vector.
-Then, the preimage $x$ can be computed by solving the linear equation system
-$\mat{A}x = \sum_{j \in J} e_j  \bmod 2$.
-
-Thus, we have reduced the problem to subset-sum with $m$ binary variables
-$(\epsilon_1, \ldots, \epsilon_m) \in \{0,1\}^m$, where we associate $\epsilon_i = 1$
-with $$(\mat{P}e_i, \mat{B}e_i) \in \Z_2^{m-n} \times \Z_3^t,$$
-and define the target
-as $(\vec{0},\hat{y}) \in \Z_2^{m-n} \times \Z_3^t$.
-
-
-\paragraph{Solving the subset-sum problem.}
-We can now apply the advanced subset-sum algorithm by
-Howgrave{-}Graham and Joux~\cite{Howgrave-GrahamJ10} and the more recent ones
-~\cite{BeckerCJ11,BonnetainBSS20},
-which are based on the \emph{representation technique}.
-These algorithms were mostly designed to solve subset-sum problems over the integers.
-Below, we describe the main ideas of these algorithms
-and explain how to apply them to the special subset-sum problem
-we consider.
-
-In the subset-sum problem over the integers,
-we are given a list of $m$ positive  integers $(a_1,a_2,\ldots,a_m)$
-and another positive integer $S$ such that $S = \sum_{i=1}^{m} \epsilon_i a_i$
-for $\epsilon_i \in \{0,1\}$. The goal is to recover the unknown coefficients $\epsilon_i$.
-
-A standard meet-in-the-middle approach for solving the problem has time complexity of about $2^{m/2}$.
-The representation technique gives an improved algorithm as briefly summarized below.
-
-Assume that a solution to the subset-sum problem is chosen uniformly from $\{0,1\}^m$
-and the parameters are set such that the instance has about one solution on average. Effectively, this means that the density of the problem $d = \tfrac{n}{\log \max(\{a_i\}_{i=1}^{m})}$ is set to 1.
-
-The main idea of the basic algorithm of Howgrave{-}Graham and Joux~\cite{Howgrave-GrahamJ10}
-is to split the problem into two parts by writing
-$S = \sigma_1 + \sigma_2$,
-where $\sigma_1 = \sum_{i=1}^{m} \alpha_i a_i$, $\sigma_2 = \sum_{i=1}^{m} \beta_i a_i$
-and $(\alpha_i,\beta_i) \in \{(0,0),(0,1),(1,0)\}$.
-Thus, $\epsilon_i = \alpha_i + \beta_i$ for each $i$ is a solution to the problem.
-
-Note that each coefficient $\epsilon_i$ with value 1 can be split into $(0,1)$, or $(1,0)$.
-Thus, assuming that the solution has Hamming weight\footnote{In general, one
-may guess the Hamming weight of the solution and
-repeat the algorithm accordingly a polynomial number of times.} of $m/2$
-(which occurs with probability $\Omega(1/\sqrt{m})$),
-it has $2^{m/2}$ different \emph{representations}.
-Consequently, we may focus of finding only one of these representations
-by solving two subset-sum problems of Hamming weight $m/4$.
-Focusing on a single representation of the solution
-allows to beat the standard meet-in-the-middle approach which requires time $2^{m/2}$.
-
-\paragraph{Adaptation of previous subset-sum algorithms.}
-The algorithm of~\cite{Howgrave-GrahamJ10} can be easily adapted
-to our specialized subset-sum problem (although it is not defined over the integers).
-Moreover the improved algorithm of~\cite{BeckerCJ11} considers additional representations
-of the solution by allowing $\alpha_i$ and $\beta_i$ to also take the value -1
-(implying that $\epsilon_i = 0$ can be decomposed into
-$(\alpha_i,\beta_i) \in \{(0,0),(-1,1),(1,-1)\}$).
-In our case, we associate $\alpha_i = -1$
-with $(\mat{P}(-e_i), \mat{B}(-e_i)) = (\mat{P}e_i, 2 \cdot \mat{B}e_i)  \in \Z_2^{m-n} \times \Z_3^t$.
-Finally, the recent improved algorithm of~\cite{BonnetainBSS20} considers representations over
-$\{-1,0,1,2\}$ and we can adapt this algorithm to our setting in a similar way.
-
-In terms of complexity, ignoring polynomial factors in $m$,
-the attack of~\cite{Howgrave-GrahamJ10} runs in time $2^{0.337m}$ and uses $2^{0.256m}$ memory,
-while the complexity of attack of~\cite{BonnetainBSS20} requires $2^{0.283m}$ time and memory.
 
 
 %\subsubsection{Quantum attacks.}
@@ -325,7 +249,7 @@ we conjecture that the \ttOWF has $s$ bits of security.
 
 First, due to the exhaustive search, we require $n \geq s$.
 Second,
-the most restrictive constraint on $m$ is imposed by the subset-sum algorithm.
+the most restrictive constraint on $m$ is imposed by the subset-sum algorithm (Section~\ref{sec:cryptanalysis}).
 If we conservatively ignore the hidden polynomial factors and the large memory
 complexity of the subset-sum algorithm of~\cite{BonnetainBSS20}, we need to set
 $$0.283m \geq s.$$
@@ -623,7 +547,7 @@ which is negligible.
 
 
 
-\subsection{Security Analysis of Compressed LPN-Style PRG}
+\subsection{Security Analysis of the LPN-PRG}
 
 We analyze the security of the compressed LPN-Style PRG.
 
@@ -713,7 +637,7 @@ of the alternative PRF construction.
 \end{remark}
 
 
-\subsubsection{Parameter selection for the compressed LPN-style PRG.}
+\subsubsection{Parameter selection for the LPN-PRG.}
 
 We determine parameters $n,m,t$ for which
 we conjecture that the
@@ -734,9 +658,9 @@ We consider this as a negligible probability
 as the consequences of the this unlikely event are mild.
 
 
-\subsection{Security analysis of compressed LPN-style PRF}
+\subsection{Security analysis of LPN-PRF}
 
-The overall structure of the compressed LPN-Style PRF is similar to the PRG.
+The overall structure of the LPN-PRF is similar to the PRG.
 However, unlike PRG, in the first transformation, the key is part of the matrix and
 $x$ is a public value.
 Thus, $w$ can be viewed as $m$ outputs of (another) more
@@ -766,7 +690,7 @@ we require that each linear combination of the output
 has bias of at most $2^{-0.1 s}$
 (toward some linear combination of the key over $\Z_2$).
 
-\paragraph{Parameter selection for the Compressed LPN-style PRF.}
+\paragraph{Parameter selection for the LPN-PRF.}
 For $s$-bit security, we set $n=m= 2s$ and $t =s$.
 By our analysis, exhaustive search requires $2^{m - t} = 2^s$ time.
 
@@ -826,6 +750,7 @@ $f_2(m,t,\ell) \leq \ell \cdot 2^{m (H(\ell/m) - 1) + t}$,
 while for $t = 3$, we obtain
 $f_3(m,t,\ell) \leq 2 \cdot 3^{t-m} \cdot 2^{m H(\ell/m) + \ell} = 2 \cdot 2^{m (H(\ell/m) - \log 3) + \ell + \log 3 \cdot t}$.
 \end{proof}
+
 
 %-------------------------------------------------%
 
