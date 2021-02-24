@@ -26,7 +26,7 @@ Given public values $a_1, \dots, a_k$, it is straightforward for the protocol pa
 
 \subsubsection{Distributed Computation of Circuit Gates}
 We provide detailed (local) protocols to compute each circuit gate in this section. The description of inputs (including shared correlated randomness) and outputs for each gate protocol is also summarized in Table~\ref{table:gate_protocol_summary}. 
-\iffull\else Protocols for the $\LMap$ and $\Add$ gates directly follow from the homomorphic properties of additive secret sharing, while the protocol for the $\BLMap$ gate is essentially a generalization of Beaver's multiplication triples~\cite{boyle2019-fss-preprocess,beaver1991-triples}. In this section, we provide our novel protocols for the $\Convert_{(2,3)}$ and $\Convert_{(3,2)}$ gates and defer the details for the other gates to Appendix~\ref{appendix:protocol_gates}.
+\iffull\else Protocols for the $\LMap$ and $\Add$ gates directly follow from the homomorphic properties of additive secret sharing, while the protocol for the $\BLMap$ gate is essentially a generalization of Beaver's multiplication triples~\cite{boyle2019-fss-preprocess,beaver1991-triples}. In this section, we briefly provide our novel protocols for the $\Convert_{(2,3)}$ and $\Convert_{(3,2)}$ gates and defer the details (as well as other gate protocols) to Appendix~\ref{appendix:protocol_gates}.
 \fi
 \begin{table}[t!]
 \lncsresize{
@@ -109,7 +109,7 @@ Since the output of the bilinear gate will usually feed into a conversion gate w
   \sharei{x^*} = \sharei{\hat{x}} + \sharei{r} + (\hat{x} \odot \sharei{r}) \quad \bmod 3
   \]
 where $\odot$ denotes the Hadamard (component-wise) product modulo 3. Here, addition is also done over $\Z_3$.
-
+\iffull
 \noindent \textit{Correctness.} To see why this works, suppose that $\hat{x} \in \Z_2^l$. Consider any position $j \in [l]$, and denote by using a subscript $j$, the $j^\thtext$ position in a vector. Note that now, the position $j$ of the output can be written as:
 \[
     \sharei{x^*}_j = \sharei{\hat{x}}_j + \sharei{r}_j + (\hat{x}\sharei{r}_j\bmod 3) \quad \bmod 3
@@ -129,6 +129,7 @@ Therefore,
 will hold.
 \else
 Therefore, $\sum_{\party_i \in \parties} \sharei{x^*} (\bmod~3) = x$ will hold.
+\fi
 \fi
 \end{itemize}
 
@@ -150,6 +151,7 @@ Therefore, $\sum_{\party_i \in \parties} \sharei{x^*} (\bmod~3) = x$ will hold.
        \sharei{u}_j & \quad if $\hat{x}_j = 2$
 \end{cases*}
 \]
+\iffull
 \textit{Correctness.} To see why this works, consider three cases:
 \begin{itemize}
 \item If $\hat{x}_j = 0$, then $\sum_{\party_i \in \parties} \sharei{x^*}_j \bmod 2 = 1 - u_j - v_j$. This evaluates to $1$ only when $\tilde{x}_j = 2$, and is exactly the case when $x_j$ is also 1.
@@ -159,6 +161,7 @@ Therefore, $\sum_{\party_i \in \parties} \sharei{x^*} (\bmod~3) = x$ will hold.
 \item $\hat{x}_j = 2$, then $\sum_{\party_i \in \parties} \sharei{x^*}_j \bmod 2 = u_j$. This evaluates to $1$ only when $\tilde{x}_j = 1$, and is exactly the case when $x_j$ is also 1.
 \end{itemize}
 Consequently, $\sum_{\party_i \in \parties} \sharei{x^*} \bmod 2 = x \bmod 2$ holds.
+\fi
 \end{itemize}
 
 %-------------------------------%
@@ -472,7 +475,7 @@ To compute a secure multiplication $\mat{K}x$ where $\mat{K}$ and $x$ are both s
 
 
 \subsubsection{$(2,3)$-correlations from OT correlations}
-We provide a new technique to generate the correlations needed for the $\prot_\Convert^{(2,3)}$ protocol. The key technique we use is to convert OT correlations to the types of correlations our protocols require. Since prior work~\cite{?} has shown how to efficiently create OT correlations, this implies that the correlations required for our protocols can also be efficiently generated. We start by recalling OT correlations in the 2-party setting. 
+We provide a new technique to generate the correlations needed for the $\prot_\Convert^{(2,3)}$ protocol. The key technique we use is to convert OT correlations to the types of correlations our protocols require. Since prior work~\cite{boyle2019-pcg,yang2020-ferret} has shown how to efficiently create OT correlations, this implies that the correlations required for our protocols can also be efficiently generated. We start by recalling OT correlations in the 2-party setting. 
 
 \paragraph{1-out-of-2 OT correlation over $\Z_3$.} An OT correlation over $\Z_3$ has the following form: $\party_1$ holds $(z_0, z_1)$ and $\party_2$ holds $(c, z_c)$ where $z_0, z_1 \getsr \Z_3$, $c \in \Z_2$ and $z_c = z_0$ if $c=0$ and $z_c = z_1$ if $c=1$. We refer to $((z_0,z_1), (c, z_c))$ as an OT correlation pair.
 
@@ -516,7 +519,7 @@ As another upshot, this means that the required $(2,3)$ correlations can be gene
 
 \subsubsection{$(3,2)$-correlations from OT correlations}
 
-We now show how to convert OT-correlations to the correlations we require for the $\prot_{\Convert}^{(3,2)}$ protocol. For this, we will need 1-out-of-3 OT correlations for 2-bit strings. Formally, in such a correlation, $\party_1$ receives $(z_0, z_1, z_2)$ where each $z_j$ is a 2-bit string, while $\party_2$ receives $(c, z_c)$ where $c \in \Z_3$ and $z_c$ is the corresponding $z_j$ indexed by $j = c$. As before, these OT correlations can also be efficiently generated and compressed using existing work~\cite{??}.
+We now show how to convert OT-correlations to the correlations we require for the $\prot_{\Convert}^{(3,2)}$ protocol. For this, we will need 1-out-of-3 OT correlations for 2-bit strings. Formally, in such a correlation, $\party_1$ receives $(z_0, z_1, z_2)$ where each $z_j$ is a 2-bit string, while $\party_2$ receives $(c, z_c)$ where $c \in \Z_3$ and $z_c$ is the corresponding $z_j$ indexed by $j = c$. As before, these OT correlations can also be efficiently generated and compressed using existing work~\cite{boyle2019-pcg,yang2020-ferret}.
 \mahimna{@yuval}
 
 Now, to convert a single $\Z_2$ element to $\Z_3$, our protocol requires the following correlated randomness: $\party_i$ is given $(\tilde{x}_i, u_i, v_i)$ where $\tilde{x}_i \in \Z_3$, $u_i,v_i \in \Z_2$ such that the following holds. Define $\tilde{x} = \tilde{x}_1 + \tilde{x} \bmod 3$, $u = u_1 + u_2 \bmod 2$, and $v = v_1 + v_2 \bmod 2$. Then, $u = \tilde{x} \bmod 2$ and $v = (\tilde{x} + 1 \bmod 3) \bmod 2$. We call this sharing between the two protocol parties a $(3,2)$-correlation pair.

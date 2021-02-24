@@ -68,6 +68,66 @@ The bilinear gate protocol is essentially a generalization of Beaver's multiplic
 \end{itemize}
 Since the output of the bilinear gate will usually feed into a conversion gate which requires the input to be already masked, as an optimization, we can have the bilinear gate itself compute shares of the masked output, i.e., $\hat{y} = \mat{K}x + \tilde{y}$. This can be done by providing the correlated randomness $\tilde{\mat{K}}\tilde{x} + \tilde{y}$ instead of $\tilde{\mat{K}}\tilde{x}$. The upshot of this optimization is that one fewer piece of correlated randomness will be required.
 
+\paragraph{$\Z_2 \to \Z_3$ conversion protocol $\prot_\Convert^{(2,3)}$.}
+
+\begin{itemize}
+  \item \textbf{Functionality}: Abstractly, the goal of the $\Z_2 \to \Z_3$ conversion protocol is to convert a sharing of $x$ over $\Z_2$ to a sharing of the same $x^* = x$, but now over $\Z_3$. For our purpose, the parties will be provided the masked input $\hat{x} = x \oplus \tilde{x}$ (i.e., masking is over $\Z_2$) directly along with correlated randomness that shares $\tilde{x}$ over $\Z_3$.
+
+  \item \textbf{Preprocessing}: Each party is also provided with shares of the mask $r = \tilde{x}$ over $\Z_3$ as correlated randomness.
+
+  \item \textbf{Protocol details}: For the protocol $\prot_\Convert^{(2,3)}(\hat{x} \mid r)$, each party proceeds as follows:
+  \[
+  \sharei{x^*} = \sharei{\hat{x}} + \sharei{r} + (\hat{x} \odot \sharei{r}) \quad \bmod 3
+  \]
+where $\odot$ denotes the Hadamard (component-wise) product modulo 3. Here, addition is also done over $\Z_3$.
+
+\noindent \textit{Correctness.} To see why this works, suppose that $\hat{x} \in \Z_2^l$. Consider any position $j \in [l]$, and denote by using a subscript $j$, the $j^\thtext$ position in a vector. Note that now, the position $j$ of the output can be written as:
+\[
+    \sharei{x^*}_j = \sharei{\hat{x}}_j + \sharei{r}_j + (\hat{x}\sharei{r}_j\bmod 3) \quad \bmod 3
+\]
+Consider two cases:
+\begin{itemize}
+\item If $\hat{x}_j = 0$, then $\tilde{x}_j = x_j$. Therefore, $\sum_{\party_i \in \parties} \sharei{x^*}_j = 0 + \tilde{x}_j = x_j$.
+
+\item If $\hat{x}_j = 1$, then $x_j = 1 - \tilde{x}_j$. Therefore, $\sum_{\party_i \in \parties} \sharei{x^*}_j = 1 + 2\tilde{x}_j \bmod 3$. If $\tilde{x}_j = 0$, this evaluates to $1 = x_j$, while if $\tilde{x}_j = 1$, it evaluates to $0 = 1 - \tilde{x}_j = x_j$
+\end{itemize}
+In other words, in all cases, each component of the sum ($\bmod~3$) of shares $\sharei{x^*}$ is the same as the corresponding component of $x$.
+Therefore,
+\[
+\sum_{\party_i \in \parties} \sharei{x^*} (\bmod~3) = x
+\]
+will hold.
+\end{itemize}
+
+
+\paragraph{$\Z_3 \to \Z_2$ conversion protocol $\prot_\Convert^{(3,2)}$.}
+
+\begin{itemize}
+  \item \textbf{Functionality}: Abstractly, the goal of the protocol is to convert a sharing of $x$ over $\Z_3$ to a sharing of $x^* = x \bmod~2$ over $\Z_2$. For our purpose, the parties will be provided with the masked input $\hat{x} = x + \tilde{x} \bmod~3$ directly, along with correlated randomness over $\Z_3$ (see below).
+
+  \item \textbf{Preprocessing}: Each party is also given shares (over $\Z_2$) of two vectors: $u = \tilde{x} \bmod 2$ and $v = (\tilde{x} + \textbf{1} \bmod 3) \bmod 2$ as correlated randomness.
+
+
+  \item \textbf{Protocol details}: For the protocol $\prot_\Convert^{(3,2)}(\hat{x} \mid u, v)$, each party computes its share of $x^*$ as follows: For each position $j \in [l]$,
+\[
+\sharei{x^*}_j = 
+\begin{cases*}
+       1 - \sharei{u}_j - \sharei{v}_j  & \quad if $\hat{x}_j = 0$ \\
+       \sharei{v}_j & \quad if $\hat{x}_j = 1$ \\
+       \sharei{u}_j & \quad if $\hat{x}_j = 2$
+\end{cases*}
+\]
+\textit{Correctness.} To see why this works, consider three cases:
+\begin{itemize}
+\item If $\hat{x}_j = 0$, then $\sum_{\party_i \in \parties} \sharei{x^*}_j \bmod 2 = 1 - u_j - v_j$. This evaluates to $1$ only when $\tilde{x}_j = 2$, and is exactly the case when $x_j$ is also 1.
+
+\item $\hat{x}_j = 1$, then $\sum_{\party_i \in \parties} \sharei{x^*}_j \bmod 2 = v_j = (\tilde{x}_j + 1 \bmod 3) \bmod 2)$. This evaluates to $1$ only when $\tilde{x}_j = 0$, and is exactly the case when $x_j$ is also 1.
+
+\item $\hat{x}_j = 2$, then $\sum_{\party_i \in \parties} \sharei{x^*}_j \bmod 2 = u_j$. This evaluates to $1$ only when $\tilde{x}_j = 1$, and is exactly the case when $x_j$ is also 1.
+\end{itemize}
+Consequently, $\sum_{\party_i \in \parties} \sharei{x^*} \bmod 2 = x \bmod 2$ holds.
+\end{itemize}
+
 
 
 \subsection{Composing Gate Protocols}
