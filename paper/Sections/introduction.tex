@@ -69,7 +69,7 @@ The main technique by which we achieve all three of our design goals is to consi
 As the simplest possible instance of this approach, we consider alternating linear functions over $\Z_2$ and $\Z_3$. Boneh et al. found that linear functions over $\Z_2$ are highly nonlinear over $\Z_3$ while linear functions over $\Z_3$ are highly nonlinear over $\Z_2$. Furthermore, using small moduli allows for efficient designs for ``switching'' between the moduli. In fact, we show how conversions between the moduli are “small” nonlinear gates and can be implemented efficiently from OT and VOLE correlations.
 \fi
 
-A primary motivation for the alternating moduli paradigm was its MPC-friendliness. Indeed, several MPC protocols were proposed in~\cite{boneh2018-darkmatter}. These protocols were shown to have significant advantages over ones that apply to earlier MPC-friendly designs, but this was argued either for the honest-majority 3-party case or for 2PC in the preprocessing model. 
+A primary motivation for the alternating moduli paradigm was its MPC-friendliness. Indeed, several MPC protocols were proposed in~\cite{boneh2018-darkmatter}. These protocols demonstrate significant efficiency advantages over earlier MPC-friendly designs, mainly in the setting of 2PC with preprocessing or 3-party computation with an honest majority. 
 
 Another, very different, motivation is the goal of identifying simple function classes that are ``hard to learn.''  Indeed,  the conjectures from~\cite{boneh2018-darkmatter} imply hardness of learning results for low complexity functions such as (depth-2) $\mathsf{ACC}^0$ circuits, sparse $\Z_3$ polynomials, or width-3 branching programs. These conjectures are also of interest outside the field of cryptography~\cite{Chen19,FilmusIKK20,ChenR20,KabanetsKLMO20}, which further motivates cryptanalysis efforts.
 
@@ -79,7 +79,7 @@ Another, very different, motivation is the goal of identifying simple function c
 What about simpler symmetric primitives such as OWFs and PRGs? MPC protocols for these primitives are motivated by many applications, including Picnic-style post-quantum digital signatures~\cite{Picnicrefs} and lightweight distributed key generation for function secret sharing~\cite{Doernershelat,FSS-EC21}.
 \item Are there similar wPRF candidates where the input, output, and key are all over $\Z_2$? This too is motivated by natural applications.
 %\item Does reversing the order of mod-2 and mod-3 lead to a better design? 
-\item Can the concrete MPC protocols given in~\cite{boneh2018-darkmatter} be further improved? Can preprocessing be eliminated or realized at a low amortized cost? 
+\item Can the concrete MPC protocols given in~\cite{boneh2018-darkmatter} be further improved? Can preprocessing be eliminated or realized at a low amortized cost? This motivates an additional design criterion: compatibility with recent advances in pseudorandom correlation generators.
 \end{itemize}
 
 % All the candidates we propose are based on similar interplays between linear mappings in $\Z_2$ and $\Z_3$.
@@ -206,7 +206,7 @@ Since our constructions use shares over both $\Z_2$ and $\Z_3$, it is necessary 
 \yuval{Include some data points comparing our protocols to other protocols, using TCC paper numbers. Point to table for concrete numbers. Explicitly compare to Legendre PRF. }
 
 \paragraph{Distributing the dealer at a low amortized cost.} The 2PC protocols presented in~\cite{boneh2018-darkmatter} rely on trusted preprocessing to generate two kinds of correlated randomness. The first kind, used to securely multiply the input and the key matrix, can be thought of as a standard multiplication triple over a ring. (Using a circulant matrix for the key, this involves a single multiplication in a ring of polynomials over $\Z_2$.)  It was also pointed out that using efficient pseudorandom correlation generators (PCGs) for {\em vector oblivious-linear evaluation} (VOLE) correlations~\cite{BCGI18,BoyleetalCCS19,SchopmanetalCCS19}, this kind of correlation can be generated at a low amortized cost when the same key is reused with multiple inputs. In fact, using more recent PCGs for independent OLE correlations~\cite{PCGRingLPNCrypto20} the latter restriction can be removed, albeit at a considerably higher cost.  The second kind of correlated randomness used in~\cite{boneh2018-darkmatter} is a standard oblivious transfer (OT) correlation, which can also be efficiently generated using either classical~\cite{IKNP} or ``silent''~\cite{PCGCrypto19,BoyleetalCCS19,Ferret} OT extension. The latter techniques use a PCG for OT to enable fast local generation of many random instances of OT from a pair of short, correlated seeds.  
-However, the main source of improvement of our protocols over the ones from~\cite{boneh2018-darkmatter}  is our use of the {\em modulus conversion} correlations described above. We show how to generate both kinds of correlations from a standard OT correlation using only a {\em single} message, where in the $\Z_2 \to \Z_3$ case the (amortized) communication is $<1.38$ bits per instance, and in the (less commonly used) $\Z_3 \to \Z_2$ case it is $6$ bits per instance. This means that the cost of distributing the dealer in our protocols is typically even lower than the cost of the online protocol that consumes the correlated randomness.
+However, the main source of improvement of our protocols over the ones from~\cite{boneh2018-darkmatter}  is our use of the {\em modulus conversion} correlations described above. We show how to generate both kinds of correlations from a standard OT correlation using only a {\em single} message, where in the $\Z_2 \to \Z_3$ case the (amortized) communication is $<1.38$ bits per instance, and in the (less commonly used) $\Z_3 \to \Z_2$ case it is $6$ bits per instance. This means that the amortized cost of distributing the dealer in our protocols is typically much lower than the cost of the online protocol that consumes the correlated randomness.
 
 
 \subsubsection{Applications.}
@@ -214,7 +214,7 @@ However, the main source of improvement of our protocols over the ones from~\cit
 
 \yuval{ I would add Steven's application of wPRF with input, key and output in $\Z_2$, and applications of distributing FSS key generation. I can take care of the latter.}
 
-Using the MPC-friendliness of candidates, we can efficiently prove knowledge of
+\paragraph{Digital signatures.} Using the MPC-friendliness of candidates, we can efficiently prove knowledge of
 an input (e.g., of a OWF input, wPRF key or PRG seed), using proof protocols
 based on the MPC-in-the-head paradigm~\cite{ishai2007-zkmpc}.  This is the approach
 taken by many recently designed post-quantum signature
