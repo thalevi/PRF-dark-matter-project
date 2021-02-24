@@ -246,7 +246,7 @@ Our distributed evaluation protocols from Section~\ref{subsec:distributed_protoc
 \greg{For a real-world use of OPRFs where our construction might be the best option, see \url{https://www.usenix.org/system/files/sec19-thomas.pdf}. 
 It uses the DDH-based OPRF for a private set intersection protocol (where the client has one element and the server has a masssive set). }
 
-We detail the two protocols, $\prot^{\textsf{oprf}}_1$ and $\prot^{\textsf{oprf}}_2$, in Sections~\ref{subsec:oprf1} and~\ref{subsec:oprf2} respectively. In Section~\ref{subsec:oprf-comparison}, we compare our OPRF protocols to other common constructions in the literature. Later, in Section~\ref{sec:implementation_and_eval}, we also report on our protocol implementations and compare their performance (both computation and communication) with related work. To foreshadow, a key observation is that in comparison to common OPRF protocols, our protocols are much faster to compute but require preprocessing as well as slightly more communication.
+We detail the two protocols, $\prot^{\textsf{oprf}}_1$ and $\prot^{\textsf{oprf}}_2$, in Sections~\ref{appendix:oprf1} and~\ref{appendix:oprf2} respectively. In Section~\ref{appendix:oprf-comparison}, we compare our OPRF protocols to other common constructions in the literature. Later, in Section~\ref{sec:implementation_and_eval}, we also report on our protocol implementations and compare their performance (both computation and communication) with related work. To foreshadow, a key observation is that in comparison to common OPRF protocols, our protocols are much faster to compute but require preprocessing as well as slightly more communication.
 
 
 \subsubsection{Oblivious PRF Protocol $\prot^{\textsf{oprf}}_1$}
