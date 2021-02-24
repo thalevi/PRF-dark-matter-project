@@ -118,8 +118,8 @@ The key $k \in \Z_2^n$ that defines the secret matrix $\mat{K}$ is chosen unifor
 Moreover, the public matrix
 $\mat{B} \in \Z_3^{t \times m}$ (or $\mat{B} \in \Z_2^{t \times m}$) is chosen uniformly at random
 (or as a random Toeplitz matrix).
-For a parameter $r$, an adversary is given $2^{r}$ samples $(x^{(1)},\mat{B},y^{(1)}) ,\ldots, (x^{(r)},
-mat{B},y^{(r)})$,
+For a parameter $r$, an adversary is given $2^{r}$ samples $(x^{(1)},\mat{B},y^{(1)}) ,\ldots, (x^{(2^r)},
+\mat{B},y^{(2^r)})$,
 where each $x^{(i)} \in \Z_2^n$ is chosen independently and uniformly at random.
 
 We will place a restriction of $r \leq 40$,
@@ -549,7 +549,7 @@ which is negligible.
 
 \subsection{Security Analysis of the LPN-PRG}
 
-We analyze the security of the compressed LPN-Style PRG.
+We analyze the security of the LPN-PRG.
 
 If the matrix $\mat{A}$ was a random matrix, then
 the first step would consist of generating $m$ samples from the alternative weak PRF construction proposed

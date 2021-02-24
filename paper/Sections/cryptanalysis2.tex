@@ -11,13 +11,14 @@ The details are found in Appendix~\ref{appendix:cryptanalysis}.
 
 %In general, for obtaining $s$-bit security given that the adversary performs $2^{\tau}$ work,
 %we require that the success probability of key recover attacks is bounded by $2^{\tau - s}$,
-%while the advantage of distinguishing attacks (when applicable) 
-%is bounded by $2^{(\tau - s)/2}$. 
+%while the advantage of distinguishing attacks (when applicable)
+%is bounded by $2^{(\tau - s)/2}$.
 %This is consistent with the work of Micciancio and Walter~\cite{Micciancio018}.
 
 \subsection{Summary of Security Evaluation of the \ttOWF}
 
-We most interesting attack on the \ttOWF is based on a reduction to subset-sum. 
+The attacker is given $\hat{y} \in \Z_3^t$ and tries to invert it.
+Our most interesting attack on the \ttOWF is based on a reduction to subset-sum.
 We give the full details below.
 
 \subsubsection{Reduction to subset-sum.}
@@ -98,7 +99,10 @@ Thus, conservatively ignoring polynomial factors, for $s$-bit security we requir
 
 \subsection{Summary of Security Evaluation of the \ttwPRF}
 
-For the \ttwPRF, the attacker obtains several samples and tries to 
+For the \ttwPRF, the attacker obtains several samples 
+$(x^{(1)},\mat{B},y^{(1)}) ,\ldots, (x^{(2^r)},
+\mat{B},y^{(2^r)})$
+and tries to
 mount a key recovery and or a distinguishing attack.
 We restrict the number of samples produced with a single secret to $2^{40}$.
 
@@ -112,13 +116,13 @@ but it is not clear how to use it efficiently on more than one sample
 The most important distinguishing attack looks for a bias in a linear combination
 of the output over $\Z_3$.
 Given a single sample $(x,\mat{B},y)$, assume there exist
-$v \in \Z_3^m$ and $u \in \Z_3^t$ such that $u \mat{B} = v$ and the Hamming weight of $v$ is $\ell$. 
-As $y = \mat{B}w \bmod 3$, the attacker computes $uy \bmod 3 = vw \bmod 3$ 
+$v \in \Z_3^m$ and $u \in \Z_3^t$ such that $u \mat{B} = v$ and the Hamming weight of $v$ is $\ell$.
+As $y = \mat{B}w \bmod 3$, the attacker computes $uy \bmod 3 = vw \bmod 3$
 and thus obtains the value of a linear combination $\bmod$ 3 of $\ell$ entries of $w \in \{0,1\}^m$.
 Since $w \in \Z_2^m$, if $\ell$ is sufficiently small, then this linear combination is biased.
 The bias can be amplified using several samples.
 Consequently, we require that the rows of $\mat{B}$ do not span a vector of low Hamming weight.
-This analysis is probabilistic and leads to a lower bound on $m$. 
+This analysis is probabilistic and leads to a lower bound on $m$.
 
 Overall, we set $n=m=2s$ and $t = s/\log 3$.
 These are somewhat aggressive parameters as the security margin against the above attacks
@@ -126,6 +130,35 @@ in rather narrow. A choice of $n=m=2.5s$ is more conservative.
 
 \subsection{Summary of Security Evaluation of the LPN-PRG}
 
+The attacker is given a single sample $\mat{A},\mat{B},y$
+and tries to mount a key recovery and or a distinguishing attack.
+
+The construction differs from 
+the alternative weak PRF construction proposed
+in~\cite{boneh2018-darkmatter} in two ways.
+The first transformation generates $t = 2n$ samples using a public matrix.
+Similarly to~\cite{boneh2018-darkmatter},
+each such sample can be viewed as an LPN sample, namely,
+a noisy linear equation over $\Z_2$ in the bits of the seed
+(although the noise is generated deterministically).
+However, in~\cite{boneh2018-darkmatter} $\mat{A}$ is a random matrix,
+whereas we use a (structured) Toeplitz matrix.
+This may be considered as weakening of the construction. 
+On the other hand, the second transformation $\mat{B}$ ``compresses''
+the samples and generally strengthens the construction.
+
+A significant consideration in selecting the parameters is that
+the rows of $\mat{B}$ do not span a low Hamming weight vector,
+imposing a lower bound on $m$.
+Thus, only dense linear combinations of samples are available at the output,
+accumulating the noise. This should defeat standard attacks against LPN. 
+
+Overall, setting 
+$n=s, m = 3s, t = 2s$ seems to provide sufficient 
+resistance against the considered attacks.
+
+
+
 \subsection{Summary of Security Evaluation of the LPN-PRF}
 
-\itai{To be written} 
+\itai{To be written}
