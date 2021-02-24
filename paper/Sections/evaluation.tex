@@ -3,18 +3,24 @@
 \label{sec:implementation_and_eval}
 We implemented our 2-party protocols to compute the \ttwPRF candidate (Construction~\ref{construction:23-central-wprf}) both in the distributed setting (Section~\ref{subsec:2pc-wprf}), and the oblivious evaluation setting (Sections~\ref{subsec:oprf1} and~\ref{subsec:oprf2}). Our implementations are in C++. For the \ttwPRF construction, we used the parameters $n = m = 256$ and $t = 81$. In other words, the implemented 23-constructions use a circulant matrix in $\Z_2^{256 \times 256}$ as the key, take as input a vector in $\Z_2^{256}$ and output a vector in $\Z_3^{81}$. The correlated randomness was implemented as if provided by a trusted third party.  See Section~\ref{subsec:preprocessing} for concretely efficient protocols for securely generating the correlated randomness, which we did not implement but give efficiency estimates based on prior works. 
 
+\iffull
 \subsection{Optimizations}
 \label{subsec:implementation_opt}
-We start with a centralized implementation of the 23-wPRF. We find optimizations that provide 25x better performance over a na\"ive implementation, which we detail below. Later, in Table~\ref{table:optimization_benchmarks}, we compare the performance gain from these optimizations.
+\else
+\paragraph{Optimizations.}
+We start with a centralized implementation of the 23-wPRF. We find optimizations that provide 25x better performance over a na\"ive implementation.
+\iffull\else 
+We use three major optimizations in our implementation. First, we use \textit{bit packing} for $\Z_2$ vectors through which we can pack several elements in a machine word and operate on them together in an SIMD manner. Second, we use \textit{bit slicing} for $\Z_3$ vectors by representing them as a pair of $\Z_2$ vectors. All operations on the $\Z_3$ vectors can now be translated to operations on the $\Z_2$ vectors. Finally, we use a lookup table optimization for the final $\Z_3$ linear mapping (i.e., multiplication by $\mat{B}$). For this, we split the 256-column matrix $\mat{B}$ into 16 pieces with 16 columns each and store multiplications with all $\Z_3^{16}$ vectors for each piece. The size for each piece was decided as a tradeoff between the lookup table size and the computational efficiency. We defer the details for our optimization techniques to Appendix~\ref{appendix:implementation}. \fi
+% In Table~\ref{table:optimization_benchmarks}, we compare the performance gain.
 
+\iffull
 \paragraph{Bit packing for $\Z_2$ vectors.} 
 Instead of representing each element in a $\Z_2$ vector separately, we pack several elements into a machine word and operate on them together in an SIMD manner. For our architecture with 64-bit machine words, we can pack a vector in $\Z_2^{256}$ (e.g., the input $x$) into 4 words. Since the key $\mat{K}$ is circulant and can be represented with $n=256$ bits, it can also be represented by 4 words. This results in a theoretical $\times64$ maximum speedup in run-time for operations involving $\mat{K}$ and $x$. 
 
 \paragraph{Bit slicing for $\Z_3$ vectors.}
 We represent each element in $\Z_3$ using the two bits from its binary representation. For $z \in \Z_3$, the two bits are the least significant bit (LSB) $l_z = z \bmod 2$, and the most significant bit (MSB) $h_z$ which is $1$ if $z=2$ and $0$ otherwise. $\Z_3$ vectors are now also represented by two binary vectors, one containing the MSBs, and one containing the LSBs. Operations involving a $\Z_3$ vector are translated to operations on these binary vectors instead. We also take advantage of the bit packing optimization when operating on the binary vectors.
-%In Table~\ref{table:z3_operations}, we specify how we perform common operations on $\Z_3$ elements using our bit slicing approach. 
+In Table~\ref{table:z3_operations}, we specify how we perform common operations on $\Z_3$ elements using our bit slicing approach. 
 
-\iffalse
 \begin{table}[ht]
 \begin{center}
     \begin{tabular}{|c|c|c|}
@@ -32,7 +38,7 @@ We represent each element in $\Z_3$ using the two bits from its binary represent
 \label{table:z3_operations}
 \mahimna{I'm debating whether we need to have this table at all. Once we specify that we split $\Z_3$ elements into 2 bits, for any $\Z_3$ operation, the corresponding operation on the bits can easily be computed using a truth table.}
 \end{table}
-\fi
+
 
 
 \paragraph{Lookup table for matrix multiplication.} Recall that the \ttwPRF evaluation contains a mod-3 linear map using a public matrix $\mat{B} \in \Z_3^{81\times256}$. Specifically, it computes the matrix-vector product $\mat{B}w$ where $w \in \Z_3^{256}$. Since $\mat{B}$ is known prior to evaluation, we can use a lookup table to speedup the multiplication by $\mat{B}$\cite{arlazarov1970economical}. The same preprocessing can also by reused for multiple evaluations of the wPRF.
@@ -48,7 +54,7 @@ In general, a $\mat{B} \in \Z_3^{t \times m}$ can be partitioned into $m/c$ part
 For our parameters, this results in a table size of roughly $135$MB with proper $\Z_3$ packing. We chose $c = 16$ as a compromise between the size of the lookup table and increased computational efficiency.
 
 
-
+\fi
 
 
 
@@ -171,7 +177,11 @@ We ran all our experiments on a t2.medium AWS EC2 instance with 4GiB RAM (archit
 
 
 \paragraph{Optimization results.}
+\iffull
 We start with benchmarks for the different optimization techniques detailed in Section~\ref{subsec:implementation_opt}. Table~\ref{table:optimization_benchmarks} contains timing results for our centralized implementation of the \ttwPRF construction with parameters $n=m=256$ and $t=81$ using these optimizations. The table also reports results for a baseline implementation which uses the naive $\Theta(nm)$ algorithm for multiplication between a $m \times n$ matrix and a $n$ length vector. We find that our best implementation is 25x faster than the baseline implementation.
+\else
+Table~\ref{table:optimization_benchmarks} shows the performance gain of our optimization techniques compared to a baseline implementation.
+\fi
 
 \begin{table}[t]
 	{
@@ -197,7 +207,7 @@ We start with benchmarks for the different optimization techniques detailed in S
 
 
 \paragraph{Distributed wPRF evaluation.}
-We also implement the 2-party semi-honest distributed protocol detailed in Section~\ref{subsec:2pc-wprf} for evaluating the \ttwPRF construction and report timings for our implementation. Further, since this candidate was first proposed in~\cite{boneh2018-darkmatter}, we also implement their protocol as a comparison point. For both protocols, we use the parameters $n=m=256$, $t=81$ for the PRF and use the same optimizations (from Section~\ref{subsec:implementation_opt}). We use a trusted party to generate the preprocessed randomness. We provide a comparison in Table~\ref{table:distributed_wprf}.
+We also implement the 2-party semi-honest distributed protocol detailed in Section~\ref{subsec:2pc-wprf} for evaluating the \ttwPRF construction and report timings for our implementation. Further, since this candidate was first proposed in~\cite{boneh2018-darkmatter}, we also implement their protocol as a comparison point. For both protocols, we use the parameters $n=m=256$, $t=81$ for the PRF and use the same optimizations \iffull(from Section~\ref{subsec:implementation_opt})\fi. We use a trusted party to generate the preprocessed randomness. We provide a comparison in Table~\ref{table:distributed_wprf}.
 
 
 % We consider two 2-party weak PRF protocols. The first protocol is described in \cite{boneh2018-darkmatter} and the second one is our construction as described in \ref{newProtocol}. Since the goal of the implementation was timing the local {\em online}run-time, the implementation used a trusted party 
