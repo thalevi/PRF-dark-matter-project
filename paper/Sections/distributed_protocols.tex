@@ -67,8 +67,6 @@ The linear gate is the easiest to evaluate, and follows from the standard linear
 \paragraph{Addition gate protocol $\prot_\Add^{p}$.}
 The addition modulo $p$ gate is also easy to evaluate. Given shares of $x, x'$ over $\Z_p$, for the protocol each party $\party_i$ can locally compute its share of $x+x'$ as $\sharei{x} + \sharei{x'} \bmod p$. This directly follows from the additive homomorphism of additive shares. 
 
-
-
 \paragraph{Bilinear gate protocol $\prot_\BLMap^p$.}
 The bilinear gate protocol is essentially a generalization of Beaver's multiplication triples~\cite{boyle2019-fss-preprocess,beaver1991-triples} that computes the multiplication of two shared inputs. For Beaver's protocol, to compute a sharing of $ab$ given shares of $a$ and $b$ (all sharings are over a ring $\mathcal{R}$), the protocol parties are provided shares of a randomly sampled triple of the form $(\tilde{a},\tilde{b},\tilde{a}\tilde{b})$ in the preprocessing stage. Beaver's protocol first reconstructs the masked inputs $\hat{a}$ and $\hat{b}$ after which local computation is enough to produce shares of the output. For our bilinear gate protocol, we assume that  all parties are already provided with the masked inputs (to move the communication outside of the gate protocol), along with correlated randomness similar to a Beaver triple. 
 
