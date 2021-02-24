@@ -155,11 +155,11 @@ Consequently, $\sum_{\party_i \in \parties} \sharei{x^*} \bmod 2 = x \bmod 2$ ho
 %-------------------------------%
 
 \subsubsection{Composing Gate Protocols}
-We now describe a general technique to evaluate circuit composed of the previously specified gates in a distributed fashion. We provide details for the semi-honest fully distributed setting (with preprocessing), where all inputs are secret shared between all parties initially. While the technique will also work for other settings (e.g., OPRF, public input), the concrete communication costs will be significantly worse than more specially designed protocols. For these settings, we will provide more efficient protocols than provided by this general technique.
+We now describe a general technique to evaluate circuit composed of the previously specified gates in a distributed fashion. We provide details for the semi-honest fully distributed setting (with preprocessing), where all inputs are secret shared between all parties initially. This can also be thought of as a toolbox for constructing efficient distributed protocols for other constructions similar to ours. While the technique will also work for other settings (e.g., OPRF, public input), the concrete communication costs will be worse than more specially designed protocols. For these settings, we will provide more efficient protocols than provided by this general technique.
 
-\greg{Does it make sense to say that this very general composition protocol can
-allow one to easily make protocols for variants of our primitives? ``MPC
-toolbox for alternating moduli primitives'' or similar}
+% \greg{Does it make sense to say that this very general composition protocol can
+% allow one to easily make protocols for variants of our primitives? ``MPC
+% toolbox for alternating moduli primitives'' or similar}
 
 \paragraph{Composition protocol.} Consider a circuit $C$ (Definition~\ref{def:computation_circuit}) with input space $\Gin = \prod \Gin_i$. To evaluate $C$ with input $(x_1, \dots, x_l) \in \Gin$, in the fully distributed setting, all parties are given additive shares for each $x_i$. Now, the distributed evaluation of $C$ proceeds as follows:
 \begin{itemize}

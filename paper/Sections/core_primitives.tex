@@ -115,7 +115,7 @@ The constructions we described previously use general matrices in, e.g., $\Z_p^{
 
 We will usually instantiate our constructions using generalized circulant matrices to take advantage of their efficient representations. However, care must be taken while adding structure since this could potentially damage the security of a construction. This is particularly relevant in case of multi-element outputs since elements in the intermediate vectors will be correlated. For example, in the LPN-style construction, the noise for each deterministic LPN instance will be correlated since two columns of a circulant matrix are just cyclic rotations. 
 
-Our cryptanalysis in Section~\ref{sec:cryptanalysis} will therefore consider our constructions with structured matrices. Of course, general $m \times n$ matrices can also be used for all our constructions (with at least equal security) but this could result in substantially more communication costs. In many cases, it is also helpful to choose the matrices to be full-rank (see ~\ref{sec:cryptanalysis} for details).
+Our cryptanalysis in Section~\ref{sec:cryptanalysis} will therefore consider our constructions with structured matrices. Of course, general $m \times n$ matrices can also be used for all our constructions (with at least equal security) but this could result in substantially more communication costs. In many cases, it is also helpful to choose the matrices to be full-rank (see Section~\ref{sec:cryptanalysis} for details).
 
 
 \greg{This section said earlier we were interested in (3,2) primitives as well, but there is isn't a figure for those, only (2,3).
