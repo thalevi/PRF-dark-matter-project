@@ -107,7 +107,8 @@ Since the output of the bilinear gate will usually feed into a conversion gate w
   \[
   \sharei{x^*} = \sharei{\hat{x}} + \sharei{r} + (\hat{x} \odot \sharei{r}) \quad \bmod 3
   \]
-where $\odot$ denotes the Hadamard (component-wise) product modulo 3. Here, addition is also done over $\Z_3$.
+where $\odot$ denotes the Hadamard (component-wise) product modulo 3.
+ % Here, addition is also done over $\Z_3$.
 \iffull
 \noindent \textit{Correctness.} To see why this works, suppose that $\hat{x} \in \Z_2^l$. Consider any position $j \in [l]$, and denote by using a subscript $j$, the $j^\thtext$ position in a vector. Note that now, the position $j$ of the output can be written as:
 \[
@@ -142,6 +143,7 @@ Therefore, $\sum_{\party_i \in \parties} \sharei{x^*} (\bmod~3) = x$ will hold.
 
 
   \item \textbf{Protocol details}: For the protocol $\prot_\Convert^{(3,2)}(\hat{x} \mid u, v)$, each party computes its share of $x^*$ as follows: For each position $j \in [l]$,
+\iffull
 \[
 \sharei{x^*}_j = 
 \begin{cases*}
@@ -150,6 +152,8 @@ Therefore, $\sum_{\party_i \in \parties} \sharei{x^*} (\bmod~3) = x$ will hold.
        \sharei{u}_j & \quad if $\hat{x}_j = 2$
 \end{cases*}
 \]
+\else
+$\sharei{x^*}_j = 1 - \sharei{u}_j - \sharei{v}_j$,$\sharei{v}_j$, $\sharei{u}_j$ when $\hat{x}_j = 0,1,2$ respectively. \fi
 \iffull
 \textit{Correctness.} To see why this works, consider three cases:
 \begin{itemize}

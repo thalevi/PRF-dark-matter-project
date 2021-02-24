@@ -33,19 +33,15 @@ We make use of just five types of basic operations, or ``gates,'' which we detai
 
 As described previously, for the (bi)linear mappings, we focus only on constructions that use mod-2 and mod-3 mappings. In \fig~\ref{fig:graphical_gates}, we provide a pictorial representation for each circuit gate. We will connect these pieces together to also provide clean visual representations for all our constructions. 
 
-The homomorphic properties of additive secret sharing directly imply that the gates $\LMap$ and $\textsf{Add}$ can be computed locally without any preprocessing or communication. For the other gates, we provide protocols to evaluate them in a distributed setting (i.e., where all inputs and outputs are secret shared) in Section~\ref{sec:distributed_protocols}.
+The homomorphic properties of additive secret sharing directly imply that the gates $\LMap$ and $\textsf{Add}$ can be computed locally without any preprocessing or communication. For the other gates, we provide protocols to evaluate them in a distributed setting (i.e., where all inputs/outputs are secret shared) in Section~\ref{sec:distributed_protocols}.
 
 \input{Figures/tikzfigs/graphical_gates.tex}
 
 
 \paragraph{Construction styles.}
 The candidate constructions we introduce follow one of two broad styles which we detail below. A wPRF construction for the first style was first proposed by~\cite{boneh2018-darkmatter}. Here, we also propose a suite of symmetric primitives (e.g., OWFs, PRGs) with the same basic structure.
-
 \input{Figures/23-constructions}
-~
 \input{Figures/lpn-constructions}
-
-
 \begin{itemize}
     \item \textbf{$(p,q)$-constructions.}
     For distinct primes $p, q$, the $(p,q)$-constructions have the following structure: On an input $x$ over $\Z_p$, first a linear $\bmod~p$ mapping is applied, followed by a linear $\bmod~q$ mapping. Note that after the $\bmod~p$ mapping, the input is first reinterpreted as a vector over $\Z_q$. For unkeyed primitives (e.g., OWF), both mappings are public, while for keyed primitives (e.g., wPRF), the key is used for the first linear mapping. The construction is parameterized by positive integers $n, m, t$ (functions of the security parameter $\secparam$) denoting the length of the input vector (over $\Z_p$), the length of the intermediate vector, and the length of the output vector (over $\Z_q$) respectively. The two linear mappings can be represented by matrices $\mat{A} \in \Z_p^{m \times n}$ and $\mat{B} \in \Z_q^{t \times m}$. For keyed primitives, the key $\mat{K} \in \Z_p^{m \times n}$ will be used instead of $\mat{A}$.
@@ -62,7 +58,7 @@ The candidate constructions we introduce follow one of two broad styles which we
 
     \hspace*{1em} The construction is parameterized by positive integers $n,m,t$ (as functions of the security parameter $\secparam$) denoting the size of the input vector, the intermediate vector(s), and the output vector (all over $\Z_p$).
     Concretely, given $\mat{A} \in \Z_2^{m \times n}$ and a public $\mat{B} \in \Z_2^{t \times m}$, for an input $x \in \Z_2^n$, the construction first computes the intermediate vector:
-    \[
+   \[
         w = \left[(\mat{A}x \bmod 2) + (\mat{A}x \bmod 3) \bmod 2\right] \bmod 2.
     \]
     The output $y$ is then computed as $y = \mat{B}w \bmod 2$. The upshot of this style is that the input and the output are both over $\Z_2$. Intuitively, each intermediate vector bit can be thought of as a deterministic Learning-Parity-with-Noise (LPN) instance with a noise rate of $1/3$. The noise is deterministically generated and is dependent on the input $x$ and a specific column of $\mat{A}$. The noise for the $i^\thtext$ instance will be $1$ if and only if $\left<\mat{A}_i, x\right> = 1$.

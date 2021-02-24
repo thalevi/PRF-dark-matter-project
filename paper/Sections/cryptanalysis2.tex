@@ -22,9 +22,7 @@ We give the full details below.
 For a vector $w \in \Z_2^m$, there is an $(m -n) \times m$ (parity check) matrix $\mat{P}$ such that there exists $x \in \Z_2^n$ for which $\mat{A}x = w$ if and only if $\mat{P} w=0$.
 Assume that $\hat{y}$ is the output of the \ttOWF on $x \in \Z_2^n$, and let $w = \mat{A}x$. Then,
 $w$ satisfies the conditions $\mat{P} w = 0$ (over $\Z_2$) and $\mat{B}w = \hat{y}$ (over $\Z_3$).
-We attempt to find such $w$ by a reduction to subset-sum, as detailed below.
-
-Suppose we find a set $J \subseteq [m]$ such that
+We attempt to find such $w$ by a reduction to subset-sum, as detailed below. Suppose we find a set $J \subseteq [m]$ such that
 $$\left( \sum_{j \in J} \mat{P}e_j  \bmod 2, \sum_{j \in J} \mat{B}e_j  \bmod 3 \right) = (\vec{0},\hat{y}),$$
 where $e_i \in \{0,1\}^m$ is the $i$'th unit vector.
 Then, the preimage $x$ can be computed by solving the linear equation system
@@ -32,7 +30,7 @@ $\mat{A}x = \sum_{j \in J} e_j  \bmod 2$.
 
 Thus, we have reduced the problem to subset-sum with $m$ binary variables
 $(\epsilon_1, \ldots, \epsilon_m) \in \{0,1\}^m$, where we associate $\epsilon_i = 1$
-with $$(\mat{P}e_i, \mat{B}e_i) \in \Z_2^{m-n} \times \Z_3^t,$$
+with $(\mat{P}e_i, \mat{B}e_i) \in \Z_2^{m-n} \times \Z_3^t,$
 and define the target
 as $(\vec{0},\hat{y}) \in \Z_2^{m-n} \times \Z_3^t$.
 
