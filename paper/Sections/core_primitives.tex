@@ -114,24 +114,28 @@ The constructions we described previously use general matrices in, e.g., $\Z_p^{
     \item (Generalized circulant matrices). 
     A generalized circulant matrix is a matrix where each row after the first, is a cyclic rotation of the first row. Specifically, if the first row of generalized circulant matrix $\mat{M}$ is the vector $(a_1, \dots, a_n)$, then the $m^\thtext$ row of $\mat{M}$ will be given by the same vector cyclically rotated $m-1$ times. In general, $m \neq n$, but the special case of $m = n$ (i.e., when the matrix is square) is called a (square) circulant matrix. Unless specified, for brevity, we will often use the term \textit{circulant} to denote either generalized circulant matrices or the more specific (square) circulant matrices. This will not matter for our setting, since both can be efficiently represented using just $n$ field elements.
 \end{itemize}
-
+\iffull
 We will usually instantiate our constructions using generalized circulant matrices to take advantage of their efficient representations. However, care must be taken while adding structure since this could potentially damage the security of a construction. This is particularly relevant in case of multi-element outputs since elements in the intermediate vectors will be correlated. For example, in the LPN-style construction, the noise for each deterministic LPN instance will be correlated since two columns of a circulant matrix are just cyclic rotations. 
 
 Our cryptanalysis in Section~\ref{sec:cryptanalysis} will therefore consider our constructions with structured matrices. Of course, general $m \times n$ matrices can also be used for all our constructions (with at least equal security) but this could result in substantially more communication costs. In many cases, it is also helpful to choose the matrices to be full-rank (see Section~\ref{sec:cryptanalysis} for details).
+\else
+We will usually instantiate our constructions using generalized circulant matrices to take advantage of their efficient representations. However, care must be taken while adding structure since this could potentially damage the security of a construction. Our cryptanalysis in Section~\ref{sec:cryptanalysis} will therefore consider our constructions with structured matrices.
+\fi
 
 
-\greg{This section said earlier we were interested in (3,2) primitives as well, but there is isn't a figure for those, only (2,3).
-Did any of the applications end up finding (3,2) useful? }
 
-\greg{We have (2,3) wPRF and OWF, then LPN wPRF and PRG.  Should we comment on
-the relations between various primitives (e.g,. the LPN PRG is also an LPN
-OWF),  and point to generic constructions for, e.g., a (2,3)-PRG, which could
-be constructed from the (2,3)-OWF. Or maybe a forward reference to some of the
-applications to justify this particular set of primitives.  }
+% \greg{This section said earlier we were interested in (3,2) primitives as well, but there is isn't a figure for those, only (2,3).
+% Did any of the applications end up finding (3,2) useful? }
 
-\greg{Is there a generic wPRF to PRF construction that is efficient here? The
-one I know: PRF(x) := wPRF(RO(x)) is probably not helpful because RO is not
-MPC-friendly. Or maybe we should say why we chose wPRFs.  }
+% \greg{We have (2,3) wPRF and OWF, then LPN wPRF and PRG.  Should we comment on
+% the relations between various primitives (e.g,. the LPN PRG is also an LPN
+% OWF),  and point to generic constructions for, e.g., a (2,3)-PRG, which could
+% be constructed from the (2,3)-OWF. Or maybe a forward reference to some of the
+% applications to justify this particular set of primitives.  }
+
+% \greg{Is there a generic wPRF to PRF construction that is efficient here? The
+% one I know: PRF(x) := wPRF(RO(x)) is probably not helpful because RO is not
+% MPC-friendly. Or maybe we should say why we chose wPRFs.  }
 
 
 
