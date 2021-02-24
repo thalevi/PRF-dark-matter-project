@@ -474,20 +474,24 @@ While our distributed protocols are primarily built for use in the preprocessing
 In this section we show how to generate the preprocessing we require efficiently and without a trusted dealer. We will focus on the 2-party setting specifically.
 \fi
 
-
+\iffull
 \subsubsection{Bilinear correlations}
 To compute a secure multiplication $\mat{K}x$ where $\mat{K}$ and $x$ are both secret shared, our bilinear gate protocol requires Beaver-style preprocessed shares of the form $(\share{\tilde{\mat{K}}}, \share{\tilde{x}}, \share{\tilde{\mat{K}}\tilde{x}})$. These triples can be compressed using variants of existing PCGs for VOLE / OLE as shown by recent work~\cite{boyle2019-pcg, boyle2020-lpn-pcg}. Using these techniques, $n$ correlations can be generated with $\ll n$ bits of communication.
-
+\fi
 
 \subsubsection{$(2,3)$-correlations from OT correlations}
-We provide a new technique to generate the correlations needed for the $\prot_\Convert^{(2,3)}$ protocol. The key technique we use is to convert OT correlations to the types of correlations our protocols require. Since prior work~\cite{boyle2019-pcg,yang2020-ferret} has shown how to efficiently create OT correlations, this implies that the correlations required for our protocols can also be efficiently generated. We start by recalling OT correlations in the 2-party setting. 
-
+We provide a new technique to generate the correlations needed for the $\prot_\Convert^{(2,3)}$ protocol. The key technique we use is to convert OT correlations to the types of correlations our protocols require. Since prior work~\cite{boyle2019-pcg,yang2020-ferret} has shown how to efficiently create OT-correlations, this implies that the correlations required for our protocols can also be efficiently generated.  
+\iffull
+We start by recalling OT correlations in the 2-party setting.
 \paragraph{1-out-of-2 OT correlation over $\Z_3$.} An OT correlation over $\Z_3$ has the following form: $\party_1$ holds $(z_0, z_1)$ and $\party_2$ holds $(c, z_c)$ where $z_0, z_1 \getsr \Z_3$, $c \in \Z_2$ and $z_c = z_0$ if $c=0$ and $z_c = z_1$ if $c=1$. We refer to $((z_0,z_1), (c, z_c))$ as an OT correlation pair.
+\else
+For a 1-out-of-2 OT correlation over $\Z_3$, $\party_1$ holds $(z_0, z_1)$ and $\party_2$ holds $(c, z_c)$ where $z_0, z_1 \getsr \Z_3$, $c \in \Z_2$ and $z_c = z_0$ if $c=0$ and $z_c = z_1$ if $c=1$. We refer to $((z_0,z_1), (c, z_c))$ as an OT correlation pair.
+\fi
 
 \paragraph{Conversion technique.}
-Recall that for the $\Z_2 \to \Z_3$ conversion protocol $\prot_{\Convert}^{(2,3)}$, as preprocessing, a dealer provides the parties with shares of a bit-vector both over $\Z_2$ and $\Z_3$. For simplicity, we first consider the correlated randomness for a single element. To convert the sharing for a single bit, the dealer provides the following correlated randomness to the parties: $\party_1$ is given $(w_1, r_1)$ and $\party_2$ is given $(w_2, r_2)$ such that $w_1, w_2 \in \Z_2; r_1, r_2 \in \Z_3$ and $(w_1 + w_2) \bmod 2 = (r_1 + r_2) \bmod 3$. We refer to $((w_1, r_1), (w_2, r_2))$ as a $(2,3)$ correlation pair.
+Recall that for the $\Z_2 \to \Z_3$ conversion protocol $\prot_{\Convert}^{(2,3)}$, as preprocessing, a dealer provides the parties with shares of a bit-vector both over $\Z_2$ and $\Z_3$. For simplicity, we first consider the correlated randomness for a single element. To convert the sharing for a single bit, the dealer provides the following correlated randomness to the parties: $\party_1$ is given $(w_1, r_1)$ and $\party_2$ is given $(w_2, r_2)$ such that $w_1, w_2 \in \Z_2; r_1, r_2 \in \Z_3$ and $(w_1 + w_2) \bmod 2 = (r_1 + r_2) \bmod 3$. We refer to $((w_1, r_1), (w_2, r_2))$ as a $(2,3)$-correlation pair.
 
-We now show how to convert an OT correlation into a $(2,3)$ correlation. Suppose for now that we have the ability to ``throw'' away OT correlations where $z_0 = z_1$. We will get rid of this assumption later by communicating a single message from $\party_1$ to $\party_2$ which will intuitively detail which OT correlations to discard.
+We now show how to convert an OT-correlation into a $(2,3)$-correlation. Suppose for now that we have the ability to ``throw'' away OT-correlations where $z_0 = z_1$. We will get rid of this assumption later by communicating a single message from $\party_1$ to $\party_2$ which will intuitively detail which OT correlations to discard.
 
 \begin{protocol}
 Given a (1-out-of-2) OT correlation $((z_0,z_1), (c, z_c))$ over $\Z_3$ where $z_0 \neq z_1$, to generate a $(2,3)$-correlation, the parties proceed as follows:
@@ -505,23 +509,25 @@ Given a (1-out-of-2) OT correlation $((z_0,z_1), (c, z_c))$ over $\Z_3$ where $z
 \label{prot:ot-to-23}
 \end{protocol}
 
-
+\iffull
 \begin{lemma}
   Protocol~\ref{prot:ot-to-23} securely generates a random $(2,3)$-correlation.
 \end{lemma}
 \begin{proof}
 It is easy to see that the secret $w = w_1 + w_2 \bmod 2$ is hidden. Regardless of what $w_2 = c$ is, $w_1$ could be either $0$ or $1$ with equal probability. It is also straightforward to verify that the generated $(2,3)$-correlation is random by iterating through all the possible cases.
 \end{proof}
-\mahimna{@yuval}
+\fi
 
-This means that an OT correlation can locally be converted to a $(2,3)$ correlation when $z_0 \neq z_1$. Since $\party_1$ knows these values, it still needs to communicate to $\party_2$ whether to use a given correlation or not. 
-For this, $\party_1$ sends a single message which describes the set of instances to consider. Specifically, for a sequence of $k$ OT correlations, $\party_1$ can send a $k$ bit message where each bit signals whether to use the corresponding correlations. 
+This means that an OT correlation can locally be converted to a $(2,3)$-correlation when $z_0 \neq z_1$. Since $\party_1$ knows these values, it still needs to communicate to $\party_2$ whether to use a given correlation or not. 
+\iffull
+For this, $\party_1$ sends a single message which describes the set of instances to consider. Specifically, for a sequence of $k$ OT-correlations, $\party_1$ can send a $k$ bit message where each bit signals whether to use the corresponding correlations. 
 
 Therefore, to the obtain $l$ single-element $(2,3)$ correlations necessary for an $x \in \Z_2^l$, on expectation, $1.5l$ OT correlations will be required. Na{\"i}vely, this would require a $1.5l$ length message from $\party_1$ to $\party_2$. This can be easily compressed however, using the binary entropy function $\textsf{H}_b(p)$ which computes the entropy of a Bernoulli process with probability $p$. Specifically, since we expect to throw away $p = 1/3$ fraction of the OT correlations, the message from $\party_1$ to $\party_2$ can be compressed to only $1.5l \cdot \textsf{H}_b(1/3) \approx 1.377l$ bits. Consequently, on expectation, a single $(2,3)$ correlation can be generated using just $1.377$ bits of communication.
 
 As another upshot, this means that the required $(2,3)$ correlations can be generated on the fly even during the online phase. For example, in the \ttwPRF protocol, the $(2,3)$ correlations required can be generated along with the first round of the online protocol without needing them to be given earlier as preprocessing. Note that the number of communication rounds still stays the same.
-
-
+\else
+The communication can be compressed using the binary entropy function $\textsf{H}_b(p)$ which computes the entropy of a Bernoulli process with probability $p$. This leads to a communication cost of $1.5l \cdot \textsf{H}_b(1/3) \approx 1.377l$$l$ for an $l$-length $(2,3)$-correlation. We defer the details to Appendix~\ref{appendix:correlated_randomness}. As another upshot, this means that the required $(2,3)$ correlations can be generated even during the first round of the online protocol.
+\fi
 \subsubsection{$(3,2)$-correlations from OT correlations}
 
 We now show how to convert OT-correlations to the correlations we require for the $\prot_{\Convert}^{(3,2)}$ protocol. For this, we will need 1-out-of-3 OT correlations for 2-bit strings. Formally, in such a correlation, $\party_1$ receives $(z_0, z_1, z_2)$ where each $z_j$ is a 2-bit string, while $\party_2$ receives $(c, z_c)$ where $c \in \Z_3$ and $z_c$ is the corresponding $z_j$ indexed by $j = c$. As before, these OT correlations can also be efficiently generated and compressed using existing work~\cite{boyle2019-pcg,yang2020-ferret}.
@@ -541,9 +547,9 @@ Given a (1-out-of-3) OT-correlation $((z_0,z_1,z_2), (c,z_c))$ for 2-bit strings
   \end{itemize}
 \label{prot:ot-to-32}
 \end{protocol}
-This is less efficient than our protocol to generate a $(2,3)$ correlation and takes 6 bits of communication per instance. Note that the communication is still unidirectional as only $\party_1$ sends a message. Consequently, the $(3,2)$ correlations can also be generated on the fly given OT correlations as part of the first protocol round. 
+This is less efficient than our protocol to generate a $(2,3)$ correlation and takes 6 bits of communication per instance. Note that the communication is still unidirectional as only $\party_1$ sends a message. Consequently, the $(3,2)$ correlations can also be generated on the fly given OT correlations as part of the first protocol round.  More details are given in Appendix~\ref{appendix:correlated_randomness}.
 
-
+\iffull
 \begin{lemma}
   Protocol~\ref{prot:ot-to-32} securely generates a random $(3,2)$-correlation.
 \end{lemma}
@@ -551,5 +557,4 @@ This is less efficient than our protocol to generate a $(2,3)$ correlation and t
 Since $\party_1$ generates $\tilde{x}_1, u_1, v_1$ randomly, $[s_0, s_1, s_2] + [(u_1 \parallel v_1), (u_1 \parallel v_1), (u_1 \parallel v_1)]$ is a random cyclic rotation of $[``01", ``10", ``00"]$ where the shift depends on $\tilde{x}_1$. Now, since $\party_1$ masks the $s_j$, its message to $\party_2$ simulates an OT protocol given an OT correlation. Consequently, the security of the OT protocol will directly imply that the message from $\party_1$ to $\party_2$ hides $\tilde{x}_1$. The proof that the generated correlation is random is also straightforward by iterating through all possible cases. 
 \end{proof}
 \mahimna{@yuval}
-
-
+\fi
