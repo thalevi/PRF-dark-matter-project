@@ -72,8 +72,26 @@ Since the output of the bilinear gate will usually feed into a conversion gate w
 
 \subsection{Composing Gate Protocols}
 \label{appendix:protocol_generic}
+We now describe a general technique to evaluate circuit composed of the previously specified gates in a distributed fashion. We provide details for the semi-honest fully distributed setting (with preprocessing), where all inputs are secret shared between all parties initially. This can also be thought of as a toolbox for constructing efficient distributed protocols for other constructions similar to ours. While the technique will also work for other settings (e.g., OPRF, public input), the concrete communication costs will be worse than more specially designed protocols. For these settings, we will provide more efficient protocols than provided by this general technique.
 
-Here, we provide the deferred details for composing our gate protocols.
+
+% \greg{Does it make sense to say that this very general composition protocol can
+% allow one to easily make protocols for variants of our primitives? ``MPC
+% toolbox for alternating moduli primitives'' or similar}
+
+\paragraph{Composition protocol.} Consider a circuit $C$ (Definition~\ref{def:computation_circuit}) with input space $\Gin = \prod \Gin_i$. To evaluate $C$ with input $(x_1, \dots, x_l) \in \Gin$, in the fully distributed setting, all parties are given additive shares for each $x_i$. Now, the distributed evaluation of $C$ proceeds as follows:
+\begin{itemize}
+  
+  \item All vertices at the same depth in $C$ are evaluated simultaneously, starting from the source vertices that contain the inputs of the computation. 
+
+  \item The evaluation of a (non-source) vertex in the graph of $C$ is done by each party running the corresponding gate protocol locally on their share of the inputs. 
+
+  \item For an edge $(V_a, V_b)$, suppose that the output of $V_a$ is used as one of the inputs of $V_b$. If the gate protocol corresponding to $\mathcal{G}_V$ requires this input to be masked (e.g., the bilinear gate protocol), then before evaluating $V_b$, each party first masks its share of the output. Now, all parties simultaneously reveal their shares to publicly reveal the masked value.   The masking values are provided to the parties in the preprocessing phase. The same value also need not be masked multiple times if it is required for multiple gates.
+
+  \item The required output shares of the distributed evaluation are given by the evaluation of the sink vertices in the circuit.
+\end{itemize}
+
+
 
 \paragraph{Communication cost.}
 Since the gate protocols themselves are locally computable, the communication cost during a distributed evaluation of a circuit comes solely from the public reconstructions of masked values required for gate protocols. For example, before feeding the output $x$ of a $\LMap^{\mat{A}}_2$ gate into a $\Convert_{(2,3)}$ gate, in the distributed evaluation, all parties will first mask their shares of $x$ to obtain shares of $\hat{x}$. Then, the parties will exchange messages to reconstruct the $\hat{x}$ value required for $\prot_\Convert^{(2,3)}$.

@@ -156,14 +156,11 @@ will hold.
 Consequently, $\sum_{\party_i \in \parties} \sharei{x^*} \bmod 2 = x \bmod 2$ holds.
 \end{itemize}
 
-
 %-------------------------------%
-
+\iffull
 \subsubsection{Composing Gate Protocols}
 We now describe a general technique to evaluate circuit composed of the previously specified gates in a distributed fashion. We provide details for the semi-honest fully distributed setting (with preprocessing), where all inputs are secret shared between all parties initially. This can also be thought of as a toolbox for constructing efficient distributed protocols for other constructions similar to ours. While the technique will also work for other settings (e.g., OPRF, public input), the concrete communication costs will be worse than more specially designed protocols. For these settings, we will provide more efficient protocols than provided by this general technique.
-\iffull\else
-We provide only the basic description and discuss the communication and preprocessing cost, as well as optimizations in Appendix~\ref{appendix:protocol_generic}.
-\fi
+
 
 % \greg{Does it make sense to say that this very general composition protocol can
 % allow one to easily make protocols for variants of our primitives? ``MPC
@@ -181,7 +178,6 @@ We provide only the basic description and discuss the communication and preproce
   \item The required output shares of the distributed evaluation are given by the evaluation of the sink vertices in the circuit.
 \end{itemize}
 
-\iffull
 \paragraph{Communication cost.}
 Since the gate protocols themselves are locally computable, the communication cost during a distributed evaluation of a circuit comes solely from the public reconstructions of masked values required for gate protocols. For example, before feeding the output $x$ of a $\LMap^{\mat{A}}_2$ gate into a $\Convert_{(2,3)}$ gate, in the distributed evaluation, all parties will first mask their shares of $x$ to obtain shares of $\hat{x}$. Then, the parties will exchange messages to reconstruct the $\hat{x}$ value required for $\prot_\Convert^{(2,3)}$.
 
@@ -231,7 +227,7 @@ We describe several optimizations to reduce the total cost of preprocessing. We 
   % More specifically, for the $\BLMap$ gate, a dealer first samples a random triple $(\tilde{K}, \tilde{x}, \tilde{K}\tilde{x})$
 \end{itemize}
 \else
-Abstractly, communication will only be needed before $\BLMap, \Convert_{(2,3)}$, and $\Convert_{(3,2)}$ gates to reconstruct the masked input. In terms of preprocessing, if PRG seeds are used for compression, then the computation for the $\BLMap_p^{k,l}, \Convert^l_{(2,3)}$, and $\Convert^l_{(3,2)}$ gates will require a preprocessing of $\log_2{p} \cdot k$ bis, $\log_2{3} \cdot l$ bits, and $2l$ bits respectively. Table~\ref{table:construction_costs} provides the concrete efficiency costs for our constructions in a variety of settings.
+\iffull\else In Appendix~\ref{appendix:protocol_generic}, we show a generic technique to evaluate any construction circuit built using the previous five gates in a distributed fashion. We also analyze the communication and preprocessing costs. Abstractly, communication will only be needed before $\BLMap, \Convert_{(2,3)}$, and $\Convert_{(3,2)}$ gates to reconstruct the masked input. In terms of preprocessing, if PRG seeds are used for compression, then the computation for the $\BLMap_p^{k,l}, \Convert^l_{(2,3)}$, and $\Convert^l_{(3,2)}$ gates will require a preprocessing of $\log_2{p} \cdot k$ bis, $\log_2{3} \cdot l$ bits, and $2l$ bits respectively. Table~\ref{table:construction_costs} provides the concrete efficiency costs for our constructions in a variety of settings.
 \fi
 
 

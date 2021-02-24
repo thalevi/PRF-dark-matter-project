@@ -199,6 +199,7 @@ We provide efficient protocols for our wPRF candidate constructions in a variety
 The key ingredient which gives our protocols their efficiency is our modulus conversion gates that switch between shares in $\Z_2$ and $\Z_3$. While~\cite{boneh2018-darkmatter} used OT in their protocols, we use these modulus conversion gates for better efficiency. We note that these conversion gates can also be used to construct efficient distributed protocols for alternate variants of our constructions.
 Since our constructions use shares over both $\Z_2$ and $\Z_3$, it is necessary to be able to switch between the two. We provide the following protocols to do this efficiently. \yuval{This may be slightly too low-level for intro. } \mahimna{fair point, we can just leave this paragraph here and remove the actual conversion gates. Just specify the actual costs}
 
+\iffalse
 \begin{itemize}
     \item \textbf{$\Z_2 \to \Z_3$ conversion.} Consider $x \in \Z_2^l$. Given a sharing $\share{x}$ over $\Z_2$, the goal is to convert to a sharing of the same $x$ but over $\Z_3$. For this, the dealer provides the parties with a shares of a random bit-vector $\tilde{x} \in \Z_2^l$ over $\Z_2$, and shares of the same vector $r = \tilde{x}$, but over $\Z_3$. The conversion protocol starts with the parties reconstructing $\hat{x} = x + \tilde{x}$. Now, a $\Z_3$ sharing of $x^* \in \Z_3^l; x^* = x$ can be computed as:
     \[
@@ -219,6 +220,7 @@ Since our constructions use shares over both $\Z_2$ and $\Z_3$, it is necessary 
     This can also be thought of an optimized version of sharing a truth table for the function. We only require 2 bits (instead of 3) per element since the third bit of the truth table can be computed as a function of the other two.
 
 \end{itemize}
+\fi
 
 \yuval{Include some data points comparing our protocols to other protocols, using TCC paper numbers. Point to table for concrete numbers. Explicitly compare to Legendre PRF. }
 
