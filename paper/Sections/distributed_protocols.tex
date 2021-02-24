@@ -418,7 +418,7 @@ As another upshot, this means that the required $(2,3)$ correlations can be gene
 
 \subsubsection{$(3,2)$-correlations from OT correlations}
 
-We now show how to convert OT-correlations to the correlations we require for the $\prot_{\Convert}^{(3,2)}$ protocol. For this, we will need 1-out-of-3 OT correlations for 2-bit strings. Formally, in such a correlation, $\party_1$ receives $(z_0, z_1, z_2)$ where each $z_j$ is a 2-bit string, while $\party_2$ receives $(c, z_c)$ where $c \in \Z_3$ and $z_c$ is the corresponding $z_j$ indexed by $j = c$.
+We now show how to convert OT-correlations to the correlations we require for the $\prot_{\Convert}^{(3,2)}$ protocol. For this, we will need 1-out-of-3 OT correlations for 2-bit strings. Formally, in such a correlation, $\party_1$ receives $(z_0, z_1, z_2)$ where each $z_j$ is a 2-bit string, while $\party_2$ receives $(c, z_c)$ where $c \in \Z_3$ and $z_c$ is the corresponding $z_j$ indexed by $j = c$. As before, these OT correlations can also be efficiently generated and compressed using existing work~\cite{??}.
 
 Now, to convert a single $\Z_2$ element to $\Z_3$, our protocol requires the following correlated randomness: $\party_i$ is given $(\tilde{x}_i, u_i, v_i)$ where $\tilde{x}_i \in \Z_3$, $u_i,v_i \in \Z_2$ such that the following holds. Define $\tilde{x} = \tilde{x}_1 + \tilde{x} \bmod 3$, $u = u_1 + u_2 \bmod 2$, and $v = v_1 + v_2 \bmod 2$. Then, $u = \tilde{x} \bmod 2$ and $v = (\tilde{x} + 1 \bmod 3) \bmod 2$. We call this sharing between the two protocol parties a $(3,2)$-correlation pair.
 
@@ -433,7 +433,8 @@ Suppose that $\party_1$ and $\party_2$ are given an OT-correlation $((z_0,z_1,z_
   \item Finally, for the $(3,2)$-correlation, $\party_i$ takes its share as $(\tilde{x}_i, u_i, v_i)$
   \end{itemize}
 
-This is less efficient than our protocol to generate a $(2,3)$ correlation and takes 6 bits of communication per instance.
+This is less efficient than our protocol to generate a $(2,3)$ correlation and takes 6 bits of communication per instance. Note that the communication is still unidirectional as only $\party_1$ sends a message. Consequently, the $(3,2)$ correlations can also be generated on the fly given OT correlations as part of the first protocol round. 
+
 
 \begin{lemma}
   The previous algorithm generates a random $(3,2)$-correlation.
