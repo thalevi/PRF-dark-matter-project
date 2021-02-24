@@ -2,7 +2,6 @@
 
 \section{Detailed Cryptanalysis}
 \label{appendix:cryptanalysis}
-\itai{Need to align notation and write summary in the body of the paper.}
 
 In this appendix we describe in detail the cryptanalysis of our new constructions.
 We start with some general remarks and then analyze each construction.
@@ -432,17 +431,35 @@ but we can also place a restriction on the sample generation, forcing it to gene
 with minimal Hamming weight (e.g., a lower bound of $n/4$).
 
 
+\paragraph{Attacks that exploit the structure of $\mat{K}$.}
+Recall the $\mat{K}$ is a circulant matrix and we consider attacks that exploit its
+special structure. A notable property of $\mat{K}$ as a circulant matrices is that it preserves symmetry.
+Specifically, if $x \in \Z_2^n$ is 2-symmetric (i.e., its two halves are equal), 
+then $w = \mat{K}x$ is also 2-symmetric. Thus, given a sample $(x,\mat{B},y)$
+such that $x$ is 2-symmetric, we know that $w$ is 2-symmetric and this fact can be used to 
+uniquely recover $w$ (which is effectively of length $m/2$) in time $2^{n - m/2 - \log 3 \cdot t}$.
+Consequently, we can derive $m/2$ linear equations $\bmod$ 2 on the secret key 
+and perhaps use another sample to recover it completely.
+
+The probability that such a 2-symmetric vector is found in the data is $2^{-n/2 + r}$.
+We require that this quantity is negligible.
+
+It is also possible to consider even more symmetry, such as 4-symmetric vectors, 
+but these have lower probability of being picked. 
+
+Finally, we leave it to future work to extend this attack beyond the simple case analyzed above.
+For example, one may consider input vectors that are close to 2-symmetric, 
+or pairs of samples $(x,\mat{B},y),(x',\mat{B},y')$ such that $x + x' \bmod 2$ is 2-symmetric
+(implying that $\mat{K} (x + x')$ is 2-symmetric). 
+ 
 
 \paragraph{Attacks based on self-similarity.}
 
-%collision on $x$ values
-
 There are several simple attacks that take advantage of the fact that $\mat{B}$ is fixed for all samples generated with the same secret $k$.
 A basic attack looks for a collision on the $w$ values for a pair of samples, which can be detected at the output.
-Given $2^r$ samples, the advantage of this attack is $2^{2r - rank(\mat{K})}$. Given the data complexity bound,
-we will set the parameters such that the advantage of this attack is negligible (assuming the rank of $K$ is not too small).
-
-\itai{Say more about the structure of K.}
+Given $2^r$ samples, the advantage of this attack is $2^{2r - rank(\mat{K})}$.
+we will set the parameters such that the advantage of this attack is negligible for the data complexity bound
+(assuming the rank of $K$ is not too small).
 
 Another simple attack is a multi-target attack, where given $2^r$ samples, the attacker guesses $w$, computes $\mat{B} w \bmod 3$ and compares the result with all given outputs. A match allows to recover a candidate for the secret $k$.
 The expected complexity of this attack is $2^{m-r}$, but cannot drop below $2^{m - \log 3 \cdot t}$ without exploiting relations between the different $w$ values. In general, given the data limit, the attack less efficient that the attack that enumerates all $w$ values considered above.
@@ -539,8 +556,13 @@ Given that $m = 2s \geq 256$, if we choose $n$ as a power of 2,
 based on Proposition~\ref{prop:rank},
 the advantage is much smaller than $2^{s/2}$ (except with negligible probability).
 
-Finally, we consider the simultaneous 4-sum distinguisher,
-and recall that the probability of having such a 4-sum in the output is estimated
+Finally, we consider the attack that exploits the circulant matrix $\mat{K}$
+and the simultaneous 4-sum distinguisher.
+For defending against the first attack,
+when $s \geq 128, r \leq 40$, we have $2^{-n/2 + r} < 2^{-128 + 40} = 2^{-88}$ ($n \geq 2s$),
+which we consider negligible.
+
+Recall that the probability of having such a 4-sum in the output is estimated
 in~(\ref{eq:sim}) as $2^{4r - 1.415 m} \leq 2^{160 - 2.83s}$.
 For a minimal choice of $s = 128$, this probability is smaller than $2^{-200}$
 which is negligible.
@@ -670,7 +692,8 @@ In terms of parameters, the main differences are that we have $n \geq m$
 and $t$ is not constraint to $2n$ (in fact, we will propose to set it smaller than $n$).
 Furthermore, we assume that the attacker obtains $2^r$ samples for $r \leq 40$ instead of a single sample.
 
-We note that variants of the basic attacks that were analyzed for the \ttwPRF (such as the collision attack
+We note that variants of the basic attacks that were analyzed for the \ttwPRF (
+such as the attack that exploit the circulant $\mat(K)$, the collision attack
 and the multi-target attack) are also applicable to this construction.
 As in the case of the \ttwPRF,
 they do not seem to be a threat for our choice of parameters.
