@@ -45,10 +45,9 @@
  {\begin{titlebox}{ #1}{0.5pt}{0.5pt}{1pt}{0.75pt}}
  {\end{titlebox}}
 
-\section{Applications}
+\section{Application: Signatures with the \ttOWF}
 \label{sec:applications}
-\greg{Should the OPRF material be in the applications section? Seems like it fits here, and without it there is only one application.} 
-\subsection{Signatures with the \ttOWF}
+
 Here we describe a signature scheme using the \ttOWF.  
 Our presentation is tailored to the \ttOWF, but we note that this approach is
 general.  All of the candidate primitives in this paper would be a suitable
@@ -96,15 +95,11 @@ secret key, and a random seed $s \in \{0,1\}^{\secpar}$ such that $s$
 expands to matrices $\matA \in \Z_2^{m\times n}$ and $\matB\in \Z_3^{m\times t}$ that is full rank (using a suitable cryptographic
 function, such as the SHAKE extendable output function~\cite{sp800-185}).
 Compute $y = \sfF(x)$ and set $(y, s)$ as the public key.
-Recall that the \ttOWF is defined as $y = \sfF(x)$ where $x \in \Z_2^{n}$ and $y\in \Z_3^{t}$, and is computed as $y = \mat{B}(\mat{A}x)$ where $\mat{A}x$ is first reinterpreted over $\Z_3$. 
-% \begin{enumerate}
-% \item Compute $w = \matA x \in \Z_2^{m}$.
-% \item Let $z\in\Z_3^{m}$ be $w$, where entries are intepreted as values mod 3.
-% \item Compute and output $y = \matB z$.
-% \end{enumerate}
-We use unique $\matA$ and $\matB$ per signer in order to avoid multi-target attacks against $\sfF$.
-We specify the scheme using random matrices, however, it could also be instantiated
-with circulant matrices, which may improve the performance of sign and verify operations.
+Recall that the \ttOWF is defined as $y = \sfF(x)$ where $x \in \Z_2^{n}$ and $y\in \Z_3^{t}$, and is computed as $y = \mat{B}(\mat{A}x)$ where $\mat{A}x$ is first cast to $\Z_3$. 
+% TODO: add in full version
+%We use unique $\matA$ and $\matB$ per signer in order to avoid multi-target attacks against $\sfF$.
+%We specify the scheme using random matrices, however, it could also be instantiated
+%with circulant matrices, which may improve the performance of sign and verify operations.
 
 \paragraph{MPC protocol.}
 By combining the protocols for the gates 
@@ -115,30 +110,22 @@ $\prot_{\Convert}^{(2,3)}$
 described in \cref{sec:distributed_protocols} we have an $N$-party protocol for
 the \ttOWF. The most challenging and costly step (in terms of communication) is
 the conversion gate, all other operations are done locally by the parties.  In
-\cref{appendix:picnic} we describe this protocol in full detail.  Given the MPC
-protocol, we neatly drop it into the KKW proof system used in Picnic.  
+\cref{appendix:picnic} we describe this protocol in full detail.  
 
 \paragraph{Sign and verify.} 
 The signature generation and verification algorithms for the
 \ttOWF  signature scheme are given in \cref{fig:23-picnic} (of \cref{appendix:picnic}).
-Here we give an overview. The structure of
-the signature scheme follows a three-move $\Sigma$-protocol. In the commit phase, the
-prover simulates the preprocessing phase for all $M$ MPC instances, and commits
-to the output (the seeds and auxiliary values).  She then simulates the online
-phase for all $M$ instances and commits to the inputs, and broadcast messages.
-Then a challenge is computed by hashing all commitments, together with the
-message to be signed.  The challenge selects $\tau$ of the $M$ MPC instances.
+Here we give an overview. The
+prover simulates the preprocessing and online phase for all $M$ MPC instances, and commits
+to the preprocessing values, and MPC inputs and outputs.
+Then she is challenged to open $\tau$ of the $M$ MPC instances.
 The verifier will check the simulation of the online phase for these instances,
 by re-computing all values as the prover did for $N-1$ of the parties, and for
 remaining unopened party, the prover will provide the missing broadcast messages
 and commitments so that the verifier may complete the simulation and recompute all
 commitments. 
 For the $M-\tau$ instances not chosen by the challege, the verifier will check
-the preprocessing phase only -- here the prover provides the random seeds of
-all $N$ parties and the verifier can recompute the prover's commitment to the
-preprocessing, in particular the verifier checks that the auxiliary values are
-correct.
-\greg{paragraph above could be shorter if we're low on space}
+the preprocessing phase only, by recomputing the preprocessing phase as the prover did. 
 
 \newcommand{\textunderbrace}[2]{{%
   \underbrace{#1}_{\text{#2}}
@@ -203,12 +190,10 @@ $(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
 $(128,453,81)$  & $(16, 150, 51)$   & 13.30 \\
                 & $(16, 168, 45)$   & 12.48 \\ 
                 & $(16, 250, 36)$   & \textbf{11.54} \\
-                & $(16, 303, 34)$   & 11.49 \\  
 Picnic3-L1      & $(16, 250, 36)$   & 12.60 \\ \hline
 $(128,453,81)$  & $(64, 151, 45)$   & 13.59 \\
                 & $(64, 209, 34)$   & 11.70 \\ 
                 & $(64, 343, 27)$   & \textbf{10.66} \\
-                & $(64, 515, 24)$   & 10.35 \\ 
 Picnic2-L1      & $(64, 343, 27)$   & 12.36 \\ \hline
 \end{tabular}
 
