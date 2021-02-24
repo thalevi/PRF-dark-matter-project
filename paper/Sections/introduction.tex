@@ -258,7 +258,15 @@ based designs, and we can choose a OWF with an (arguably) simpler mathematical
 description, without sacrificing performance. 
 
 \paragraph{Oblivious pseudorandom functions.} \yuval{Literature pointers, compare with DDH-based (better computation, post-quantum), compare with Legendre-based.}
-\paragraph{[Steven's application].} \yuval{Motivates wPRF where inputs, outputs, and keys are over $\Z_2$. Explain the problem with using $(2,3)-wPRF$ by distinguishing between applications for which the output is given in the clear and ones where it needs to be kept secret and reused (such as this one).}
+We construct an OPRF protocol that computes our \ttwPRF candidate in an oblivious setting. In the multi-input setting (where the key is used for multiple evaluations), our protocol requires only 2 rounds and 641 bits of online communication.
+
+Compared to a standard DDH-based OPRF, which require 512 bits of communication for $128$-bit security, our protocol requires slightly higher communication but has a much better performance. Our implementation shows that our total OPRF protocol is faster than a \textit{single} scalar multiplication over the Curve25519 elliptic curve. Consequently, we expect our protocol to be faster than a number of OPRF protocols~\cite{freedman2005-oprf,jarecki2009-oprf} that are based on algebraic PRFs and require expensive exponentiations. Recent work~\cite{seres2021-legendre} constructs an OPRF protocol from the Legendre PRF~\cite{damgard1988-legendre}. For 128-bit security, their protocol has a communication cost of $\approx 13$KB which is substantially higher than ours.
+
+
+\paragraph{Hierarchical key derivation functions.} \yuval{Motivates wPRF where inputs, outputs, and keys are over $\Z_2$. Explain the problem with using $(2,3)-wPRF$ by distinguishing between applications for which the output is given in the clear and ones where it needs to be kept secret and reused (such as this one).}
+
+
+
 
 \paragraph{Distributed FSS key generation.} \yuval{First considered by Doerner-shelat in the context of 2PC for RAM programs. Then used for PCG seed generation and MPC for mixed-mode and fixed-point operations. Key ingredient: length-doubling PRG.}
 

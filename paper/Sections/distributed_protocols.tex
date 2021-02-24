@@ -439,6 +439,7 @@ Our first OPRF protocol is in spirit similar to the distributed evaluation for t
 For the second protocol, the server masks the PRF in a different way; a multiplicative mask is used instead of an additive one. For simplicity, suppose that $n=m$ and that the key $\mat{K}$ is a random full-rank circulant matrix. Then to mask $\mat{K}$, the server computes $\bar{\mat{K}} = \mat{R}\mat{K}$ using a random matrix $\mat{R}$ that is also full-rank and circulant. $\mat{R}$ will be provided as preprocessing to the server, and can be reused for multiple PRF evaluations. The server will send $\bar{\mat{K}}$ to the client in the key-update phase. Note that since the product of two circulant matrices is also circulant, this message is only $n$ bits. Additionally, since the product $\mat{R}\mat{K}$ is essentially a convolution, it can be efficiently computed in $\Theta(n\log n)$ asymptotic runtime using the fast Fourier transform (FFT) algorithm. The rest of the evaluation is somewhat similar in structure to $\prot^{\textsf{oprf}}_1$ and we defer the full details to Appendix~\ref{appendix:oprf_protocol}. For our parameters ($n = m = 256,t = 81$), $\prot^{\textsf{oprf}}_2$ has 641 bits of total online communication for input evaluation. To update the key, the server sends a 256-bit message to the client.
 \fi
 
+\iffull
 \subsubsection{Comparison}
 \label{subsec:oprf-comparison}
 Here, we compare the concrete efficiency of our protocols with other protocols in literature.
@@ -452,7 +453,9 @@ We instantiate a DDH-based OPRF over the Curve25519 elliptic curve and compare i
 
 \paragraph{Other OPRFs.}
 Many prior OPRF constructions~\cite{freedman2005-oprf,jarecki2009-oprf} require expensive exponentiations because they are based on algebraic PRFs. This means that we can expect similar performance tradeoffs for our protocols when compared to them (i.e., much faster computation, slightly more communication).~\cite{kolesnikov2016-oprf} provides an efficient batched-OPRF protocol based on OT extension in the preprocessing. While we did not perform with the same setup, based on their performance results, we found that our protocol is substantially more efficient for a single (or a small number of) evaluation, but becomes more comparable in performance as the batch-size increases which is unsurprising considering our protocols are not optimized for the batched evaluation. Recent work~\cite{seres2021-legendre} constructs an OPRF protocol from the Legendre PRF~\cite{damgard1988-legendre}. For 128-bit security, their protocol has a communication cost of $\approx 13$KB which is substantially higher than ours.
-
+\else
+We compare our constructions to other OPRF protocols in Appendix~\ref{appendix:oprf-comparison}
+\fi
 
 %-------------------%
 \subsection{Generating the correlated randomness.}

@@ -207,6 +207,7 @@ Table~\ref{table:optimization_benchmarks} shows the performance gain of our opti
 
 
 \paragraph{Distributed wPRF evaluation.}
+\iffull
 We also implement the 2-party semi-honest distributed protocol detailed in Section~\ref{subsec:2pc-wprf} for evaluating the \ttwPRF construction and report timings for our implementation. Further, since this candidate was first proposed in~\cite{boneh2018-darkmatter}, we also implement their protocol as a comparison point. For both protocols, we use the parameters $n=m=256$, $t=81$ for the PRF and use the same optimizations \iffull(from Section~\ref{subsec:implementation_opt})\fi. We use a trusted party to generate the preprocessed randomness. We provide a comparison in Table~\ref{table:distributed_wprf}.
 
 
@@ -232,9 +233,13 @@ We also implement the 2-party semi-honest distributed protocol detailed in Secti
 \label{table:distributed_wprf}
 }
 \end{table}
+\else
+We implement our 2-party semi-honest distributed protocol for evaluating the \ttwPRF construction and report timings for our implementation. Since this candidate was first proposed in~\cite{boneh2018-darkmatter}, we also implement their protocol as a comparison point. For both protocols, we use the parameters $n=m=256$, $t=81$ for the PRF and use the same optimizations for an accurate comparison. We found that our protocol is better in all metrics. For a single evaluation, our protocol requires $12.12~\mu$s, 662 bits of preprocessing, and 1536 bits of online communication. On the other hand, the protocol from~\cite{boneh2018-darkmatter} requires $28.02\mu$s, 3533 bits of preprocessing, and 2612 bits of online communication for one evaluation.
+
+\fi
 
 \paragraph{OPRF evaluation.}
-In Table~\ref{table:oprf_comparison}, we provide performance benchmarks for both our oblivious protocols (see Section~\ref{subsec:oprf_protocol}) for the \ttwPRF construction. We also compare our results to the standard DDH-based OPRF (see Section~\ref{subsec:oprf-comparison}). For our timing results, we report both the server and client runtimes (averages over 1000 runs). For each construction, we also include the size of the preprocessed correlated randomness, and the online communication cost. All constructions are parameterized appropriately to provide 128-bit security.
+In Table~\ref{table:oprf_comparison}, we provide performance benchmarks for both our oblivious protocols (see Section~\ref{subsec:oprf_protocol}) for the \ttwPRF construction. We also compare our results to the standard DDH-based OPRF (see \iffull Section~\ref{subsec:oprf-comparison}\else Appendix~\ref{appendix:oprf-comparison}\fi). For our timing results, we report both the server and client runtimes (averages over 1000 runs). For each construction, we also include the size of the preprocessed correlated randomness, and the online communication cost. All constructions are parameterized appropriately to provide 128-bit security.
 
 For our constructions, we report separately, the timings for refreshing the key and evaluating the input. For the comparison with the DDH-based OPRF construction, we use the libsodium library~\cite{LibSodium} for the elliptic curve scalar multiplication operation. We use the Curve25519 elliptic curve, which has a 256-bit key size, and provides 128 bits of security. 
 % \yuval{I actually think that the Naor-Pinkas-Reingold99 paper cited in the TCC '18 paper refers to a different notion of distributing a PRF, namely where the PRF key is distributed between two or more servers and the input is public. Let's try to figure out the source of the simple DDH-based OPRF protocol. Can ask Stas/Hugo if needed.}
@@ -244,7 +249,7 @@ We point out that both of our OPRF protocols are much faster than the DDH-based 
 
 % \yuval{Communication costs in bits can be computed analytically. Maybe talk about estimated breakeven points: (1) minimal network speed in which computation dominates communication, and (2) minimal network speed where we estimate our OPRF to be faster than the DDH-based alternative.  }
 
-\begin{table}[h]
+\begin{table}[t!]
 {
 \centering
 \resizebox{\textwidth}{!}{%
