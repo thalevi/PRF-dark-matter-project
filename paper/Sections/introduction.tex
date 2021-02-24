@@ -197,7 +197,9 @@ We provide efficient protocols for our wPRF candidate constructions in a variety
 
 \paragraph{Efficient modulus conversion gates.}
 The key ingredient which gives our protocols their efficiency is our modulus conversion gates that switch between shares in $\Z_2$ and $\Z_3$. While~\cite{boneh2018-darkmatter} used OT in their protocols, we use these modulus conversion gates for better efficiency. We note that these conversion gates can also be used to construct efficient distributed protocols for alternate variants of our constructions.
-Since our constructions use shares over both $\Z_2$ and $\Z_3$, it is necessary to be able to switch between the two. We provide the following protocols to do this efficiently. \yuval{This may be slightly too low-level for intro. } \mahimna{fair point, we can just leave this paragraph here and remove the actual conversion gates. Just specify the actual costs}
+
+% Since our constructions use shares over both $\Z_2$ and $\Z_3$, it is necessary to be able to switch between the two. We provide the following protocols to do this efficiently. 
+\yuval{This may be slightly too low-level for intro. } \mahimna{fair point, we can just leave this paragraph here and remove the actual conversion gates. Just specify the actual costs}
 
 \iffalse
 \begin{itemize}
@@ -259,12 +261,11 @@ description, without sacrificing performance.
 
 \paragraph{Oblivious pseudorandom functions.} \yuval{Literature pointers, compare with DDH-based (better computation, post-quantum), compare with Legendre-based.}
 We construct an OPRF protocol that computes our \ttwPRF candidate in an oblivious setting. In the multi-input setting (where the key is used for multiple evaluations), our protocol requires only 2 rounds and 641 bits of online communication.
-
-Compared to a standard DDH-based OPRF, which require 512 bits of communication for $128$-bit security, our protocol requires slightly higher communication but has a much better performance. Our implementation shows that our total OPRF protocol is faster than a \textit{single} scalar multiplication over the Curve25519 elliptic curve. Consequently, we expect our protocol to be faster than a number of OPRF protocols~\cite{freedman2005-oprf,jarecki2009-oprf} that are based on algebraic PRFs and require expensive exponentiations. Recent work~\cite{seres2021-legendre} constructs an OPRF protocol from the Legendre PRF~\cite{damgard1988-legendre}. For 128-bit security, their protocol has a communication cost of $\approx 13$KB which is substantially higher than ours.
+Compared to a standard DDH-based OPRF, which require 512 bits of communication for $128$-bit security, our protocol requires slightly higher communication but has a much better performance. Our implementation shows that our total OPRF protocol is faster than a \textit{single} scalar multiplication over the Curve25519 elliptic curve. Consequently, we expect our protocol to be faster than a number of OPRF protocols~\cite{freedman2005-oprf,jarecki2009-oprf} that are based on algebraic PRFs and require expensive exponentiations. In another direction, recent work~\cite{seres2021-legendre} constructs an OPRF protocol from the Legendre PRF~\cite{damgard1988-legendre}. For 128-bit security, their protocol has a communication cost of $13$KB which is substantially higher than ours.
 
 
 \paragraph{Hierarchical key derivation functions.} \yuval{Motivates wPRF where inputs, outputs, and keys are over $\Z_2$. Explain the problem with using $(2,3)-wPRF$ by distinguishing between applications for which the output is given in the clear and ones where it needs to be kept secret and reused (such as this one).}
-
+Our \ttwPRF candidate is insufficient when the output of the function needs to be kept secret and reused. For instance, in the context of key derivation functions (KDFs), especially in a hierarchical structure, the output of the PRF may need to be used as an input (or even a key) for another evaluation of the PRF. If the KDF needs to be evaluated in a distributed manner, it is necessary for the PRG output to be over same base field. One example of this is seen in the context of Bitcoin where hierarchical KDFs can be used derive fresh wallet keys and provide access to only specific private keys~\cite{bitcoin_bip0032}. Motivated by such applications, we propose our LPN-wPRF candidate which has both its input and output over $\Z_2$.
 
 
 
