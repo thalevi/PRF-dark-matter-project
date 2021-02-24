@@ -856,7 +856,7 @@ The public input to the online phase is $\hat{x} = x + \tilde{x}$.
                 \share{\overline{r}_i}  & \text{if $\hat{w}_i = 1$} \algcomment{\text{Note that $\share{\overline{r}_i} = \share{1- w_i'}$}}\\
             \end{cases}
 \]
-then localy computes $\share{y} = \matB\share{z}$. All parties broadcast $\share{y}$ and reconstruct the output $y\in\Z_{3}^t$. 
+then locally computes $\share{y} = \matB\share{z}$. All parties broadcast $\share{y}$ and reconstruct the output $y\in\Z_{3}^t$. 
 In this step each party broadcasts $t$ values in $\Z_3$.
 \end{enumerate}
 
@@ -873,8 +873,8 @@ shares of $z$ to the complement of $\tilde{w}$.
 \paragraph{Communication costs.}
 Here we quantify the cost of communication for the MPC inputs, the $\aux$ values and the broadcast $\msgs$ of one party,
 as this will directly contribute to the signature size in the following section. 
-Let $\ell_3$ be the bitlength of an element in $\Z_3$; the direct encoding has
-$\ell_3 = 2$, but with compression we can reudce $\ell_3$ to as little as
+Let $\ell_3$ be the bit length of an element in $\Z_3$; the direct encoding has
+$\ell_3 = 2$, but with compression we can reduce $\ell_3$ to as little as
 $\log_2(3) \approx 1.58$. \footnote{To compress a vector $v\in\Z_3^{n}$, convert it to the integer it represents: $V = \sum_{i=0}^n v_i^{i}$
 and output the binary representation of $V$. }   The size of the
 $\aux$ information is $m\ell_3$, the MPC input value has size $n$ bits, 
@@ -1013,7 +1013,7 @@ similar as in Picnic, and we present some options from it in \cref{table:picnic}
  \end{protocolbox}
  \end{minipage}
 	\vspace*{-10pt}
-	\caption{\label{fig:23-picnic}Picnic-like signature scheme using the \ttOWF and the KKW proof sytem.} 
+	\caption{\label{fig:23-picnic}Picnic-like signature scheme using the \ttOWF and the KKW proof system.} 
 \end{figure}
 
 

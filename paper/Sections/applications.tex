@@ -74,7 +74,7 @@ with the \ttOWF, and make the corresponding changes to the MPC protocol.
 
 This is the first signature scheme based on the hardness of inverting the
 \ttOWF (or similar function), a function with a simple mathematical
-description, making it an accesible target for cryptanalysis, especially when
+description, making it an accessible target for cryptanalysis, especially when
 compared to block ciphers.  Arguably, the simplicity of the OWF can lead to
 simpler implementations: the MPC protocol is simpler, and no large precomputed
 constants are required. 
@@ -124,7 +124,7 @@ by re-computing all values as the prover did for $N-1$ of the parties, and for
 remaining unopened party, the prover will provide the missing broadcast messages
 and commitments so that the verifier may complete the simulation and recompute all
 commitments. 
-For the $M-\tau$ instances not chosen by the challege, the verifier will check
+For the $M-\tau$ instances not chosen by the challenge, the verifier will check
 the preprocessing phase only, by recomputing the preprocessing phase as the prover did. 
 
 \newcommand{\textunderbrace}[2]{{%
@@ -137,7 +137,7 @@ The impact of OWF choice is limited to one term, which is the sum of
 the sizes of the MPC inputs, broadcast messages, and auxiliary values produced
 by preprocessing.  Selecting the KKW parameters $(M, N, \tau)$ once the MPC costs
 are known follows the approach in Picnic: a range of options are possible, and
-we try to select parameters that balance speed (number of MPC exections and number of 
+we try to select parameters that balance speed (number of MPC executions and number of 
 parties) and size.  Since the MPC costs of the \ttOWF are very close to those
 of LowMC, the options follow a similar curve. 
 
