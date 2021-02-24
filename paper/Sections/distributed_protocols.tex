@@ -444,7 +444,8 @@ Our first OPRF protocol is in spirit similar to the distributed evaluation for t
 
 \subsubsection{OPRF Protocol $\prot^{\textsf{oprf}}_2$}
 \label{subsec:oprf2}
-For the second protocol, the server masks the PRF in a different way; a multiplicative mask is used instead of an additive one. For simplicity, suppose that $n=m$ and that the key $\mat{K}$ is a random full-rank circulant matrix. Then to mask $\mat{K}$, the server computes $\bar{\mat{K}} = \mat{R}\mat{K}$ using a random matrix $\mat{R}$ that is also full-rank and circulant. $\mat{R}$ will be provided as preprocessing to the server, and can be reused for multiple PRF evaluations. The server will send $\bar{\mat{K}}$ to the client in the key-update phase. Note that since the product of two circulant matrices is also circulant, this message is only $n$ bits. Additionally, since the product $\mat{R}\mat{K}$ is essentially a convolution, it can be efficiently computed in $\mathrm{\Theta}(n\log n)$ asymptotic runtime using the fast Fourier transform (FFT) algorithm. The rest of the evaluation is somewhat similar in structure to $\prot^{\textsf{oprf}}_1$ and we defer the full details to Appendix~\ref{appendix:oprf_protocol}. For our parameters ($n = m = 256,t = 81$), $\prot^{\textsf{oprf}}_2$ has 641 bits of total online communication for input evaluation. To update the key, the server sends a 256-bit message to the client.
+For the second protocol, the server masks the PRF in a different way; a multiplicative mask is used instead of an additive one. This saves 256 bits in the online phase at the expense of a slower key update phase.
+%For simplicity, suppose that $n=m$ and that the key $\mat{K}$ is a random full-rank circulant matrix. Then to mask $\mat{K}$, the server computes $\bar{\mat{K}} = \mat{R}\mat{K}$ using a random matrix $\mat{R}$ that is also full-rank and circulant. $\mat{R}$ will be provided as preprocessing to the server, and can be reused for multiple PRF evaluations. The server will send $\bar{\mat{K}}$ to the client in the key-update phase. Note that since the product of two circulant matrices is also circulant, this message is only $n$ bits. Additionally, since the product $\mat{R}\mat{K}$ is essentially a convolution, it can be efficiently computed in $\mathrm{\Theta}(n\log n)$ asymptotic runtime using the fast Fourier transform (FFT) algorithm. The rest of the evaluation is somewhat similar in structure to $\prot^{\textsf{oprf}}_1$ and we defer the full details to Appendix~\ref{appendix:oprf_protocol}. For our parameters ($n = m = 256,t = 81$), $\prot^{\textsf{oprf}}_2$ has 641 bits of total online communication for input evaluation. To update the key, the server sends a 256-bit message to the client.
 \fi
 
 \iffull
@@ -467,7 +468,11 @@ Many prior OPRF constructions~\cite{freedman2005-oprf,jarecki2009-oprf} require 
 %-------------------%
 \subsection{Generating the correlated randomness.}
 \label{subsec:preprocessing}
+\iffull
 While our distributed protocols are primarily built for use in the preprocessing model, in this section we will also show how to generate the preprocessing we require efficiently and without a trusted dealer. We will focus on the 2-party setting specifically. Three of our gate protocols, namely $\prot_\BLMap$, $\prot_\Convert^{(2,3)}$, and $\prot_\Convert^{(3,2)}$, require correlated randomness as preprocessing. In this section, we will show how to efficiently generate the randomness they require.
+\else
+In this section we show how to generate the preprocessing we require efficiently and without a trusted dealer. We will focus on the 2-party setting specifically.
+\fi
 
 
 \subsubsection{Bilinear correlations}
@@ -520,7 +525,6 @@ As another upshot, this means that the required $(2,3)$ correlations can be gene
 \subsubsection{$(3,2)$-correlations from OT correlations}
 
 We now show how to convert OT-correlations to the correlations we require for the $\prot_{\Convert}^{(3,2)}$ protocol. For this, we will need 1-out-of-3 OT correlations for 2-bit strings. Formally, in such a correlation, $\party_1$ receives $(z_0, z_1, z_2)$ where each $z_j$ is a 2-bit string, while $\party_2$ receives $(c, z_c)$ where $c \in \Z_3$ and $z_c$ is the corresponding $z_j$ indexed by $j = c$. As before, these OT correlations can also be efficiently generated and compressed using existing work~\cite{boyle2019-pcg,yang2020-ferret}.
-\mahimna{@yuval}
 
 Now, to convert a single $\Z_2$ element to $\Z_3$, our protocol requires the following correlated randomness: $\party_i$ is given $(\tilde{x}_i, u_i, v_i)$ where $\tilde{x}_i \in \Z_3$, $u_i,v_i \in \Z_2$ such that the following holds. Define $\tilde{x} = \tilde{x}_1 + \tilde{x} \bmod 3$, $u = u_1 + u_2 \bmod 2$, and $v = v_1 + v_2 \bmod 2$. Then, $u = \tilde{x} \bmod 2$ and $v = (\tilde{x} + 1 \bmod 3) \bmod 2$. We call this sharing between the two protocol parties a $(3,2)$-correlation pair.
 
