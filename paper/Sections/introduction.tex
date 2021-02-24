@@ -76,10 +76,10 @@ Another, very different, motivation is the goal of identifying simple function c
 \paragraph{Remaining challenges.} The initial works of~\cite{boneh2018-darkmatter,cheon2020-adventures} have only scratched the surface of the kind of questions one may ask. 
 \begin{itemize}
 \item
-What about simpler symmetric primitives such as OWFs and PRGs? MPC protocols for these primitives are motivated by many applications, including Picnic-style post-quantum digital signatures~\cite{Picnicrefs} and lightweight distributed key generation for function secret sharing~\cite{Doernershelat,FSS-EC21}.
+What about simpler symmetric primitives such as OWFs and PRGs? MPC protocols for these primitives are motivated by many applications, including Picnic-style post-quantum digital signatures~\cite{chase2017-picnic,kales2020-picnic} and lightweight distributed key generation for function secret sharing~\cite{Doernershelat,FSS-EC21}.
 \item Are there similar wPRF candidates where the input, output, and key are all over $\Z_2$? This too is motivated by natural applications.
 %\item Does reversing the order of mod-2 and mod-3 lead to a better design? 
-\item Can the concrete MPC protocols given in~\cite{boneh2018-darkmatter} be further improved? Can the preprocessing be realized at a low amortized cost? This motivates an additional design criterion: ``PCG-friendliness,'' leveraging recent advances in pseudorandom correlation generators~\cite{BCGI18,BoyleetalCCS19,yang2020-ferret}.
+\item Can the concrete MPC protocols given in~\cite{boneh2018-darkmatter} be further improved? Can the preprocessing be realized at a low amortized cost? This motivates an additional design criterion: ``PCG-friendliness,'' leveraging recent advances in pseudorandom correlation generators~\cite{BCGI18,BCGIKRS19,yang2020-ferret}.
 \end{itemize}
 
 % All the candidates we propose are based on similar interplays between linear mappings in $\Z_2$ and $\Z_3$.
