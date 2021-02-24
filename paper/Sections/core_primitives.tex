@@ -67,13 +67,15 @@ The candidate constructions we introduce follow one of two broad styles which we
 
 
 \paragraph{Winning candidates.}
-Through cryptanalysis and considering the cost for each candidate (See Sections~\ref{sec:cryptanalysis} for details), we find that some of our candidates are more suited (i.e., ``win'') for a particular setting. For instance, we found that the $(3,2)$-constructions are overshadowed by the corresponding the $(2,3)$-constructions in all settings we consider. Specifically, out of the candidates we consider, we find the following:
+Through cryptanalysis and considering the cost for each candidate (See Sections~\ref{sec:cryptanalysis} for details), we find that some of our candidates are more suited (i.e., ``win'') for a particular setting. For instance, we found that the $(3,2)$-constructions are overshadowed by the corresponding the $(2,3)$-constructions in all settings we consider. Specifically, out of the candidates we consider, we find the following: \ttwPRF and \ttOWF are the best wPRF / OWF candidates with no restriction on the input/output space. LPN-wPRF is the best wPRF candidate when the input and output space are over $\Z_2$. LPN-PRG is the best PRG candidate.
+\iffull
 \begin{enumerate}
     \item \ttwPRF is the best wPRF candidate with no restriction for input and output space. 
     \item LPN-wPRF is the best wPRF candidate where both the input and output need to be over $\Z_2$.
     \item \ttOWF is the best OWF candidate with no restriction for input and output space.
     \item LPN-PRG is the best PRG candidate.
 \end{enumerate}
+\fi
 We provide formal descriptions and pictorial descriptions of our winning candidates in \fig~\ref{fig:primary-constructions} and~\ref{fig:lpn-constructions}.
 
 \input{Figures/23-constructions}
