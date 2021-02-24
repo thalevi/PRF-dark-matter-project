@@ -55,7 +55,7 @@ Security of block ciphers and (weak) PRFs provably requires high algebraic degre
     \hspace*{1em} This means that although our protocols are in the preprocessing model, the correlations we require can be efficiently generated and compressed without a trusted dealer. Furthermore, since we also aim for small nonlinear sized constructions, the upshot of our design is that distributed protocols will be efficient even in an online-only setting. 
 \fi
 
-\paragraph{\bf The alternating moduli paradigm.} The above design criteria seem inherently at odds with each other. How can ``high algebraic degree'' co-exist with ``small gates'' and ``low nonlinear depth''? A new design paradigm that may help simultaneously achieve all the above goals was recently proposed by Boneh et al.~\cite{boneh2018-darkmatter} and further analyzed by Cheon et al.~\cite{adventures}. The idea is to break the computation into two or more parts, where each part includes a linear function over a {\em different modulus}. The simplest choice of moduli, which also seems to lead to the best efficiency, is 2 and 3. 
+\paragraph{\bf The alternating moduli paradigm.} The above design goals seem inherently at odds with each other. How can ``high algebraic degree'' co-exist with ``small gates'' and ``low nonlinear depth''? Towards settling this apparent paradox, a new design paradigm was recently proposed by Boneh et al.~\cite{boneh2018-darkmatter} and further analyzed by Cheon et al.~\cite{adventures}. The idea is to break the computation into two or more parts, where each part includes a linear function over a {\em different modulus}. The simplest choice of moduli, which also seems to lead to the best efficiency, is 2 and 3. 
 
 Boneh et al.~\cite{boneh2018-darkmatter} proposed a weak PRF\footnote{A weak PRF is one whose security only holds when evaluated on {\em random} inputs. In many applications of strong PRF, a weak PRF can be used instead by first applying a hash function (modeled as a random oracle) to the input~\cite{someweakPRFref}.} (wPRF) candidate with the following simple description: the input $x$ is a vector over  $\Z_2$ and the secret key specifies a matrix $K$ over  $\Z_2$. The PRF first computes the matrix-vector product $Kx$ over  $\Z_2$, then interprets the result as a vector over $\Z_3$ in the natural way,  and finally applies a public, compressive linear mapping over $\Z_3$ to obtain an output vector $y$ over $\Z_3$. 
 
@@ -75,7 +75,7 @@ Another, very different, motivation is the goal of identifying simple function c
 \begin{itemize}
 \item
 What about simpler symmetric primitives such as OWFs and PRGs? MPC protocols for these primitives are motivated by many applications, including Picnic-style post-quantum digital signatures~\cite{Picnicrefs} and lightweight distributed key generation for function secret sharing~\cite{Doernershelat,FSS-EC21}.
-\item Are there similar weak PRF candidates where the input, output, and key are all over $\Z_2$? This too is motivated by natural applications.
+\item Are there similar wPRF candidates where the input, output, and key are all over $\Z_2$? This too is motivated by natural applications.
 %\item Does reversing the order of mod-2 and mod-3 lead to a better design? 
 \item Can the concrete MPC protocols given in~\cite{boneh2018-darkmatter} be further improved? Can preprocessing be eliminated or realized at a low amortized cost? 
 \end{itemize}
@@ -102,7 +102,7 @@ We introduce several candidate constructions for OWF, PRG, and (weak) PRF, all b
 
 \begin{itemize}
     \item \textbf{Candidate Weak PRFs.}
-    We start by recalling the main weak PRF candidate proposed in~\cite{boneh2018-darkmatter}:
+    We start by recalling the main wPRF candidate proposed in~\cite{boneh2018-darkmatter}:
     Let $\mat{K}$ be a secret key matrix in $\Z_2^{m \times n}$. For an input $x$, the $(2,3)$-wPRF candidate is defined as $\mathsf{F}_\mat{K}(x) = \mat{B}(\mat{K}x)$ where $\mat{B} \in \Z_3^{t \times m}$ is a public matrix and $w = \mat{K}x$ is first reinterpreted as a 0/1 vector over $\Z_3$. \yuval{Describe LPN-style PRFs here. Maybe make this the last bullet, so that we can start with the new stuff?}
 
 
@@ -126,7 +126,7 @@ for solving subset-sum that are based on the
 Compared to a standard meet-in-the-middle approach,
 this attack forced us to increase the parameters by about $30\%$.
 
-For the candidate weak PRF and PRG constructions,
+For the candidate wPRF and PRG constructions,
 the security analysis is mainly focused on
 statistical distinguishers that exploit a bias in the output.
 The strength of such a bias depends on the minimal distance of the
@@ -141,7 +141,7 @@ concrete parameters for our constructions
 with the goal of obtaining $s$-bit security. For the \ttOWF and \ttwPRF constructions
 we give both aggressive and more conservative parameter sets.
 Note that the OWF and PRG use the minimal secret input (and output)
-sizes, while for weak PRFs, we use a larger secret. 
+sizes, while for wPRFs, we use a larger secret. 
 This is a result of different tradeoffs between security and performance.
 For example, we could have set $n = s$ for the \ttwPRF, but cryptanalysis would
 force setting $m$ to be much larger than $2s$ and result is less efficient protocols.
@@ -154,7 +154,7 @@ Our constructions are new and it is reasonable that some of them would be broken
 and require updating the parameter sets (even the ``conservative'' ones).
 One of the main questions we leave open is how to exploit
 the structured matrices used in our constructions in cryptanalysis.
-This question is particularly interesting for the weak PRF constructions where
+This question is particularly interesting for the wPRF constructions where
 the attacker obtains several samples,
 and can perhaps utilize the structured matrices to
 combine their information in more efficient attacks.
