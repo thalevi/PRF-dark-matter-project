@@ -1,5 +1,5 @@
 \section{Deferred Protocol Details}
-
+\label{appendix:protocol}
 \paragraph{Circuit description of constructions.}
 We can represent our constructions by circuits consisting of the gates described previously. This approach is similar to that of~\cite{boyle2019-fss-preprocess}. We formally define computation circuit representations for our constructions in Definition~\ref{def:computation_circuit}.
 
@@ -19,3 +19,122 @@ A computation circuit $C$ with input space $\Gin = \prod \Gin_i$ and output spac
 Let $\mathsf{F} = \{\mathsf{F}_\secparam\}_{\secparam \in \N}$ denote a family of functions $\mathsf{F}_\secparam:\mathcal{X}_\secparam \to \mathcal{Y}_\secparam$. We say that $\{C_\secparam\}_{\secparam \in \N}$ is a family of computation circuits for $\mathsf{F}$ if all $C_\secparam$ have the same topological structure, and for all $\secparam \in \N$, $\mathsf{F}_\secparam(x) = \textsf{Eval}_C(x)$ for all $x \in \mathcal{X}_\secparam$.
 \label{def:computation_circuit}
 \end{definition}
+
+\subsection{Local Protocols for Circuit Gates}
+\label{appendix:protocol_gates}
+
+Here, we provide the remaining details for the circuit gate protocols.
+
+\paragraph{Protocol notation and considerations.}
+For a protocol $\prot$, we use the notation $\prot(a_1, \dots, a_k \mid b_1, \dots, b_l)$ to denote that the values $a_1, \dots, a_k$ are provided publicly to all parties in the protocol, while the values $b_1, \dots, b_l$ are secret shared among the parties. When $\party_i$ knows the values $(a_1, \dots, a_k)$, and has shares $\sharei{b_1}, \dots, \share{b_l})$, we use the notation $\prot(a_1, \dots, a_k \mid \sharei{b_1}, \dots, \sharei{b_l})$ to denote that $\party_i$ runs the protocol with its local inputs. 
+
+Given public values $a_1, \dots, a_k$, it is straightforward for the protocol parties to compute a sharing $\share{f(a_1, \dots, a_k)}$ for a function $f$ (for example, $\party_1$ computes the function as its share, and all other parties set their share to $0$).
+
+\paragraph{Linear gate protocol $\prot_\LMap^{\mat{A}, p}$.}
+The linear gate is the easiest to evaluate, and follows from the standard linear homomorphism of additive secret sharing.
+
+\begin{itemize}
+  \item \textbf{Functionality}: Each party is provided with the matrix $\mat{A}$ and shares of the input $x$ (over $\Z_p$). The goal is to compute shares of the output $y = \mat{A}x$.
+
+  \item \textbf{Preprocessing}: None required.
+
+  \item \textbf{Protocol details}:
+  For the protocol $\prot_\LMap^{\mat{A}, p}(\mat{A} \mid x)$, each party $\party_i$ computes its output share as $\sharei{y} = \mat{A}\sharei{x}$. Note that this works because $\mat{A}x = \sum_{\party_i \in \parties} \mat{A}\sharei{x}$ as a direct consequence of the linear homomorphism of additive shares.
+\end{itemize}
+
+\paragraph{Addition gate protocol $\prot_\Add^{p}$.}
+The addition modulo $p$ gate is also easy to evaluate. Given shares of $x, x'$ over $\Z_p$, for the protocol each party $\party_i$ can locally compute its share of $x+x'$ as $\sharei{x} + \sharei{x'} \bmod p$. This directly follows from the additive homomorphism of additive shares. 
+
+\paragraph{Bilinear gate protocol $\prot_\BLMap^p$.}
+The bilinear gate protocol is essentially a generalization of Beaver's multiplication triples~\cite{boyle2019-fss-preprocess,beaver1991-triples} that computes the multiplication of two shared inputs. For Beaver's protocol, to compute a sharing of $ab$ given shares of $a$ and $b$ (all sharings are over a ring $\mathcal{R}$), the protocol parties are provided shares of a randomly sampled triple of the form $(\tilde{a},\tilde{b},\tilde{a}\tilde{b})$ in the preprocessing stage. Beaver's protocol first reconstructs the masked inputs $\hat{a}$ and $\hat{b}$ after which local computation is enough to produce shares of the output. For our bilinear gate protocol, we assume that  all parties are already provided with the masked inputs (to move the communication outside of the gate protocol), along with correlated randomness similar to a Beaver triple. 
+
+\begin{itemize}
+  \item \textbf{Functionality}: 
+  Abstractly, the goal of the bilinear gate protocol is to compute shares of the output $y = \mat{K}x$ given shares of both inputs $\mat{K}$ and $x$. For our purpose however, the masked inputs will have already been constructed beforehand, i.e., each party is provided with $\hat{\mat{K}}$ and $\hat{x}$ publicly, along with shares of correlated randomness similar to a Beaver triple (see below).
+
+  \item \textbf{Preprocessing}: Each party is provided shares of $\tilde{\mat{K}}, \tilde{x}$, and $\tilde{\mat{K}}\tilde{x}$ as correlated randomness.
+
+  \item \textbf{Protocol details}: For the protocol $\prot_\BLMap^p(\hat{\mat{K}},\hat{x}\mid \tilde{\mat{K}}, \tilde{x}, \tilde{\mat{K}}\tilde{x})$, each party $\party_i$ computes its share of $\hat{y}$ as:
+  \[
+    \sharei{\hat{y}} = \sharei{\hat{\mat{K}}\hat{x}} - \hat{\mat{K}}\sharei{\tilde{x}} - \sharei{\tilde{\mat{K}}}\hat{x} + \sharei{\tilde{\mat{K}}\tilde{x}}
+  \]
+
+  \noindent \textit{Correctness}. Note that this works since:
+  \begin{align*}
+  \sum_{\party_i \in \parties} \sharei{\hat{y}} &= \hat{\mat{K}}\hat{x} - \hat{\mat{K}}\tilde{x} - \tilde{\mat{K}}\hat{x} + \tilde{\mat{K}}\tilde{x} \\
+  &= (\mat{K} + \tilde{\mat{K}})x - \tilde{\mat{K}}(x + \tilde{x}) + \tilde{\mat{K}}\tilde{x} \\
+  &= \mat{K}x
+  \end{align*}
+\end{itemize}
+Since the output of the bilinear gate will usually feed into a conversion gate which requires the input to be already masked, as an optimization, we can have the bilinear gate itself compute shares of the masked output, i.e., $\hat{y} = \mat{K}x + \tilde{y}$. This can be done by providing the correlated randomness $\tilde{\mat{K}}\tilde{x} + \tilde{y}$ instead of $\tilde{\mat{K}}\tilde{x}$. The upshot of this optimization is that one fewer piece of correlated randomness will be required.
+
+
+
+\subsection{Composing Gate Protocols}
+\label{appendix:protocol_generic}
+
+Here, we provide the deferred details for composing our gate protocols.
+
+\paragraph{Communication cost.}
+Since the gate protocols themselves are locally computable, the communication cost during a distributed evaluation of a circuit comes solely from the public reconstructions of masked values required for gate protocols. For example, before feeding the output $x$ of a $\LMap^{\mat{A}}_2$ gate into a $\Convert_{(2,3)}$ gate, in the distributed evaluation, all parties will first mask their shares of $x$ to obtain shares of $\hat{x}$. Then, the parties will exchange messages to reconstruct the $\hat{x}$ value required for $\prot_\Convert^{(2,3)}$.
+
+Consider $N$ parties taking part in the distributed evaluation. To reconstruct an $l$-bit value $\hat{x}$ that is additively shared among the parties, one of the following can be done.
+\begin{itemize}
+  \item Each party sends its share of $\hat{x}$ to each other party. Now, all parties can compute $\hat{x}$ locally. This requires only 1 online round but has a communication cost of $(N-1)l$ bits per party. Each party sends $N-1$ messages. The simplest case for this is when $n=2$, in which case, both parties can simultaneously exchange their shares, and add the two shares locally to reconstruct $\hat{x}$. This requires 1 online round, and has a communication cost of $1$ message and $l$ bits per party. 
+
+  \item All parties can send their share to a designated party, say $\party_1$, who computes $\hat{x}$ and sends it back to everyone. This requires 2 rounds and has a communication cost of $(N-1)l$ bits for $\party_1$ and $l$ bits each for other parties. Here, $\party_1$ sends $N-1$ messages while all other parties send a single message.
+\end{itemize}
+
+
+\paragraph{Reducing round complexity.} It is also straightforward to parallelize the communication to reduce the number of rounds. For this, suppose that we call an edge $(V_a, V_b)$ \textit{communication-requiring} if the output of the protocol for $V_a$ needs to be masked before it is input into the protocol for $V_b$ (in other words, the gate protocol for $V_b$ requires a masked input). Now, define the communication-depth of a vertex $V$ as the maximum number of communication-requiring edges in any path from a source vertex to $V$. Now, instead of evaluating vertices with the same depth simultaneously, we will evaluate vertices with the same \textit{communication-depth} together before the next communication round. By doing so, we can reduce the total number of rounds to the maximum communication-depth.
+
+
+\paragraph{Preprocessing cost.}
+A na{\"i}ve technique to compute the preprocessing required is to add the preprocessing for each gate in the circuit as follows:
+
+\begin{itemize}
+\item The $\LMap$ and $\Add$ gates are computed locally and require no preprocessing.
+
+\item Each $\BLMap_p$ gate requires a Beaver-style triple which provides masks for the two inputs and a multiplication of the two masks. Specifically, for $\BLMap_p(\mat{K}, x)$ where $\mat{K} \in \Z_p^{l_2 \times l_1}$ and $x \in \Z_p^{l_1}$, the preprocessed shares are of the form $(\tilde{\mat{K}}, \tilde{x}, \tilde{\mat{K}}\tilde{x})$. Consequently, when $\mat{K}$ is circulant, a total of $(2l_1 + l_2) \log_p$ bits needs to be provided as preprocessing to each party.
+
+\item Each $\Convert_{(2,3)}$ gate requires shares of a random mask $\tilde{x}$ both over $\Z_2$ and $\Z_3$. In other words, for $x \in \Z_2^l$, it requires $l + \log_2{3} \cdot l$ bits of preprocessing per party.
+
+\item Each $\Convert_{(3,2)}$ gate requires shares of a random mask $\tilde{x}$ (over $\Z_3$) as well as $u = \tilde{x}$ and $v = (\tilde{x} + \textbf{1} \bmod 3)\bmod 2$ (both over $\Z_2$). In other words, for $x \in \Z_3^l$, it requires $\log_2{3} \cdot l + 2l$ bits of preprocessing per party.
+\end{itemize}
+
+\paragraph{Compressing preprocessing required.}
+We describe several optimizations to reduce the total cost of preprocessing. We assume here the presence of a trusted dealer to generate any correlations in the randomness. We note that some of the optimizations, while reducing the size of preprocessing, would be more complicated to generate if a dealer is not present.
+
+\begin{itemize}
+
+  \item (Reducing redundant preprocessing).
+  A straightforward optimization is to not mask the same value twice. For example, if the same value $x$ is considered as input for both a $\BLMap$ gate and a $\Convert$ gate, the same mask $\tilde{x}$ can be used for both. 
+
+  \item (Masking $\BLMap$ gate outputs.)
+  The standard $\BLMap$ gate requires preprocessing of the form $(\tilde{\mat{K}}, \tilde{x}, \tilde{\mat{K}}\tilde{x})$. However, if the output of the $\BLMap$ gate is then later input to a gate that requires a masked input (e.g., a $\Convert$ gate or even another $\BLMap$ gate), the $\BLMap$ gate can directly mask its output by providing $\tilde{\mat{K}}\tilde{x} + \tilde{y}$ instead. If this is done, the parties will compute a sharing of $\hat{y} = \mat{K}x + \tilde{y}$ using the $\BLMap$ gate. This means that the parties can directly exchange their shares to reconstruct $\hat{y}$ without requiring more preprocessing to mask $y$.
+
+  For both the $\Convert_{2,3}$ and $\Convert_{(3,2)}$ gates, if the masked version $\hat{x}$ of the input $x$ is already known to all parties, only $\log_2{3} \cdot l$ and $2l$ bits respectively of preprocessing are required per party. 
+
+ 
+  \item (Compression using a PRG).
+  Another standard technique for compressing the size of preprocessing is to use a PRG. Intuitively, each party is given a different PRG seed by the trusted dealer which they can use locally to generate their randomness. Only a single party has its shares given by the dealer to ensure that the randomness is appropriately correlated. 
+
+  % For this, the dealer will first generate the randomness as usual. To share the randomness, instead of randomly sampling shares, the dealer (who knows the seeds of all parties) will compute the shares for all but one party (say $\party_1$) using the party's PRG seed. The share for $\party_1$ can now be set so that the shares form an sharing of the required randomness.
+
+  % More specifically, for the $\BLMap$ gate, a dealer first samples a random triple $(\tilde{K}, \tilde{x}, \tilde{K}\tilde{x})$
+\end{itemize}
+
+\subsection{Protocols in Other Settings.}
+\label{appendix:protocols_other_settings}
+Here, we provide details for the evaluation of our candidates in other settings.
+
+\subsubsection{Public-input setting}
+It is also straightforward to use the same generic technique to construct distributed protocols in the public-input setting. For keyed primitives, in public-input setting, the key is secret shared between the parties but the input is publicly known. The goal of the protocol is for the parties to compute shares of the output.
+
+One useful optimization is that in the public-input setting, a $\BLMap$ gate where the input is known, essentially reduces to a linear gate where the key $\mat{K}$ is secret shared and the input $x$ is publicly known.
+
+\paragraph{2PC public-input protocol for \ttwPRF.}
+Concretely, for the evaluation of \ttwPRF in the public-input setting, the first round from the distributed protocol can be entirely skipped. The two parties can directly compute shares of $w = \mat{K}x = \sum_{i \in \{1,2\}} \sharei{\mat{K}}x$ locally. This also means that the preprocessing previously required for the $\BLMap$ gate that computed $\mat{K}x$ is no longer necessary. The rest of the evaluation can now proceed as before with both parties first using $\prot_\Convert^{(2,3)}$ to retrieve shares of $w$ over $\Z_3$, and then using $\prot_\LMap^{\mat{B},3}$ to compute shares of the final output $y$.
+
+In total, the evaluation takes a single round and a communication of $m$ bits per party (to reconstruct $\hat{w}$). The only preprocessing required is for the $\prot_{\Convert}^{(2,3)}$ gate, for which each party will be given $m + \log_2{3} \cdot m$ bits. Furthermore, with PRG compression, $\party_2$ will require no extra preprocessing and $\party_1$ can be given only $\log_2{3} \cdot m$ bits.
+

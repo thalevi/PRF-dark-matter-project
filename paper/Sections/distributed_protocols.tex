@@ -3,6 +3,7 @@
 \section{Distributed Protocols}
 \label{sec:distributed_protocols}
 We now describe efficient protocols to compute our candidate constructions in several interesting distributed settings. This section is structured as follows. First, in Section~\ref{subsec:protocol_overview}, we provide a technical overview for our overall protocol design. This includes computation protocols for each of our circuit gates as well as a generic way to compose them to obtain fully distributed protocols in the preprocessing model for all our constructions. Section~\ref{subsec:distributed_protocol} quantifies this approach by providing concrete communication and preprocessing costs for distributed evaluations for our constructions. In Section~\ref{subsec:3party_protocol}, for our \ttwPRF construction, we provide a 3-party protocol that does not require any preprocessing and is secure against one passive corruption. Finally, in Section~\ref{subsec:oprf_protocol}, we provide two OPRF protocols for our \ttwPRF construction in the preprocessing model. All provided protocols are for the semi-honest setting.
+\iffull\else In many cases, we defer the full details to Appendix~\ref{appendix:protocols}.\fi
 
 \subsection{Technical Overview}
 \label{subsec:protocol_overview}
@@ -11,17 +12,17 @@ Recall that all our constructions can be succinctly represented using five basic
 We begin with distributed protocols to evaluate each of the five gates. Abstractly, the goal of a gate protocol is to convert shares of the inputs to shares of the outputs (or shares of the masked output). To make our formalism cleaner, the gate protocols, by themselves, will involve no communication. Instead, they can additionally take in masked versions of the inputs, and possibly some additional correlated randomness. When composing gate protocols, whenever a masked input is needed, the parties will exchange their local shares to publicly reveal the masked value. This choice also prevents redoing the same communication when the masked value is already available from earlier gate evaluations.
 
 
+\iffull
 \paragraph{Protocol notation and considerations.}
 For a protocol $\prot$, we use the notation $\prot(a_1, \dots, a_k \mid b_1, \dots, b_l)$ to denote that the values $a_1, \dots, a_k$ are provided publicly to all parties in the protocol, while the values $b_1, \dots, b_l$ are secret shared among the parties. When $\party_i$ knows the values $(a_1, \dots, a_k)$, and has shares $\sharei{b_1}, \dots, \share{b_l})$, we use the notation $\prot(a_1, \dots, a_k \mid \sharei{b_1}, \dots, \sharei{b_l})$ to denote that $\party_i$ runs the protocol with its local inputs. 
 
 Given public values $a_1, \dots, a_k$, it is straightforward for the protocol parties to compute a sharing $\share{f(a_1, \dots, a_k)}$ for a function $f$ (for example, $\party_1$ computes the function as its share, and all other parties set their share to $0$).
+\else
 
 \subsubsection{Distributed Computation of Circuit Gates}
-
-% \yuval{In the following, I suggest to switch to a more structured format. For instance: an itemized list for each subprotocol, where the first item describes the functionality, the second describes the correlated randomness, and the third describes the actual protocol. It will also be good to have a table that summarizes the online and communication and correlated randomness (in bits) for each subprotocol. }
-
-We provide detailed (local) protocols to compute each circuit gate in this section. The description of inputs (including shared correlated randomness) and outputs for each gate protocol is also summarized in Table~\ref{table:gate_protocol_summary}.
-
+We provide detailed (local) protocols to compute each circuit gate in this section. The description of inputs (including shared correlated randomness) and outputs for each gate protocol is also summarized in Table~\ref{table:gate_protocol_summary}. 
+\iffull\else Protocols for the $\LMap$ and $\Add$ gates directly follow from the homomorphic properties of additive secret sharing, while the protocol for the $\BLMap$ gate is essentially a generalization of Beaver's multiplication triples~\cite{boyle2019-fss-preprocess,beaver1991-triples}. In this section, we provide our novel protocols for the $\Convert_{(2,3)}$ and $\Convert_{(3,2)}$ gates and defer the details for the other gates to Appendix~\ref{appendix:protocol_gates}.
+\fi
 \begin{table}[t!]
 \lncsresize{
 \centering
@@ -36,8 +37,6 @@ $\prot_{\LMap}^{\mat{A},p}$ & $\mat{A}$ & $x$ & - & $y = \mat{A}x$ (over $\Z_p$)
 \hline
 $\prot_{\Add}^{p}$ & & $x, x'$ & - & $y = x + x'$ (over $\Z_p$)\\
 \hline
-
-% $\prot_{\BLMap}^p$ & $\hat{\mat{K}}, \hat{x}$ & $\tilde{\mat{K}},\tilde{x}, \tilde{\mat{K}}\tilde{x} + \tilde{y}$ & $\hat{y} = \mat{K}x + \tilde{y}$ (over $\Z_p$)\\
 $\prot_{\BLMap}^p$ & $\hat{\mat{K}}, \hat{x}$ & - & $\tilde{\mat{K}},\tilde{x}, \tilde{\mat{K}}\tilde{x}$ & $y = \mat{K}x$ (over $\Z_p$)\\
 \hline
 $\prot_{\Convert}^{(2,3)}$ & $\hat{x}$ (over $\Z_2$) & - & $r = \tilde{x}$ (over $\Z_3$) & $x^* = x$ (over $\Z_3$) \\
@@ -47,10 +46,13 @@ $\prot_{\Convert}^{(3,2)}$ & $\hat{x}$ (over $\Z_3$) & - & \makecell{$u = \tilde
 \end{tabular}
 }
 }
-\caption{Summary of input, output, and randomness for the circuit gate protocols. \greg{Change ``over base group'' to ``over group''?}}
+\caption{Summary of input, output, and randomness for the circuit gate protocols.
+% \greg{Change ``over base group'' to ``over group''?}
+}
 \label{table:gate_protocol_summary}
 \end{table}
 
+\iffull
 
 \paragraph{Linear gate protocol $\prot_\LMap^{\mat{A}, p}$.}
 The linear gate is the easiest to evaluate, and follows from the standard linear homomorphism of additive secret sharing.
@@ -89,7 +91,7 @@ The bilinear gate protocol is essentially a generalization of Beaver's multiplic
   \end{align*}
 \end{itemize}
 Since the output of the bilinear gate will usually feed into a conversion gate which requires the input to be already masked, as an optimization, we can have the bilinear gate itself compute shares of the masked output, i.e., $\hat{y} = \mat{K}x + \tilde{y}$. This can be done by providing the correlated randomness $\tilde{\mat{K}}\tilde{x} + \tilde{y}$ instead of $\tilde{\mat{K}}\tilde{x}$. The upshot of this optimization is that one fewer piece of correlated randomness will be required.
-
+\fi
 \paragraph{$\Z_2 \to \Z_3$ conversion protocol $\prot_\Convert^{(2,3)}$.}
 
 \begin{itemize}
@@ -154,6 +156,9 @@ Consequently, $\sum_{\party_i \in \parties} \sharei{x^*} \bmod 2 = x \bmod 2$ ho
 
 \subsubsection{Composing Gate Protocols}
 We now describe a general technique to evaluate circuit composed of the previously specified gates in a distributed fashion. We provide details for the semi-honest fully distributed setting (with preprocessing), where all inputs are secret shared between all parties initially. This can also be thought of as a toolbox for constructing efficient distributed protocols for other constructions similar to ours. While the technique will also work for other settings (e.g., OPRF, public input), the concrete communication costs will be worse than more specially designed protocols. For these settings, we will provide more efficient protocols than provided by this general technique.
+\iffull\else
+We provide only the basic description and discuss the communication and preprocessing cost, as well as optimizations in Appendix~\ref{appendix:protocol_generic}.
+\fi
 
 % \greg{Does it make sense to say that this very general composition protocol can
 % allow one to easily make protocols for variants of our primitives? ``MPC
@@ -171,6 +176,7 @@ We now describe a general technique to evaluate circuit composed of the previous
   \item The required output shares of the distributed evaluation are given by the evaluation of the sink vertices in the circuit.
 \end{itemize}
 
+\iffull
 \paragraph{Communication cost.}
 Since the gate protocols themselves are locally computable, the communication cost during a distributed evaluation of a circuit comes solely from the public reconstructions of masked values required for gate protocols. For example, before feeding the output $x$ of a $\LMap^{\mat{A}}_2$ gate into a $\Convert_{(2,3)}$ gate, in the distributed evaluation, all parties will first mask their shares of $x$ to obtain shares of $\hat{x}$. Then, the parties will exchange messages to reconstruct the $\hat{x}$ value required for $\prot_\Convert^{(2,3)}$.
 
@@ -219,10 +225,17 @@ We describe several optimizations to reduce the total cost of preprocessing. We 
 
   % More specifically, for the $\BLMap$ gate, a dealer first samples a random triple $(\tilde{K}, \tilde{x}, \tilde{K}\tilde{x})$
 \end{itemize}
+\else
+Abstractly, communication will only be needed before $\BLMap, \Convert_{(2,3)}$, and $\Convert_{(3,2)}$ gates to reconstruct the masked input. In terms of preprocessing, if PRG seeds are used for compression, then the computation for the $\BLMap_p^{k,l}, \Convert^l_{(2,3)}$, and $\Convert^l_{(3,2)}$ gates will require a preprocessing of $\log_2{p} \cdot k$ bis, $\log_2{3} \cdot l$ bits, and $2l$ bits respectively.
+\fi
 
 \subsection{Distributed Evaluation in the Preprocessing Model}
 \label{subsec:distributed_protocol}
-Equipped with our technical overview, we now move to constructing distributed protocols (with preprocessing) for our candidate constructions. By distributed evaluation, we mean that all inputs are secret shared between all parties and the protocol provides parties with a sharing of the output. As a concrete example, we provide the complete details of a 2-party distributed evaluation protocol for our \ttwPRF candidate. 
+\iffull
+Equipped with our technical overview, we now move to constructing distributed protocols (with preprocessing) for our candidate constructions. By distributed evaluation, we mean that all inputs are secret shared between all parties and the protocol provides parties with a sharing of the output. As a concrete example, we provide the complete details of a 2-party distributed evaluation protocol for our \ttwPRF candidate.
+\else
+As a concrete example, we provide the complete details of a 2-party distributed evaluation protocol for our \ttwPRF candidate. By distributed evaluation, we mean that all inputs are secret shared between all parties and the protocol provides parties with a sharing of the output. 
+\fi
 %Later, in Table~\ref{table:construction_costs}, for each our constructions, we provide the amount of preprocessed randomness required as well as the communication cost for the distributed protocol.
 
 \subsubsection{$2$-Party Protocol for \ttwPRF.}
@@ -257,9 +270,11 @@ The distributed protocol takes 2 communication rounds in total, with both partie
 
 As preprocessing, each party also receives shares of $\tilde{\mat{K}}, \tilde{x}, \tilde{\mat{K}}\tilde{x}, \tilde{w}$ (over $\Z_2$) and $\tilde{r} = \tilde{w}$ (over $\Z_3$). This can also be optimized by providing shares of $\tilde{\mat{K}}\tilde{x} + \tilde{w}$ for the $\BLMap$ gate directly. In total, if circulant keys are used, the preprocessing cost per party is $2n + m + \log_2{3}\cdot m$ bits.
 
-Furthermore, if each party is given a PRG seed, then they can use the PRG to compute their shares of $\tilde{\mat{K}}$ and $\tilde{x}$. In this case, the dealer only needs to provide $\party_1$ with its shares for $\tilde{\mat{K}}\tilde{x} + \tilde{w}$ and $r$. $\party_2$ can compute its shares for those values using its PRG seed and the dealer can use its knowledge of $\party_2$'s seed to appropriately set the shares for $\party_1$. Consequently, across both parties, only $m + \log_2{3} \cdot m$ bits of preprocessing is required apart from the PRG seeds. Short $\secparam$-bit seeds can be provided to each party beforehand and reused for multiple evaluations. 
+Furthermore, if each party is given a PRG seed, then they can use the PRG to compute their shares of $\tilde{\mat{K}}$ and $\tilde{x}$. In this case, the dealer only needs to provide $\party_1$ with its shares for $\tilde{\mat{K}}\tilde{x} + \tilde{w}$ and $r$. $\party_2$ can compute its shares for those values using its PRG seed and the dealer can use its knowledge of $\party_2$'s seed to appropriately set the shares for $\party_1$. Consequently, across both parties, only $m + \log_2{3} \cdot m$ bits of preprocessing is required apart from the PRG seeds. Short $\secparam$-bit seeds can be provided to each party beforehand and reused for multiple evaluations.
 
+In Appendix~\ref{appendix:protocol_other_settings}, we detail a 1-round protocol in the public-input setting (i.e., when the input $x$ is public.)
 
+\iffull
 \subsubsection{Public-input setting}
 It is also straightforward to use the same generic technique to construct distributed protocols in the public-input setting. For keyed primitives, in public-input setting, the key is secret shared between the parties but the input is publicly known. The goal of the protocol is for the parties to compute shares of the output.
 
@@ -270,7 +285,7 @@ Concretely, for the evaluation of \ttwPRF in the public-input setting, the first
 
 In total, the evaluation takes a single round and a communication of $m$ bits per party (to reconstruct $\hat{w}$). The only preprocessing required is for the $\prot_{\Convert}^{(2,3)}$ gate, for which each party will be given $m + \log_2{3} \cdot m$ bits. Furthermore, with PRG compression, $\party_2$ will require no extra preprocessing and $\party_1$ can be given only $\log_2{3} \cdot m$ bits.
 
-
+\fi
 
 %------------------%
 
@@ -448,16 +463,6 @@ This is less efficient than our protocol to generate a $(2,3)$ correlation and t
 Since $\party_1$ generates $\tilde{x}_1, u_1, v_1$ randomly, $[s_0, s_1, s_2] + [(u_1 \parallel v_1), (u_1 \parallel v_1), (u_1 \parallel v_1)]$ is a random cyclic rotation of $[``01", ``10", ``00"]$ where the shift depends on $\tilde{x}_1$. Now, since $\party_1$ masks the $s_j$, its message to $\party_2$ simulates an OT protocol given an OT correlation. Consequently, the security of the OT protocol will directly imply that the message from $\party_1$ to $\party_2$ hides $\tilde{x}_1$. The proof that the generated correlation is random is also straightforward by iterating through all possible cases. 
 \end{proof}
 \mahimna{@yuval}
-
-
-
-
-
-
-
-
-
-
 
 
 
