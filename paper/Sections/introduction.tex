@@ -151,7 +151,7 @@ Note that the OWF and PRG use the minimal secret input (and output)
 sizes, while for wPRFs, we use a larger secret. 
 This is a result of different tradeoffs between security and performance.
 For example, we could have set $n = s$ for the \ttwPRF, but cryptanalysis would
-force setting $m$ to be much larger than $2s$ and result is less efficient protocols.
+force setting $m$ to be much larger than $2s$ and result in less efficient protocols.
 On the other hand, setting $n = 2s$ for the \ttOWF would also require 
 doubling the size of the output,\footnote{
 Otherwise, each output would have $2^s$ preimages and there would be no security advantage.}
