@@ -905,10 +905,10 @@ shares of $z$ to the complement of $\tilde{w}$.
 
 \paragraph{Communication costs.}
 Here we quantify the cost of communication for the MPC inputs, the $\aux$ values and the broadcast $\msgs$ of one party,
-as this will directly contribute to the signature size in the following section. 
+as this will directly contribute to the signature size. 
 Let $\ell_3$ be the bit length of an element in $\Z_3$; the direct encoding has
 $\ell_3 = 2$, but with compression we can reduce $\ell_3$ to as little as
-$\log_2(3) \approx 1.58$. \footnote{To compress a vector $v\in\Z_3^{n}$, convert it to the integer it represents: $V = \sum_{i=0}^n v_i^{i}$
+$\log_2(3) \approx 1.58$. \footnote{To compress a vector $v\in\Z_3^{n}$, convert it to the base-3 integer it represents: $V = \sum_{i=0}^n v_i3^i$
 and output the binary representation of $V$. }   The size of the
 $\aux$ information is $m\ell_3$, the MPC input value has size $n$ bits, 
 and the broadcast values have size $t\ell_3$ bits (per party). 
@@ -947,7 +947,7 @@ $M$ initial seeds, once for each MPC instance, then from from the initial seed
 we derive the $N$ per-party seeds. This allows the signer to reveal the seeds
 of $N-1$ parties by revealing only $\log_2(N)$ intermediate seeds, similarly, 
 the initial seeds for $M-\tau$ of $M$ instances may be revealed by communicating
-only $(\tau)\log_2(M/\tau)$ $\secpar$-bit seeds.
+only $\tau\log_2(M/\tau)$ seeds (each $\secpar$ bits long).
 
 For the commitments $h'^{(k)}$ to the online execution, $\tau$ are recomputed
 by the verifier, and the prover provides the missing $M-\tau$.  Here we compute

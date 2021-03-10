@@ -66,7 +66,7 @@ schemes.
 
 Concretely, our design follows the Picnic signature scheme~\cite{chase2017-picnic},
 specifically the variant instantiated with the KKW proof
-system~\cite{katz2018-pqsigs} (named Picnic2 and Picnic3).  We chose to use the
+system~\cite{CCS:KatKolWan18} (named Picnic2 and Picnic3).  We chose to use the
 KKW, rather than ZKB++ proof system since our MPC protocol to evaluate the
 \ttOWF is most efficient with a pre-processing phase, and KKW generally
 produces shorter signatures.  We replace the LowMC block cipher~\cite{albrecht2015-lowmc} in Picnic 
@@ -80,8 +80,8 @@ simpler implementations: the MPC protocol is simpler, and no large precomputed
 constants are required. 
 
 Our presentation is somewhat brief here, as many details are identical to Picnic, 
-and the \ttOWF MPC has been described in \cref{sec:distributed_protocols}. \cref{appendix:picnic}
-includes additional details. 
+and the \ttOWF MPC has been described in \cref{sec:distributed_protocols}. 
+\cref{appendix:picnic} includes additional details. 
 
 \paragraph{Parameters.} Let $\secpar$ be a security parameter.  The
 \ttOWF parameters are denoted $(n, m, t)$.  The KKW parameters $(N, M,
@@ -92,14 +92,15 @@ phase of simulation.  The scheme also requires a cryptographic hash function.
 \paragraph{Key generation.}
 The signer chooses a random $x \in \Z_2^n$ as 
 secret key, and a random seed $s \in \{0,1\}^{\secpar}$ such that $s$
-expands to matrices $\matA \in \Z_2^{m\times n}$ and $\matB\in \Z_3^{m\times t}$ that is full rank (using a suitable cryptographic
+expands to matrices $\matA \in \Z_2^{m\times n}$ and $\matB\in \Z_3^{m\times t}$ that are full rank (using a suitable cryptographic
 function, such as the SHAKE extendable output function~\cite{sp800-185}).
 Compute $y = \sfF(x)$ and set $(y, s)$ as the public key.
 Recall that the \ttOWF is defined as $y = \sfF(x)$ where $x \in \Z_2^{n}$ and $y\in \Z_3^{t}$, and is computed as $y = \mat{B}(\mat{A}x)$ where $\mat{A}x$ is first cast to $\Z_3$. 
-% TODO: add in full version
-%We use unique $\matA$ and $\matB$ per signer in order to avoid multi-target attacks against $\sfF$.
-%We specify the scheme using random matrices, however, it could also be instantiated
-%with circulant matrices, which may improve the performance of sign and verify operations.
+\iffull
+We use unique $\matA$ and $\matB$ per signer in order to avoid multi-target attacks against $\sfF$.
+We specify the scheme using random matrices, however, it could also be instantiated
+with circulant matrices, which may improve the performance of sign and verify operations.
+\fi
 
 \paragraph{MPC protocol.}
 By combining the protocols for the gates 
@@ -132,12 +133,12 @@ the preprocessing phase only, by recomputing the preprocessing phase as the prov
 }}
 
 \paragraph{Parameter selection and signature size.}
-In \cref{appendix:picnic} we give the formula for estimating signatures sizes.
+In \cref{appendix:picnic} we give the formula for estimating signature size.
 The impact of OWF choice is limited to one term, which is the sum of
 the sizes of the MPC inputs, broadcast messages, and auxiliary values produced
 by preprocessing.  Selecting the KKW parameters $(M, N, \tau)$ once the MPC costs
 are known follows the approach in Picnic: a range of options are possible, and
-we try to select parameters that balance speed (number of MPC executions and number of 
+we try to select parameters that balance speed (mostly dependent on the number of MPC executions and number of 
 parties) and size.  Since the MPC costs of the \ttOWF are very close to those
 of LowMC, the options follow a similar curve. 
 
