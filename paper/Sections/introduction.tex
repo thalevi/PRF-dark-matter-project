@@ -238,14 +238,14 @@ However, the main source of improvement of our protocols over the ones from~\cit
 an input (e.g., of a OWF input, wPRF key or PRG seed), using proof protocols
 based on the MPC-in-the-head paradigm~\cite{ishai2007-zkmpc}.  This is the approach
 taken by many recently designed post-quantum signature
-schemes~\cite{chase2017-picnic,katz2018-pqsigs,beullens2020-sigma-mq,beullens2020-legroast,guilhem2019-bbq,banquet},
+schemes~\cite{chase2017-picnic,CCS:KatKolWan18,beullens2020-sigma-mq,beullens2020-legroast,guilhem2019-bbq,banquet},
 as it only requires a secure OWF and hash function, and has opened up the range
 of hardness assumptions possible for public-key signatures.  We present the
 first public-key signature scheme based on alternating moduli cryptography. 
 
 We provide a detailed description of a signature scheme using our OWF candidate,
 as a modification to the Picnic
-algorithm~\cite{chase2017-picnic,katz2018-pqsigs,kales2020-picnic,picnic-spec}, a
+algorithm~\cite{chase2017-picnic,CCS:KatKolWan18,kales2020-picnic,picnic-spec}, a
 third round candidate in the NIST Post-Quantum Cryptography Standardization
 Process.\footnote{See
 \url{https://csrc.nist.gov/projects/post-quantum-cryptography/}.} We replace
