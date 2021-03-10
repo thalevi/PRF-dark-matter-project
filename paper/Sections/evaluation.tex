@@ -12,7 +12,7 @@ We start with a centralized implementation of the 23-wPRF. We find optimizations
 \iffull\else 
 We use three major optimizations in our implementation. First, we use \textit{bit packing} for $\Z_2$ vectors through which we can pack several elements in a machine word and operate on them together in an SIMD manner. Second, we use \textit{bit slicing} for $\Z_3$ vectors by representing them as a pair of $\Z_2$ vectors. All operations on the $\Z_3$ vectors can now be translated to operations on the $\Z_2$ vectors. Finally, we use a lookup table optimization for the final $\Z_3$ linear mapping (i.e., multiplication by $\mat{B}$). For this, we split the 256-column matrix $\mat{B}$ into 16 pieces with 16 columns each and store multiplications with all $\Z_3^{16}$ vectors for each piece. The size for each piece was decided as a tradeoff between the lookup table size and the computational efficiency. We defer the details for our optimization techniques to Appendix~\ref{appendix:implementation} and provide the benchmarks in Table~\ref{table:optimization_benchmarks}.\fi
 % In Table~\ref{table:optimization_benchmarks}, we compare the performance gain.
-
+\fi
 \iffull
 \paragraph{Bit packing for $\Z_2$ vectors.} 
 Instead of representing each element in a $\Z_2$ vector separately, we pack several elements into a machine word and operate on them together in an SIMD manner. For our architecture with 64-bit machine words, we can pack a vector in $\Z_2^{256}$ (e.g., the input $x$) into 4 words. Since the key $\mat{K}$ is circulant and can be represented with $n=256$ bits, it can also be represented by 4 words. This results in a theoretical $\times64$ maximum speedup in run-time for operations involving $\mat{K}$ and $x$. 
