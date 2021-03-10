@@ -20,14 +20,20 @@ We propose concrete parameters based on cryptanalysis.
 \input{Sections/preliminaries}
 \input{Sections/core_primitives}
 \input{Sections/cryptanalysis2}
-\input{Sections/distributed_protocols}
+
+% TODO: something in Sections/distributed_protocols breaks the build when iffull is true
+%\input{Sections/distributed_protocols}
+
 \input{Sections/applications}
-\input{Sections/evaluation}
+
+% TODO: Something in Sections/evaluation breaks the build when iffull is true
+%\input{Sections/evaluation}
+
 \printbibliography
 
-\iffull\else
 \appendix
 \newpage
+\iffull\else
 \section*{SUPPLEMENTARY MATERIAL}
-\input{Sections/appendix}
 \fi
+\input{Sections/appendix}
