@@ -5,10 +5,10 @@
 %\greg{Does anyone know why the PDF doesn't have the index on the left hand side with links to all of the sections?}
 
 %-------------------------------------------%
-Symmetric-key primitives like one-way functions (OWFs)~\cite{levin1985-owf},
+Symmetric-key cryptographic primitives, such one-way functions (OWFs)~\cite{levin1985-owf},
 % Not sure about citation for OWF, but can cite Levin's survey: https://arxiv.org/abs/cs/0012023 
- pseudorandom generators (PRGs)~\cite{blum1984-prg,yao1982-prg},
-and pseudo-random functions (PRFs)~\cite{goldreich1984-prf} are deployed in innumerable settings, and serve as fundamental building blocks of modern cryptography. While traditional use cases primarily considered settings where the function evaluation was done by a single party, many applications (recently also arising in the context of cryptocurrencies)
+ pseudorandom generators (PRGs)~\cite{blum1984-prg,yao1982-prg}
+and pseudo-random functions (PRFs)~\cite{goldreich1984-prf}, are deployed in innumerable settings, and serve as fundamental building blocks of modern cryptography. While traditional use cases primarily considered settings where the function evaluation was done by a single party, many applications (recently also arising in the context of cryptocurrencies)
 % \mahimna{cite more here}) 
 require evaluation in a distributed fashion to avoid single points of failure. This motivates the study of secure multiparty computation (MPC) protocols for evaluating such symmetric-key primitives in a setting where inputs, outputs, and keys are secret-shared or distributed between two or more parties.
 
