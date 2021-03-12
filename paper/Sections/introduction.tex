@@ -37,7 +37,7 @@ While recent general techniques from the literature~\cite{BBCGI19,BGIN19} can be
  For keeping the communication complexity low, we would like to minimize the number of nonlinear gates and make them as ``small'' and ``MPC-friendly'' as possible. 
 
 \item \textit{High algebraic degree}.
-Security of block ciphers and (weak) PRFs provably requires high algebraic degree. While there are low-degree implementations of weaker primitives such as OWF and PRG~\cite{MQref,Goldreich,ApplebaumIK04}, these typically come at the price of bigger input size and higher nonlinear size~\cite{couteau2018-goldreich-prg}.
+Security of block ciphers and (weak) PRFs provably requires high algebraic degree. While there are low-degree implementations of weaker primitives such as OWF and PRG~\cite{MQref,Goldreich,ApplebaumIK04}, these typically come at the price of bigger input size and higher nonlinear size~\cite{couteau2018-goldreich-prg,yang2021revisiting}.
     
     \item \textit{Simplicity}.  A simple design is almost always easier to implement and prone to fewer errors and attacks. This is particularly valuable since a substantial amount of work has previously gone into implementations that resist timing and cache side-channels. Simple constructions are also easier to reason about and cryptanalyze, which builds confidence in their security, and may serve as interesting objects of study from a theory perspective~\cite{Goldreich,MilesV15,AkaviaBGKR14}.
 \end{itemize}
@@ -55,9 +55,9 @@ Security of block ciphers and (weak) PRFs provably requires high algebraic degre
     \hspace*{1em} This means that although our protocols are in the preprocessing model, the correlations we require can be efficiently generated and compressed without a trusted dealer. Furthermore, since we also aim for small nonlinear sized constructions, the upshot of our design is that distributed protocols will be efficient even in an online-only setting. 
 \fi
 
-\paragraph{\bf The alternating moduli paradigm.} The above design goals seem inherently at odds with each other. How can ``high algebraic degree'' co-exist with ``small gates'' and ``low nonlinear depth''? Towards settling this apparent conflict, a new design paradigm was recently proposed by Boneh et al.~\cite{boneh2018-darkmatter} and further explored by Cheon et al.~\cite{cheon2020-adventures}. The idea is to break the computation into two or more parts, where each part includes a linear function over a {\em different modulus}. The simplest choice of moduli, which also seems to lead to the best efficiency, is 2 and 3. 
+\paragraph{\bf The alternating moduli paradigm.} The above design goals may seem inherently at odds with each other. How can ``high algebraic degree'' co-exist with ``small gates'' and ``low nonlinear depth''? Towards settling this apparent conflict, a new design paradigm was recently proposed by Boneh et al.~\cite{boneh2018-darkmatter} and further explored by Cheon et al.~\cite{cheon2020-adventures}. The idea is to break the computation into two or more parts, where each part includes a linear function over a {\em different modulus}. The simplest choice of moduli, which also seems to lead to the best efficiency, is 2 and 3. 
 
-Boneh et al.~\cite{boneh2018-darkmatter} proposed a weak PRF\footnote{A weak PRF is one whose security only holds when evaluated on {\em random} inputs. In many applications of strong PRF, a weak PRF can be used instead by first applying a hash function (modeled as a random oracle) to the input} (wPRF) candidate with the following simple description: the input $x$ is a vector over  $\Z_2$ and the secret key specifies a matrix $\mat{K}$ over  $\Z_2$. The PRF first computes the matrix-vector product $\mat{K}x$ over  $\Z_2$, then interprets the result as a vector over $\Z_3$ in the natural way,  and finally applies a public, compressive linear mapping over $\Z_3$ to obtain an output vector $y$ over $\Z_3$.
+Boneh et al.~\cite{boneh2018-darkmatter} proposed a weak PRF\footnote{A weak PRF is one whose security only holds when evaluated on {\em random} inputs. In many applications of strong PRF, a weak PRF can be used instead by first applying a hash function (modeled as a random oracle) to the input} (wPRF) candidate with the following simple description: the input $x$ is a vector over  $\Z_2$ and the secret key specifies a matrix $\mat{K}$ over  $\Z_2$. The PRF first computes the matrix-vector product $\mat{K}x$ over  $\Z_2$, then interprets the result as a vector over $\Z_3$ in the natural way,  and finally applies a public, compressive linear mapping over $\Z_3$ to obtain an output vector $y$ over $\Z_3$. (When the output is a single $\Z_3$ element, the final compressive mapping is just a sum over $\Z_3$.)
 
 The above mapping from $x$ and $\mat K$ to $y$ has two nonlinear steps: The first is the matrix-vector product over $\Z_2$, whose cost can be reduced when the matrix $\mat K$ has a special form. The second is a {\em conversion} of a mod-2 vector to a mod-3 vector, which consists of small  (finite-size) parallel nonlinear gates.  Overall, the nonlinear depth is 2. Why is this a high-degree function? Viewing both the input and the (binary representation of) the output as vectors over $\Z_2$, high degree over $\Z_2$ comes from the final linear mapping over $\Z_3$. Viewing the input as a vector over $\Z_3$, high degree comes from the linear mapping over $\Z_2$ defined by the key.  Despite its simplicity, the design can be conjectured to have a good level of security with small input and key size (say, 256 bits for 128-bit security). It mostly resisted the initial cryptanalysis, where attacks found in~\cite{cheon2020-adventures} require a very big number of samples and are quite easy to circumvent by slightly modifying the design (as suggested in~\cite{cheon2020-adventures}).
 
@@ -97,7 +97,7 @@ Motivated by the above questions, we make the following contributions.
 \fi
 
 
-\subsubsection{New candidate constructions.}
+\subsubsection{New candidate constructions}
 We introduce several candidate constructions for OWF, PRG, and (weak) PRF, all based on alternation between linear mappings over $\Z_2$ and $\Z_3$.
 
 \begin{itemize}
@@ -113,12 +113,12 @@ We introduce several candidate constructions for OWF, PRG, and (weak) PRF, all b
 
 
     \item \textbf{Candidate PRG.}
-    We also propose a candidate length-doubling PRG that is similar to our LPN-wPRF. Specifically, we use a public matrix $\mat{A} \in \Z_2^{m \times n}$ instead of the key for the first linear mappings. It follows the same structure as the LPN-wPRF, by first expanding the input to the intermediate vector $w$ and then applying a contracting $\Z_2$ linear mapping $\mat{B}$. Choosing $m$, i.e., the length of the intermediate vector, to be large enough, we can ensure that the final compressive mapping still results in an output of size $t = 2n$.
+    We also propose a candidate length-doubling PRG that is similar to our LPN-wPRF. Specifically, we use a public matrix $\mat{A} \in \Z_2^{m \times n}$ instead of the key for the first linear mappings. It follows the same structure as the LPN-wPRF, by first expanding the input to the intermediate vector $w$ and then applying a compressive $\Z_2$ linear mapping $\mat{B}$. Choosing $m$, i.e., the length of the intermediate vector, to be large enough, we can ensure that the final compressive mapping still results in an output of size $t = 2n$.
 
     % Let $\mat{K}$ be a secret key matrix in $\Z_2^{m \times n}$. For an input $x$, the $(2,3)$-wPRF candidate is defined as $\mathsf{F}_\mat{K}(x) = \mat{B}(\mat{K}x)$ where $\mat{B} \in \Z_3^{t \times m}$ is a public matrix and $w = \mat{K}x$ is first reinterpreted as a 0/1 vector over $\Z_3$. \yuval{Describe LPN-style PRFs here. Maybe make this the last bullet, so that we can start with the new stuff?}
 \end{itemize}
 
-\subsubsection{Cryptanalysis and implications on parameter choices.}
+\subsubsection{Cryptanalysis and implications on parameter choices}
 Given that the constructions heavily mix linear operations over $\Z_2$ and $\Z_3$,
 we will rely on the arguments of Boneh et al.~\cite{boneh2018-darkmatter},
 and conjecture that algebraic attacks do not threaten their security.
@@ -187,7 +187,7 @@ LPN-PRF         & $(2s, 2s, s)$          &              \\ \hline
 \end{centering}
 \end{table}
 
-\subsubsection{Distributed protocols and optimized implementations.}
+\subsubsection{Distributed protocols and optimized implementations}
  
 \yuval{Start with a sharp statement on how we improve the online complexity of the wPRF protocols from~\cite{boneh2018-darkmatter}  (both communication and rounds). Give some concrete data points for fully distributed PRF, OPRF. Then explain our unified approach for achieving the improvement unified approach that applies also to the other primitives we design. This approach is explained below.}
  
@@ -229,10 +229,12 @@ The key ingredient which gives our protocols their efficiency is a subprotocol f
 However, the main source of improvement of our protocols over the ones from~\cite{boneh2018-darkmatter}  is our use of the {\em modulus conversion} correlations described above. We show how to generate both kinds of correlations from a standard OT correlation using only a {\em single} message, where in the $\Z_2 \to \Z_3$ case the (amortized) communication is $<1.38$ bits per instance, and in the (less commonly used) $\Z_3 \to \Z_2$ case it is $6$ bits per instance. This means that the amortized cost of distributing the dealer in our protocols is typically much lower than the cost of the online protocol that consumes the correlated randomness.
 
 
-\subsubsection{Applications.}
-\greg{As I noted in the applications section, will the two applications be the OPRF and signatures?}
+\subsubsection{Applications}
+%\greg{As I noted in the applications section, will the two applications be the OPRF and signatures?}
 
-\yuval{ I would add Steven's application of wPRF with input, key and output in $\Z_2$, and applications of distributing FSS key generation. I can take care of the latter.}
+%\yuval{ I would add Steven's application of wPRF with input, key and output in $\Z_2$, and applications of distributing FSS key generation. I can take care of the latter.}
+
+MPC protocols for the symmetric primitives we consider in this work are useful for a variety of cryptographic applications. Here we discuss some of these motivating applications. 
 
 \paragraph{Digital signatures.} Using the MPC-friendliness of candidates, we can efficiently prove knowledge of
 an input (e.g., of a OWF input, wPRF key or PRG seed), using proof protocols
@@ -267,7 +269,12 @@ Compared to a standard DDH-based OPRF~\cite{jarecki2014-ddhoprf,jarecki2016-ddho
 % \paragraph{Hierarchical key derivation functions.} 
 %\yuval{Motivates wPRF where inputs, outputs, and keys are over $\Z_2$. Explain the problem with using $(2,3)-wPRF$ by distinguishing between applications for which the output is given in the clear and ones where it needs to be kept secret and reused (such as this one).}
 
-\paragraph{Secret output.} Our \ttwPRF candidate is well suited for applications that have privately held secret-shared inputs but require a public output that is delivered in the clear. However, it is insufficient for applications in which the output of the function needs to itself be kept secret and reused as the input to a subsequent PRF invocation.
+\yuval{Added the following paragraph. Let's try to better connect this section with the protocols section, reminding readers which applications each protocol is useful for. }
+
+\paragraph{Fully distributed wPRF.} Unlike the OPRF setting, in which one party holds the PRF key and another holds the input, there are settings in which both the input and the key need to be distributed between two of more parties. In this setting, most of the techniques for efficient OPRF protocols (including the DDH-based protocols discussed above) do not apply. 
+One motivating application for fully distributed wPRF, which was already discussed in~\cite{boneh2018-darkmatter}, is a distributed implementation of {\em searchable symmetric encryption} (SSE) service. In distributed SSE, a client can obtain a decryption key of database entries matching a chosen keyword $w$ by interacting with two or more servers, while keeping the keyword $w$ secret.  To this end, the client secret-shares $w$ between the servers, who also hold shares of a WPRF key. Following interaction between the servers, the serves reveal the wPRF output to the client. This output can be used by the client to decrypt database entries associated with keyword $w$. 
+
+\paragraph{Secret-output wPRF.} Our \ttwPRF candidate is well suited for applications that have privately held secret-shared inputs but require a public output that is delivered in the clear to one or more parties. However, it is insufficient for applications in which the output of the function needs to itself be kept secret and reused as the input to a subsequent PRF invocation.
 
 One such common application arises in the context of deterministic signatures, which consists of generating a nonce by applying a PRF to the private key. In Schnorr and ECDSA, the nonce and a corresponding signature are sufficient to recover the private key. Thus, the nonce must also be distributed using the same secret-shared structure as the key. Distributed generation of deterministic signatures is once application that has both private input (the private key) and output (the nonce). Another example arises in the context of key derivation functions (KDFs), especially in a hierarchical structure, the output of the PRF may need to be used as an input (or even a key) for another evaluation of the PRF. A related application arises in the context of Bitcoin's BIP-32 derivation~\cite{bitcoin_bip0032}. Motivated by such applications, we propose our LPN-wPRF candidate which has both its input and output over $\Z_2$.
 
@@ -275,7 +282,7 @@ One such common application arises in the context of deterministic signatures, w
 
 %\yuval{First considered by Doerner-shelat in the context of 2PC for RAM programs. Then used for PCG seed generation and MPC for mixed-mode and fixed-point operations. Key ingredient: length-doubling PRG.}
 
-\subsubsection{Future directions.} Our work leaves several interesting avenues for further work. One direction is designing MPC protocols with malicious security while minimizing the extra cost. Recent techniques from~\cite{BBCGI19,BGIN19} can be helpful towards this goal. Another direction is designing and analyzing other symmetric primitives based on the alternating moduli paradigm. Relevant examples include hash functions, strong PRFs, and block ciphers. 
+\subsubsection{Future directions} Our work leaves several interesting avenues for further work. One direction is designing MPC protocols with malicious security while minimizing the extra cost. Recent techniques from~\cite{BBCGI19,BGIN19} can be helpful towards this goal. Another direction is designing and analyzing other symmetric primitives based on the alternating moduli paradigm. Relevant examples include hash functions, strong PRFs, and block ciphers. 
 %\yuval{Include a pointer to an appendix with Itai's preliminary results on the hash functions front?} 
 In fact, a strong PRF candidate was already suggested in~\cite{boneh2018-darkmatter}.  Analyzing its concrete security is left for future work.
 
