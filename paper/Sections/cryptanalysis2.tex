@@ -71,7 +71,7 @@ it has $2^{m/2}$ different \emph{representations}.
 Consequently, we may focus on finding only one of these representations
 by solving two subset-sum problems of Hamming weight $m/4$.
 Focusing on a single representation of the solution
-allows to beat the standard meet-in-the-middle approach which requires time $2^{m/2}$.
+beats the standard meet-in-the-middle approach which requires time $2^{m/2}$.
 
 \paragraph{Adaptation of previous subset-sum algorithms.}
 The algorithm of~\cite{Howgrave-GrahamJ10} can be easily adapted
@@ -90,6 +90,15 @@ the attack of~\cite{Howgrave-GrahamJ10} runs in time $2^{0.337m}$ and uses $2^{0
 while the complexity of attack of~\cite{BonnetainBSS20} requires $2^{0.283m}$ time and memory.
 
 Thus, conservatively ignoring polynomial factors, for $s$-bit security we require $0.283m \geq s$, or $m \geq 3.53 s$.
+\greg{The memory costs are very high here. For our 128-bit security aggressive
+parameters the attack requires $2^{113}$ memory ignoring polynomial factors. We
+don't have a standard way of equating time and memory costs, in order to say
+that an attack with cost $2^{113}$ time and memory does not break 128-bit
+security, since the memory cost is too high.  But we can point out these high
+memory costs to help justify the security of the aggressive parameters. If there
+was consensus in the crypto community that (say) that an attack having $2^{96}$ memory cost
+ does not break 128-bit security, then we could set $m=340$. Or alternatively we could say that the agressive
+parameters have more margin when better accounting for the cost of memory. }
 
 \subsection{Summary of Security Evaluation of the \ttwPRF}
 
@@ -99,6 +108,8 @@ $(x^{(1)},\mat{B},y^{(1)}) ,\ldots, (x^{(2^r)},
 and tries to
 mount a key recovery and/or a distinguishing attack.
 We restrict the number of samples produced with a single secret to $2^{40}$.
+\greg{Notation: In Preliminaries, the definition of wPRF gives the attacker $l$ samples, indexed 
+with subscripts (the superscript notation is used for secret shares).}
 
 We will set the parameters such that $n - \log 3 \cdot t \geq s$,
 and thus there are $2^s$ keys on average that are consistent with a single sample.
@@ -106,6 +117,8 @@ Therefore, any key recovery attack faster than $2^s$ has to make use of at least
 Particularly, the subset-sum attack can also be applied to the \ttwPRF,
 but it is not clear how to use it efficiently on more than one sample
 (without strong relations between them).
+\greg{Is this the reason why the \ttwPRF is a weak PRF and not a PRF? I don't think we actually say anywhere
+in the paper why it's only a PRF for random inputs, leaving open the possibility that the \ttwPRF is actually a PRF.}
 
 The most important distinguishing attack looks for a bias in a linear combination
 of the output over $\Z_3$.
@@ -121,7 +134,7 @@ This analysis is probabilistic and leads to a lower bound on $m$.
 
 Another important attack we consider exploits the fact that $\mat{K}$
 is circulant and preserves symmetric properties of the input $x$ (e.g., the two halves of $x$ are equal). 
-This attack imposes a lower bound on $n$ so that such a symmetric vector in not found
+This attack imposes a lower bound on $n$ so that such a symmetric vector is not found
 in the data, except with negligible probability. 
 We leave it as an open problem to extend this basic attack.
 
@@ -134,6 +147,9 @@ in rather narrow. A choice of $n=m=2.5s$ is more conservative.
 
 The attacker is given a single sample $\mat{A},\mat{B},y$
 and tries to mount a key recovery and/or a distinguishing attack.
+\greg{Does this automatically imply that the usual iterated PRG construction for longer outputs is secure? I'm thinking of the one where
+the $n$ bit seed is expanded to $2n$ bits, half are output and half are used as the state/seed for the next iteration. 
+(in practice we'd probably want a $2s$-bit state)}
 
 The construction differs from 
 the alternative weak PRF construction proposed

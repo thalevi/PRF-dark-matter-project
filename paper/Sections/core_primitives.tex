@@ -46,7 +46,7 @@ The candidate constructions we introduce follow one of two broad styles which we
     \item \textbf{$(p,q)$-constructions.}
     For distinct primes $p, q$, the $(p,q)$-constructions have the following structure: On an input $x$ over $\Z_p$, first a linear $\bmod~p$ mapping is applied, followed by a linear $\bmod~q$ mapping. Note that after the $\bmod~p$ mapping, the input is first reinterpreted as a vector over $\Z_q$. For unkeyed primitives (e.g., OWF), both mappings are public, while for keyed primitives (e.g., wPRF), the key is used for the first linear mapping. The construction is parameterized by positive integers $n, m, t$ (functions of the security parameter $\secparam$) denoting the length of the input vector (over $\Z_p$), the length of the intermediate vector, and the length of the output vector (over $\Z_q$) respectively. The two linear mappings can be represented by matrices $\mat{A} \in \Z_p^{m \times n}$ and $\mat{B} \in \Z_q^{t \times m}$. For keyed primitives, the key $\mat{K} \in \Z_p^{m \times n}$ will be used instead of $\mat{A}$.
 
-    \hspace*{1em} Concretely, given an input $x \in \Z_p^n$, the construction output is of the form $y = \mat{B}w \in \Z_q^t$ where $w = \mat{A}{x}$ is first viewed over $\Z_q$. In this paper, we will analyze this style of constructions for $(p,q) = (2,3)$ and $(3,2)$ since these are arguably the simplest constructions that employ linear mappings over alternate moduli. We find that the $(2,3)$-constructions outperform the $(3,2)$-constructions and we will primarily use the former style for our constructions.
+    \hspace*{1em} Concretely, given an input $x \in \Z_p^n$, the construction output is of the form $y = \mat{B}w \in \Z_q^t$ where $w = \mat{A}{x}$ is first viewed over $\Z_q$. In this paper, we will analyze this style of construction for $(p,q) = (2,3)$ and $(3,2)$ since these are arguably the simplest constructions that employ linear mappings over alternate moduli. We find that the $(2,3)$-constructions outperform the $(3,2)$-constructions and we will primarily use the former style for our constructions.
 
     % \greg{Why did we choose to focus on (2,3), (3,2)?}
     % \itai{At a high level the standard conversion from mod 3 to mod 2 loses information and is less efficient.
@@ -54,7 +54,7 @@ The candidate constructions we introduce follow one of two broad styles which we
     % \greg{But why not (5,7) or (17, 101), etc. I think a sentence explaining why these two primes would help.}
     
     \item \textbf{LPN-style-constructions.}
-    These constructions have the following general structure: On input $x$ over $\Z_2$, first a linear $\bmod~2$ mapping given by the matrix $\mat{A}$ is applied to obtain $u$. Concurrently, the same linear mapping is also applied over $\Z_3$ (where both $x$ and $\mat{A}$ are now reinterpreted over $\Z_3$) and then reduced modulo $2$ to obtain $v$. The sum $w = u \oplus v$ is then multiplied by a second linear mapping (given by $\mat{B}$) over $\Z_2$. The mapping $\mat{B}$ is always public, while for keyed primitives, the key $\mat{K}$ is used instead of $\mat{A}$.
+    These constructions have the following general structure: On input $x$ over $\Z_2$, first a linear $\bmod~2$ mapping given by the matrix $\mat{A}$ is applied to obtain~$u$. Concurrently, the same linear mapping is also applied over $\Z_3$ (where both $x$ and $\mat{A}$ are now reinterpreted over $\Z_3$) and then reduced modulo $2$ to obtain $v$. The sum $w = u \oplus v$ is then multiplied by a second linear mapping (given by $\mat{B}$) over $\Z_2$. The mapping $\mat{B}$ is always public, while for keyed primitives, the key $\mat{K}$ is used instead of $\mat{A}$.
 
     \hspace*{1em} The construction is parameterized by positive integers $n,m,t$ (as functions of the security parameter $\secparam$) denoting the size of the input vector, the intermediate vector(s), and the output vector (all over $\Z_p$).
     Concretely, given $\mat{A} \in \Z_2^{m \times n}$ and a public $\mat{B} \in \Z_2^{t \times m}$, for an input $x \in \Z_2^n$, the construction first computes the intermediate vector:
@@ -68,7 +68,7 @@ The candidate constructions we introduce follow one of two broad styles which we
 
 
 \paragraph{Winning candidates.}
-Through cryptanalysis and considering the cost for each candidate (See Sections~\ref{sec:cryptanalysis} for details), we find that some of our candidates are more suited (i.e., ``win'') for a particular setting. 
+Through cryptanalysis and considering the cost for each candidate (See Sections~\ref{sec:cryptanalysis} and \ref{sec:distributed_protocols} for details), we find that some of our candidates are more suited (i.e., ``win'') for a particular setting. 
 \iffull For instance, we found that the $(3,2)$-constructions are overshadowed by the corresponding $(2,3)$-constructions in all settings we consider.\fi Specifically, out of the candidates we consider, we find the following: \ttwPRF and \ttOWF are the best wPRF / OWF candidates with no restriction on the input/output space. LPN-wPRF is the best wPRF candidate when the input and output space are over $\Z_2$. LPN-PRG is the best PRG candidate.
 \iffull
 \begin{enumerate}
@@ -77,9 +77,10 @@ Through cryptanalysis and considering the cost for each candidate (See Sections~
     \item \ttOWF is the best OWF candidate with no restriction for input and output space.
     \item LPN-PRG is the best PRG candidate.
 \end{enumerate}
+\greg{The list is repetitive of the preceeding sentence, is only one meant to appear?}
 \fi
-We provide formal and pictorial descriptions of our winning candidates in \fig~\ref{fig:primary-constructions} and~\ref{fig:lpn-constructions}.
-
+We provide formal and pictorial descriptions of our winning candidates in Figures~\ref{fig:primary-constructions} and~\ref{fig:lpn-constructions}.
+\greg{I think we have two copies of the following definition? (one here, one in appendix}
 
 \iffull
 \paragraph{Circuit description of constructions.}
@@ -111,10 +112,10 @@ The constructions we described previously use general matrices in, e.g., $\Z_p^{
     A Toeplitz matrix, or a diagonal-constant matrix, is a matrix where each diagonal from left to right is constant. Specifically, $\mat{M}$ is Toeplitz if for all $i \in [m]; j \in [n]$, it holds that $M_{i,j} = M_{i+1, j+1}$ where $M_{i,j}$ denotes the element in row $i$ and column $j$ of $\mat{M}$. This means that a Toeplitz matrix can be represented by a single column and a single row, i.e., with $n + m - 1$ field elements.
 
     \item (Generalized circulant matrices). 
-    A generalized circulant matrix is a matrix where each row after the first, is a cyclic rotation of the first row. Specifically, if the first row of generalized circulant matrix $\mat{M}$ is the vector $(a_1, \dots, a_n)$, then the $m^\thtext$ row of $\mat{M}$ will be given by the same vector cyclically rotated $m-1$ times. In general, $m \neq n$, but the special case of $m = n$ (i.e., when the matrix is square) is called a (square) circulant matrix. Unless specified, for brevity, we will often use the term \textit{circulant} to denote either generalized circulant matrices or the more specific (square) circulant matrices. This will not matter for our setting, since both can be efficiently represented using just $n$ field elements.
+    A generalized circulant matrix is a matrix where each row after the first, is a cyclic rotation of the first row. Specifically, if the first row of generalized circulant matrix $\mat{M}$ is the vector $(a_1, \dots, a_n)$, then the $m^\thtext$ row of $\mat{M}$ will be given by the same vector cyclically rotated $m-1$ times. In general, $m \neq n$, but the special case of $m = n$ is called a (square) circulant matrix. Unless specified, for brevity, we will often use the term \textit{circulant} to denote either generalized circulant matrices or the more specific (square) circulant matrices. This will not matter for our setting, since both can be efficiently represented using just $n$ field elements.
 \end{itemize}
 \iffull
-We will usually instantiate our constructions using generalized circulant matrices to take advantage of their efficient representations. However, care must be taken while adding structure since this could potentially damage the security of a construction. This is particularly relevant in case of multi-element outputs since elements in the intermediate vectors will be correlated. For example, in the LPN-style construction, the noise for each deterministic LPN instance will be correlated since two columns of a circulant matrix are just cyclic rotations. 
+We will usually instantiate our constructions using generalized circulant matrices to take advantage of their efficient representations. However, care must be taken while adding structure since this could potentially reduce the security of a construction. This is particularly relevant in case of multi-element outputs since elements in the intermediate vectors will be correlated. For example, in the LPN-style construction, the noise for each deterministic LPN instance will be correlated since two columns of a circulant matrix are just cyclic rotations. 
 
 Our cryptanalysis in Section~\ref{sec:cryptanalysis} will therefore consider our constructions with structured matrices. Of course, general $m \times n$ matrices can also be used for all our constructions (with at least equal security) but this could result in substantially more communication costs. In many cases, it is also helpful to choose the matrices to be full-rank (see Section~\ref{sec:cryptanalysis} for details).
 \else
