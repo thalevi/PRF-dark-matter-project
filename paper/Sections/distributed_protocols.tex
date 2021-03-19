@@ -13,6 +13,7 @@ In Appendix~\ref{appendix:protocols}, we also provide protocols for two more set
 \subsection{Technical Overview}
 \label{subsec:protocol_overview}
 Recall that all our constructions can be succinctly represented using five basic gates. The main strategy now will be to evaluate each of these gates in a distributed manner. These gate evaluation subprotocols can then be easily composed to evaluate the  candidate constructions. 
+\greg{Should we justify security under composition a bit more?  I think the reason composition is secure is because all of the gates maintain the invariant that the inputs and outputs are all secret shared, and nothing is leaked about the inputs.}
 
 We begin with distributed protocols to evaluate each of the five gates. Abstractly, the goal of a gate protocol is to convert shares of the inputs to shares of the outputs (or shares of the masked output). To make our formalism cleaner, the gate protocols, by themselves, will involve no communication. Instead, they can additionally take in masked versions of the inputs, and possibly some additional correlated randomness. When composing gate protocols, whenever a masked input is needed, the parties will exchange their local shares to publicly reveal the masked value. This choice also prevents redoing the same communication when the masked value is already available from earlier gate evaluations.
 
@@ -22,9 +23,11 @@ We begin with distributed protocols to evaluate each of the five gates. Abstract
 For a protocol $\prot$, we use the notation $\prot(a_1, \dots, a_k \mid b_1, \dots, b_l)$ to denote that the values $a_1, \dots, a_k$ are provided publicly to all parties in the protocol, while the values $b_1, \dots, b_l$ are secret shared among the parties. When $\party_i$ knows the values $(a_1, \dots, a_k)$, and has shares $\sharei{b_1}, \dots, \share{b_l})$, we use the notation $\prot(a_1, \dots, a_k \mid \sharei{b_1}, \dots, \sharei{b_l})$ to denote that $\party_i$ runs the protocol with its local inputs. 
 
 Given public values $a_1, \dots, a_k$, it is straightforward for the protocol parties to compute a sharing $\share{f(a_1, \dots, a_k)}$ for a function $f$ (for example, $\party_1$ computes the function as its share, and all other parties set their share to $0$).
+\greg{Remind readers that ``$x$ over $\Z_p$'' is short for $x$ over $\Z_p^n$, etc. we drop the dimensions of matrices and vectors.}
 \fi
 
 \subsubsection{Distributed Computation of Circuit Gates}
+\greg{These protocols generalize to $N$ parties and we use this for the signatures use case.  Maybe call that out here?}
 We provide detailed (local) protocols to compute each circuit gate in this section. The description of inputs (including shared correlated randomness) and outputs for each gate protocol is also summarized in Table~\ref{table:gate_protocol_summary}. 
 Protocols for the $\LMap$ and $\Add$ gates directly follow from the homomorphic properties of additive secret sharing, while the protocol for the $\BLMap$ gate is essentially a generalization of Beaver's multiplication triples~\cite{boyle2019-fss-preprocess,beaver1991-triples}. \iffull\else In this section, we briefly provide our novel protocols for the $\Convert_{(2,3)}$ and $\Convert_{(3,2)}$ gates and defer the details (as well as other gate protocols) to Appendix~\ref{appendix:protocol_gates}.\fi
 
@@ -52,7 +55,6 @@ $\prot_{\Convert}^{(3,2)}$ & $\hat{x}$ (over $\Z_3$) & - & \makecell{$u = \tilde
 }
 }
 \caption{Summary of input, output, and randomness for circuit gate protocols.
-% \greg{Change ``over base group'' to ``over group''?}
 }
 \label{table:gate_protocol_summary}
 \end{table}
@@ -111,6 +113,7 @@ Since the output of the bilinear gate will usually feed into a conversion gate w
 where $\odot$ denotes the Hadamard (component-wise) product modulo 3.
  % Here, addition is also done over $\Z_3$.
 \iffull
+
 \noindent \textit{Correctness.} To see why this works, suppose that $\hat{x} \in \Z_2^l$. Consider any position $j \in [l]$, and denote by using a subscript $j$, the $j^\thtext$ position in a vector. Note that now, the position $j$ of the output can be written as:
 \[
     \sharei{x^*}_j = \sharei{\hat{x}}_j + \sharei{r}_j + (\hat{x}\sharei{r}_j\bmod 3) \quad \bmod 3
@@ -173,11 +176,6 @@ Consequently, $\sum_{\party_i \in \parties} \sharei{x^*} \bmod 2 = x \bmod 2$ ho
 \subsubsection{Composing Gate Protocols}
 We now describe a general technique to evaluate circuit composed of the previously specified gates in a distributed fashion. We provide details for the semi-honest fully distributed setting (with preprocessing), where all inputs are secret shared between all parties initially. This can also be thought of as a toolbox for constructing efficient distributed protocols for other constructions similar to ours. While the technique will also work for other settings (e.g., OPRF, public input), the concrete communication costs will be worse than more specially designed protocols. For these settings, we will provide more efficient protocols than provided by this general technique.
 
-
-% \greg{Does it make sense to say that this very general composition protocol can
-% allow one to easily make protocols for variants of our primitives? ``MPC
-% toolbox for alternating moduli primitives'' or similar}
-
 \paragraph{Composition protocol.} Consider a circuit $C$ (Definition~\ref{def:computation_circuit}) with input space $\Gin = \prod \Gin_i$. To evaluate $C$ with input $(x_1, \dots, x_l) \in \Gin$, in the fully distributed setting, all parties are given additive shares for each $x_i$. Now, the distributed evaluation of $C$ proceeds as follows:
 \begin{itemize}
   
@@ -186,6 +184,9 @@ We now describe a general technique to evaluate circuit composed of the previous
   \item The evaluation of a (non-source) vertex in the graph of $C$ is done by each party running the corresponding gate protocol locally on their share of the inputs. 
 
   \item For an edge $(V_a, V_b)$, suppose that the output of $V_a$ is used as one of the inputs of $V_b$. If the gate protocol corresponding to $\mathcal{G}_V$ requires this input to be masked (e.g., the bilinear gate protocol), then before evaluating $V_b$, each party first masks its share of the output. Now, all parties simultaneously reveal their shares to publicly reveal the masked value.   The masking values are provided to the parties in the preprocessing phase. The same value also need not be masked multiple times if it is required for multiple gates.
+\greg{Thinking about composition again... If input $x$ is shared once input to say $N$ gates, the composition is only secure if 
+the adversary corrupts the same set of parties in all $N$ gates (otherwise she might get all $N$ shares of $x$). Maybe that's obvious... but
+ where do we argue security of the resulting protocols?}
 
   \item The required output shares of the distributed evaluation are given by the evaluation of the sink vertices in the circuit.
 \end{itemize}
@@ -202,7 +203,7 @@ Consider $N$ parties taking part in the distributed evaluation. To reconstruct a
 
 
 \paragraph{Reducing round complexity.} It is also straightforward to parallelize the communication to reduce the number of rounds. For this, suppose that we call an edge $(V_a, V_b)$ \textit{communication-requiring} if the output of the protocol for $V_a$ needs to be masked before it is input into the protocol for $V_b$ (in other words, the gate protocol for $V_b$ requires a masked input). Now, define the communication-depth of a vertex $V$ as the maximum number of communication-requiring edges in any path from a source vertex to $V$. Now, instead of evaluating vertices with the same depth simultaneously, we will evaluate vertices with the same \textit{communication-depth} together before the next communication round. By doing so, we can reduce the total number of rounds to the maximum communication-depth.
-
+As our primitives are designed to have low depth, this optimization has a large impact on performance. 
 
 \paragraph{Preprocessing cost.}
 A na{\"i}ve technique to compute the preprocessing required is to add the preprocessing for each gate in the circuit as follows:
