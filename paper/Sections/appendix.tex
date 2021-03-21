@@ -97,10 +97,18 @@ $\tfrac{2^{a}}{2^n} = 2^{-n+a}$ as claimed.
 
 
 
-
 \subsubsection{Concrete security goals.}
 For each scheme the goal is to obtain parameter sets $n,m,t$ such that it offers
-$s$-bit security, as defined below, while achieving good performance in distributed protocols.
+$s$-bit security, while achieving good performance in distributed protocols.
+
+The definition of $s$-bit security that we use below is inspired 
+by with the work of Micciancio and Walter~\cite{Micciancio018}.
+We intentionally do not bound the attacker to a particular computational model,
+as this may rule out valid attacks in other natural models.
+Moreover, the definition is also valid against non-uniform adversaries 
+(that are allowed to use a computationally unbounded preprocessing phase), 
+as our constructions have auxiliary inputs 
+(with sufficiently large min-entropy) that are not available during preprocessing.
 
 \paragraph{OWF security.}
 Given a OWF scheme $F(\cdot)$ (applied to a secret input, where the public parameters are embedded into $F$),
@@ -135,7 +143,6 @@ We say that the PRF has $s$ bits of security if given (at most) $2^r$ samples bo
   \item The advantage of a distinguishing adversary that runs in time $2^\tau$ is at most $2^{(\tau - s)/2}$.
   \item The probability that an adversary that runs in time $2^\tau$ find the key is at most $2^{\tau - s}$.
 \end{enumerate}
-This definition is aligned with the work of Micciancio and Walter~\cite{Micciancio018}.
 
 \paragraph{PRG security.}
 The secret seed $x \in \Z_2^n$ is chosen uniformly at random, along with the public parameters $\mat{A},\mat{B}$.
