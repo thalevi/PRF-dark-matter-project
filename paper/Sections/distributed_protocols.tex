@@ -282,7 +282,7 @@ We describe several optimizations to reduce the total cost of preprocessing. We 
   \hline
   \end{tabular}
 }
-\caption{Concrete MPC costs for our winning candidate constructions in three settings (Distributed 2PC (with preprocessing), 3PC, and Public-input 2PC) using our proposed parameters. For the distributed 2PC and the public-input 2PC settings, we provide the total online communication (bits, messages, rounds) and the preprocessing required in bits (without compression, with compression). For the compressed size of the preprocessing, we do not include values that can be reused (e.g., PRG seeds). For the distributed 3PC setting, we provide the total online communication cost (bits, messages, rounds) for our $(2,3)$-constructions. The cost of the reusable PRG seeds is not included}
+\caption{Concrete MPC costs for our winning candidate constructions in three settings (Distributed 2PC (with preprocessing), 3PC, and Public-input 2PC) using our proposed parameters. For the distributed 2PC and the public-input 2PC settings, we provide the total online communication (bits, messages, rounds) and the preprocessing required in bits (without compression, with compression). For the compressed size of the preprocessing, we do not include values that can be reused (e.g., PRG seeds). For the distributed 3PC setting, we provide the total online communication cost (bits, messages, rounds) for our $(2,3)$-constructions. The cost of the reusable PRG seeds is not included. \yuval{It will be useful to add a table with optimized total costs for 2PC without preprocessing. This is especially useful for the PRG, where the main applications are for generating correlated randomness. We can reduce the cost of (3,2) conversions in this setting below what we currently have. }}
 \label{table:construction_costs}
 }
 \end{table}
@@ -471,7 +471,7 @@ Many prior OPRF constructions~\cite{freedman2005-oprf,jarecki2009-oprf} require 
 \fi
 
 %-------------------%
-\subsection{Generating the correlated randomness.}
+\subsection{Generating the correlated randomness}
 \label{subsec:preprocessing}
 \iffull
 While our distributed protocols are primarily built for use in the preprocessing model, in this section we will also show how to generate the preprocessing we require efficiently and without a trusted dealer. We will focus on the 2-party setting specifically. Three of our gate protocols, namely $\prot_\BLMap$, $\prot_\Convert^{(2,3)}$, and $\prot_\Convert^{(3,2)}$, require correlated randomness as preprocessing. In this section, we will show how to efficiently generate the randomness they require.
