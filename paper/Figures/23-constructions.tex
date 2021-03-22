@@ -18,9 +18,6 @@ The \ttwPRF candidate is a family of functions $\PRFfunc : \Z_2^{m \times n} \ti
 \label{construction:23-central-wprf}
 \end{construction}
 
-% \begin{center} \input{Figures/tikzfigs/23wPRF_fig} \end{center}
-
-
 \begin{construction}[Mod-2/Mod-3 OWF Candidate]
 The \ttOWF candidate is a function $\OWFfunc : \Z_2^n \to \Z_3^t$ with input space $\inspace_\secparam = \Z_2^n$ and output space $\outspace_\secparam = \Z_3^t$. We define $\sfF(x) = \OWFfunc(x)$ as follows:
 
@@ -28,8 +25,6 @@ The \ttOWF candidate is a function $\OWFfunc : \Z_2^n \to \Z_3^t$ with input spa
     \item On input $x \in \Z_2^n$, first compute $w = \LMap^{\mat{A}}_2(x) = \mat{A}x$.
     \item Output $y = \LMap^{\mat{B}}_3\left(\Convert_{(2,3)}(w)\right)$. That is, view $w$ as a vector over $\Z_3$ and then output $y = \mat{B}w$.
 \end{enumerate}
-
-% \begin{center} \input{Figures/tikzfigs/23OWF_fig} \end{center}
 
 \medskip
 

@@ -14,6 +14,7 @@ In Appendix~\ref{appendix:protocols}, we also provide protocols for two more set
 \label{subsec:protocol_overview}
 Recall that all our constructions can be succinctly represented using five basic gates. The main strategy now will be to evaluate each of these gates in a distributed manner. These gate evaluation subprotocols can then be easily composed to evaluate the  candidate constructions. 
 \greg{Should we justify security under composition a bit more?  I think the reason composition is secure is because all of the gates maintain the invariant that the inputs and outputs are all secret shared, and nothing is leaked about the inputs.}
+\mahimna{Yes; it would be good to have a composition theorem for security. It should be pretty straightforward I think. I'll add that as a todo.}
 
 We begin with distributed protocols to evaluate each of the five gates. Abstractly, the goal of a gate protocol is to convert shares of the inputs to shares of the outputs (or shares of the masked output). To make our formalism cleaner, the gate protocols, by themselves, will involve no communication. Instead, they can additionally take in masked versions of the inputs, and possibly some additional correlated randomness. When composing gate protocols, whenever a masked input is needed, the parties will exchange their local shares to publicly reveal the masked value. This choice also prevents redoing the same communication when the masked value is already available from earlier gate evaluations.
 

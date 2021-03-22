@@ -17,7 +17,6 @@ The \textnormal{LPN-wPRF} candidate is a family of functions $\PRFfunc : \Z_2^{m
 \end{enumerate}
 \label{construction:23-central-wprf}
 \end{construction}
-% \begin{center} \input{Figures/tikzfigs/lpnwPRF_fig} \end{center}
 
 \begin{construction}[LPN-PRG Candidate]
 The \textnormal{LPN-PRG} is a length-doubling PRG candidate defined as the function $\mathsf{F}_\secparam : \Z_2^n \to \Z_2^{2n}$ with input space $\inspace_\secparam = \Z_2^n$ and output space $\outspace_\secparam = \Z_2^{2n}$. For this construction, we consider the parameters $n,m,t$ with $m \geq n, t$ and $t = 2n$. We define $\mathsf{F}(x) = \mathsf{F}_\secparam$ as follows:
@@ -27,7 +26,6 @@ The \textnormal{LPN-PRG} is a length-doubling PRG candidate defined as the funct
     \item Compute $w = u \xor v$ and output $y = \LMap_2^{\mat{B}}(w)$.
     \end{enumerate}
 \end{construction}
-% \begin{center} \input{Figures/tikzfigs/lpnPRG_fig} \end{center}
 
 \medskip
 
