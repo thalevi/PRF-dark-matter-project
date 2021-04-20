@@ -58,8 +58,10 @@ shortest signatures.
 Abstractly, a signature scheme can be built from any one-way function $\sfF$
 that has an MPC protocol to evaluate it, by setting the public key to $y =
 \sfF(x)$ for a random secret $x$, and then proving knowledge of $x$, using a
-proof system based on the MPC-in-the-head paradigm~\cite{ishai2007-zkmpc}.  In
-addition to assuming the OWF is secure, the only other assumption required is a
+proof system based on the MPC-in-the-head paradigm~\cite{ishai2007-zkmpc}.
+To make the proof non-interactive, typically these schemes use the Fiat-Shamir transform, 
+and the message to be signed is bound to the proof by including it in the hash when computing the challenge. 
+In addition to assuming the OWF is secure, the only other assumption required is a
 secure hash function. As no additional number-theoretic assumptions are
 required, these types of signatures are often proposed as secure post-quantum
 schemes. 

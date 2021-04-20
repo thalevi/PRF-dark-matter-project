@@ -277,7 +277,7 @@ algorithm~\cite{chase2017-picnic,CCS:KatKolWan18,kales2020-picnic,picnic-spec}, 
 third round candidate in the NIST Post-Quantum Cryptography Standardization
 Process.\footnote{See
 \url{https://csrc.nist.gov/projects/post-quantum-cryptography/}.} We replace
-the OWF in Picnic (an instance of the LowMC block cipher~\cite{albrecht2015-lowmc}),
+the OWF in Picnic (an instance of the LowMC block cipher~\cite{albrecht2015-lowmc}, which is assumed to be a OWF),
 update the MPC protocol accordingly, and quantify the resulting signature
 sizes.  Using our conservative \ttOWF parameters, we find that signatures sizes are slightly shorter, with signatures at
 the 128-bit security level (64-bit quantum) having size ranging from 10.3--13.3KB (depending
