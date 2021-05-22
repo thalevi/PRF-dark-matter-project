@@ -83,6 +83,47 @@ Our presentation is somewhat brief here, as many details are identical to Picnic
 and the \ttOWF MPC has been described in \cref{sec:distributed_protocols}. 
 \cref{appendix:picnic} includes additional details. 
 
+
+\iffull 
+\begin{table}[t]
+\resizebox{\textwidth}{!}{ 
+\begin{tabular}{l|l|l}
+OWF Params      & KKW params        & Sig. size (KB)\\
+$(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
+$(128,453,81)$  & $(16, 150, 51)$   & 13.30 \\
+                & $(16, 168, 45)$   & 12.48 \\ 
+                & $(16, 250, 36)$   & \textbf{11.54} \\
+Picnic3-L1      & $(16, 250, 36)$   & 12.60 \\ \hline
+$(128,453,81)$  & $(64, 151, 45)$   & 13.59 \\
+                & $(64, 209, 34)$   & 11.70 \\ 
+                & $(64, 343, 27)$   & \textbf{10.66} \\
+Picnic2-L1      & $(64, 343, 27)$   & 12.36 \\ \hline
+\end{tabular}
+
+\quad
+\begin{tabular}{l|l|l}
+OWF Params      & KKW params        & Sig. size (KB)\\
+$(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
+$(256,906,162)$ & $(16, 324, 92)$   & 50.19 \\ 
+                & $(16, 400, 79)$   & 47.08 \\ 
+                & $(16, 604, 68)$   & \textbf{45.82} \\ 
+Picnic3-L5      & $(16, 604, 68)$   & 48.72 \\ \hline
+$(256,906,162)$ & $(64, 322, 82)$   & 51.23 \\
+                & $(64, 518, 60)$   & 44.04 \\ 
+                & $(64, 604, 57)$   & \textbf{43.45} \\ 
+Picnic2-L5      & $(64, 604, 58)$   & 46.18 \\ \hline
+\end{tabular}
+ }
+\caption{ \label{table:sig-sizes}Signature size estimates for Picnic using
+\ttOWF, compared to Picnic using LowMC.  The left table shows
+security level L1 (128 bits) with $N=16$ and $N=64$ parties, and the right table shows level L5 (256 bits).}
+\end{table}
+
+\fi
+
+
+
+
 \paragraph{Parameters.} Let $\secpar$ be a security parameter.  The
 \ttOWF parameters are denoted $(n, m, t)$.  The KKW parameters $(N, M,
 \tau)$ denote the number of parties $N$, the total number of MPC instances $M$,
@@ -182,39 +223,4 @@ LowMC.
 
 
 
-\iffull 
-\begin{table}[t]
-\resizebox{\textwidth}{!}{ 
-\begin{tabular}{l|l|l}
-OWF Params      & KKW params        & Sig. size (KB)\\
-$(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
-$(128,453,81)$  & $(16, 150, 51)$   & 13.30 \\
-                & $(16, 168, 45)$   & 12.48 \\ 
-                & $(16, 250, 36)$   & \textbf{11.54} \\
-Picnic3-L1      & $(16, 250, 36)$   & 12.60 \\ \hline
-$(128,453,81)$  & $(64, 151, 45)$   & 13.59 \\
-                & $(64, 209, 34)$   & 11.70 \\ 
-                & $(64, 343, 27)$   & \textbf{10.66} \\
-Picnic2-L1      & $(64, 343, 27)$   & 12.36 \\ \hline
-\end{tabular}
 
-\quad
-\begin{tabular}{l|l|l}
-OWF Params      & KKW params        & Sig. size (KB)\\
-$(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
-$(256,906,162)$ & $(16, 324, 92)$   & 50.19 \\ 
-                & $(16, 400, 79)$   & 47.08 \\ 
-                & $(16, 604, 68)$   & \textbf{45.82} \\ 
-Picnic3-L5      & $(16, 604, 68)$   & 48.72 \\ \hline
-$(256,906,162)$ & $(64, 322, 82)$   & 51.23 \\
-                & $(64, 518, 60)$   & 44.04 \\ 
-                & $(64, 604, 57)$   & \textbf{43.45} \\ 
-Picnic2-L5      & $(64, 604, 58)$   & 46.18 \\ \hline
-\end{tabular}
- }
-\caption{ \label{table:sig-sizes}Signature size estimates for Picnic using
-\ttOWF, compared to Picnic using LowMC.  The left table shows
-security level L1 (128 bits) with $N=16$ and $N=64$ parties, and the right table shows level L5 (256 bits).}
-\end{table}
-
-\fi

@@ -83,7 +83,7 @@ What about simpler symmetric primitives such as OWFs and PRGs? MPC protocols for
 % All the candidates we propose are based on similar interplays between linear mappings in $\Z_2$ and $\Z_3$.
 %\mahimna{write something about complexity theory implications}
 
-\subsection{Our Contribution}
+\subsection{Our Contributions}
 
 
 Motivated by the above questions, we make the following contributions.
@@ -102,14 +102,14 @@ We introduce several candidate constructions for OWF, PRG, and (weak) PRF, all b
 
 \begin{itemize}
     \item \textbf{Candidate OWF.} 
-    We expand on the general structure of the $(2,3)$-wPRF candidate from~\cite{boneh2018-darkmatter} to construct a candidate OWF. Recall that the wPRF candidate computes $\mat{B}(\mat{K}x)$ where $\mat{K}$ is the secret key (over $\Z_2$) and $\mat{B}$ is a compressive $\Z_3$ linear mapping. For our $(2,3)$-OWF candidate, we replace the secret key matrix with another randomly sampled (expanding) public matrix $\mat{A}$. Specifically, given $\mat{A} \in \Z_2^{m \times n}$ and $\mat{B} \in \Z_3^{t \times m}$ where $m \geq n,t$, our OWF candidate is defined as $\mathsf{F}(x) = \mat{B}(\mat{A}x)$ where $\mat{A}x$ is first reinterpreted as a 0/1 vector over $\Z_3$.
+    We expand on the general structure of the $(2,3)$-wPRF candidate from \cite{boneh2018-darkmatter} to construct a candidate OWF. Recall that the wPRF candidate computes $\mat{B}(\mat{K}x)$ where $\mat{K}$ is the secret key (over $\Z_2$) and $\mat{B}$ is a compressive $\Z_3$ linear mapping. For our $(2,3)$-OWF candidate, we replace the secret key matrix with another randomly sampled (expanding) public matrix $\mat{A}$. Specifically, given $\mat{A} \in \Z_2^{m \times n}$ and $\mat{B} \in \Z_3^{t \times m}$ where $m \geq n,t$, our OWF candidate is defined as $\mathsf{F}(x) = \mat{B}(\mat{A}x)$ where $\mat{A}x$ is first reinterpreted as a 0/1 vector over $\Z_3$.
 
     \item \textbf{Candidate wPRF.}
     The wPRF candidate from~\cite{boneh2018-darkmatter} had inputs over $\Z_2$ but outputs over $\Z_3$. This is not suitable for applications in which the output should be further processed using secret sharing over $\Z_2$. To this end, we propose an ``LPN-style'' wPRF candidate where both the input and output are over $\Z_2$. Specifically, given a secret key matrix $\mat{K} \in \Z_2^{m \times n}$ and a public compressive mapping $\mat{B} \in \Z_2^{t \times m}$, for an input $x \in \Z_2^n$, our LPN-wPRF candidate first computes an intermediate vector
     \[
         w = [(\mat{K}x \bmod 2) + (\mat{K}x \bmod 3) \bmod 2] \bmod 2
     \]
-    where for $\mat{K}x \bmod 3$, both $\mat{K}$ and $x$ are first reinterpreted over $\Z_3$. Then, the candidate is defined as $\mathsf{F}_\mat{K}(x) = \mat{B}w$. Intuitively, each intermediate vector bit can be thought of as a deterministic Learning-Parity-with-Noise (LPN) instance with a noise rate of 1/3. The noise is deterministically generated and is dependent on the input $x$ and a specific column of $\mat{A}$. A similar candidate was considered in~\cite{boneh2018-darkmatter} (as their alternate candidate) but it only outputs a single bit (it uses $\mat{K} \in \Z_2^{1 \times n}$ and outputs the intermediate vector directly). Our candidate generalizes this to multiple output bits. But more importantly, it also does not output the intermediate vector directly and instead applies an additional compressive linear mapping (using $\mat{B}$). We show how this allows our candidate to resist standard attacks on LPN.
+    where for $\mat{K}x \bmod 3$, both $\mat{K}$ and $x$ are first reinterpreted over $\Z_3$. Then, the candidate is defined as $\mathsf{F}_\mat{K}(x) = \mat{B}w$. Intuitively, each intermediate vector bit can be thought of as a deterministic Learning-Parity-with-Noise (LPN) instance with a noise rate of 1/3. The noise is deterministically generated and is dependent on the input $x$ and a specific column of $\mat{K}$. A similar candidate was considered in~\cite{boneh2018-darkmatter} (as their alternate candidate) but it only outputs a single bit (it uses $\mat{K} \in \Z_2^{1 \times n}$ and outputs the intermediate vector directly). Our candidate generalizes this to multiple output bits. But more importantly, it also does not output the intermediate vector directly and instead applies an additional compressive linear mapping (using $\mat{B}$). We show how this allows our candidate to resist standard attacks on LPN.
 
 
     \item \textbf{Candidate PRG.}
@@ -138,16 +138,16 @@ this attack forced us to increase the parameters by about $30\%$.
 
 \paragraph{wPRF and PRG constructions.}
 Our candidate wPRF and PRG constructions are related to the ones proposed in~\cite{boneh2018-darkmatter}
-and recently analyzed in~\cite{CheonCKK20}. 
+and recently analyzed in~\cite{cheon2020-adventures}. 
 The latter work describes distinguishing attacks on the constructions of~\cite{boneh2018-darkmatter}
 with asymptotically exponential (yet, concretely significant) complexity.
 Specifically, the attack on the $(2,3)$-wPRF candidate of~\cite{boneh2018-darkmatter} exploits an interaction
 between the structure of the circulant matrix $\mat{K}$ and the choice of $\mat{B}$
-(which is fixed to the vector $\vec{1}$).
+(which is fixed to the vector $\vec{\textbf{1}}$).
 On the other hand, our construction uses a random choice of $\mat{B}$ which, as we show, is
 unlikely to result in such an interaction.
 
-It is important to emphasize that~\cite{CheonCKK20} analyzed constructions where the output length is $t=1$,
+It is important to emphasize that~\cite{cheon2020-adventures} analyzed constructions where the output length is $t=1$,
 while our constructions use $t \gg 1$.
 Although longer output gives better performance, it may also degrade security.
 For example, at the extreme end, if $t = m$ the scheme is trivially broken in polynomial time by linear algebra,
@@ -199,9 +199,11 @@ combine their information in more efficient attacks.
 \begin{table}[t]
 \small
 \begin{centering}
-\begin{tabular}{l|l|l}
-Construction    & Parameters             & Comment\\
-                & $(n, m, t)$            &   \\\hline
+\begin{tabular}{|c|c|c|}
+
+\hline
+\multirow{2}{*}{Construction}    & Parameters             & \multirow{2}{*}{Comment}\\
+                & $(n, m, t)$            &   \\ \hline \hline
 \ttOWF          & $(s, 3.13s, s/\log 3)$ & aggressive \\
                 & $(s, 3.53s, s/\log 3)$ & conservative \\ \hline
 \ttwPRF         & $(2s, 2s, s/\log 3)$   & aggressive  \\
@@ -218,7 +220,7 @@ LPN-PRF         & $(2s, 2s, s)$          &              \\ \hline
 \yuval{Start with a sharp statement on how we improve the online complexity of the wPRF protocols from~\cite{boneh2018-darkmatter}  (both communication and rounds). Give some concrete data points for fully distributed PRF, OPRF. Then explain our unified approach for achieving the improvement unified approach that applies also to the other primitives we design. This approach is explained below.}
  
 \paragraph{Efficient protocols.} 
-We provide efficient protocols for our wPRF candidate constructions in a variety of settings: 2PC with preprocessing, 3PC with one passive corruption, and Oblivious 2PC. For the \ttwPRF candidate, our protocols when compared to the ones from~\cite{boneh2018-darkmatter} in exactly the same setting perform roughly 1.5-5x better in both online communication and preprocessing size. Specifically, in the 2PC setting, our protocol requires 2 rounds, 1536 bits of online communication, and 662 bits of preprocessing. In contrast, the protocol from~\cite{boneh2018-darkmatter} for the same setting requires 4 rounds, roughly 2600 bits of online communication and roughly 3500 bits of preprocessing. Similarly, our OPRF protocol requires 2 rounds, 641 bits of online communication while the one from~\cite{boneh2018-darkmatter} requires 4 rounds and roughly 1800 bits of online communication.
+We provide efficient protocols for our wPRF candidate constructions in a variety of settings: 2PC with preprocessing, 3PC with one passive corruption, and Oblivious 2PC. For the \ttwPRF candidate, our protocols when compared to the ones from~\cite{boneh2018-darkmatter} in exactly the same setting perform roughly 1.5-5x better in both online communication and preprocessing size. For instance, in the 2PC setting, our protocol requires 2 rounds, 1536 bits of online communication, and 662 bits of preprocessing. In contrast, the protocol from~\cite{boneh2018-darkmatter} for the same setting requires 4 rounds, roughly 2600 bits of online communication and roughly 3500 bits of preprocessing. Similarly, our OPRF protocol requires 2 rounds, 641 bits of online communication while the one from~\cite{boneh2018-darkmatter} requires 4 rounds and roughly 1800 bits of online communication.
 
 % \paragraph{Efficient modulus conversion gates.}
 The key ingredient which gives our protocols their efficiency is a subprotocol for modulus conversion gates that switch between shares in $\Z_2$ and $\Z_3$. While~\cite{boneh2018-darkmatter} used OT in their protocols, we use these modulus conversion gates for better efficiency. We note that these conversion gates can also be used to construct efficient distributed protocols for alternate variants of our constructions.
@@ -263,7 +265,7 @@ However, the main source of improvement of our protocols over the ones from~\cit
 MPC protocols for the symmetric primitives we consider in this work are useful for a variety of cryptographic applications. Here we discuss some of these motivating applications. 
 
 \paragraph{Digital signatures.} Using the MPC-friendliness of candidates, we can efficiently prove knowledge of
-an input (e.g., of a OWF input, wPRF key or PRG seed), using proof protocols
+an input (e.g., of an OWF input, wPRF key, or PRG seed), using proof protocols
 based on the MPC-in-the-head paradigm~\cite{ishai2007-zkmpc}.  This is the approach
 taken by many recently designed post-quantum signature
 schemes~\cite{chase2017-picnic,CCS:KatKolWan18,beullens2020-sigma-mq,beullens2020-legroast,guilhem2019-bbq,banquet},
@@ -277,7 +279,7 @@ algorithm~\cite{chase2017-picnic,CCS:KatKolWan18,kales2020-picnic,picnic-spec}, 
 third round candidate in the NIST Post-Quantum Cryptography Standardization
 Process.\footnote{See
 \url{https://csrc.nist.gov/projects/post-quantum-cryptography/}.} We replace
-the OWF in Picnic (an instance of the LowMC block cipher~\cite{albrecht2015-lowmc}),
+the OWF used in Picnic (an instance of the LowMC block cipher~\cite{albrecht2015-lowmc}),
 update the MPC protocol accordingly, and quantify the resulting signature
 sizes.  Using our conservative \ttOWF parameters, we find that signatures sizes are slightly shorter, with signatures at
 the 128-bit security level (64-bit quantum) having size ranging from 10.3--13.3KB (depending
@@ -289,7 +291,7 @@ description, without sacrificing performance.
 \paragraph{Oblivious pseudorandom functions.} 
 %\yuval{Literature pointers, compare with DDH-based (better computation, post-quantum), compare with Legendre-based.}
 We construct an OPRF protocol that computes our \ttwPRF candidate in an oblivious setting. In the multi-input setting (where the key is used for multiple evaluations), our protocol requires only 2 rounds and 641 bits of online communication.
-Compared to a standard DDH-based OPRF~\cite{jarecki2014-ddhoprf,jarecki2016-ddhoprf}, which require 512 bits of communication for $128$-bit security, our protocol requires slightly higher communication but has much better performance. Our implementation shows that our OPRF protocol is faster than a \textit{single} scalar multiplication over the Curve25519 elliptic curve. Consequently, we expect our protocol to be faster than a number of OPRF protocols~\cite{freedman2005-oprf,jarecki2009-oprf} that are based on algebraic PRFs and require expensive exponentiations.\greg{Replace ``expensive exponentiations'' with ``XX or more exponenetiations'' where XX is the number these protocols need.} In another direction, recent works~\cite{grassi2016-mpcfriendly,seres2021-legendre} construct an OPRF protocol from the Legendre PRF~\cite{damgard1988-legendre}. For 128-bit security and only a {\em single} output bit, the recent protocol from~\cite{seres2021-legendre} has online communication cost of $13$KB, substantially higher than ours (with 128 output bits), and with a higher computational cost.
+Compared to a standard DDH-based OPRF~\cite{jarecki2014-ddhoprf,jarecki2016-ddhoprf}, which require 512 bits of communication for $128$-bit security, our protocol requires slightly higher communication but has much better performance. Remarkably, our implementation shows that our OPRF protocol is faster than a \textit{single} scalar multiplication over the Curve25519 elliptic curve. Consequently, we expect our protocol to be faster than a number of OPRF protocols~\cite{freedman2005-oprf,jarecki2009-oprf} that are based on algebraic PRFs and require expensive exponentiations.\greg{Replace ``expensive exponentiations'' with ``XX or more exponenetiations'' where XX is the number these protocols need.} In another direction, recent works~\cite{grassi2016-mpcfriendly,seres2021-legendre} construct an OPRF protocol from the Legendre PRF~\cite{damgard1988-legendre}. For 128-bit security and only a {\em single} output bit, the recent protocol from~\cite{seres2021-legendre} has online communication cost of $13$KB, substantially higher than ours (with 128 output bits), and with a higher computational cost.
 
 
 % \paragraph{Hierarchical key derivation functions.} 
@@ -302,7 +304,7 @@ One motivating application for fully distributed wPRF, which was already discuss
 
 \paragraph{Secret-output wPRF.} Our \ttwPRF candidate is well suited for applications that have privately held secret-shared inputs but require a public output that is delivered in the clear to one or more parties. However, it is insufficient for applications in which the output of the function needs to itself be kept secret and reused as the input to a subsequent PRF invocation.
 
-One such common application arises in the context of deterministic signatures, which consists of generating a nonce by applying a PRF to the private key. In Schnorr and ECDSA, the nonce and a corresponding signature are sufficient to recover the private key. Thus, the nonce must also be distributed using the same secret-shared structure as the key. Distributed generation of deterministic signatures is once application that has both private input (the private key) and output (the nonce). Another example arises in the context of key derivation functions (KDFs), especially in a hierarchical structure, the output of the PRF may need to be used as an input (or even a key) for another evaluation of the PRF. A related application arises in the context of Bitcoin's BIP-32 derivation~\cite{bitcoin_bip0032}. Motivated by such applications, we propose our LPN-wPRF candidate which has both its input and output over $\Z_2$.
+One such common application arises in the context of deterministic signatures, which consists of generating a nonce by applying a PRF to the private key. In Schnorr and ECDSA, the nonce and a corresponding signature are sufficient to recover the private key. Thus, the nonce must also be distributed using the same secret-shared structure as the key. Distributed generation of deterministic signatures is once application that has both private input (the private key) and output (the nonce). Another example arises in the context of key derivation functions (KDFs), especially in a hierarchical structure, where the output of the PRF may need to be used as an input (or even a key) for another evaluation of the PRF. A related application arises in the context of Bitcoin's BIP-32 derivation~\cite{bitcoin_bip0032}. Motivated by such applications, we propose our LPN-wPRF candidate which has both its input and output over $\Z_2$.
 
 \paragraph{Distributed FSS key generation.} Function secret sharing (FSS)~\cite{boyle2015-fss} is a useful tool for a variety of cryptographic applications; see~\cite{BoyleCGGIKR20,boyle2020-lpn-pcg} for recent examples. In many of these applications, two or more parties need to securely generate FSS keys, which in turn reduces to secure evaluation of a length-doubling PRG. Our LPN-style PRG candidate serves as a good basis for such protocols. In contrast to the black-box FSS key generation protocol of Doerner and shelat~\cite{DoernerS17}, its computational cost only scales logarithmically with the domain size. The optimal conjectured seed length of our PRG candidate ensures that FSS the key size is optimal as well.
 

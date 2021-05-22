@@ -21,15 +21,14 @@ We begin with distributed protocols to evaluate each of the five gates. Abstract
 
 \iffull
 \paragraph{Protocol notation and considerations.}
-For a protocol $\prot$, we use the notation $\prot(a_1, \dots, a_k \mid b_1, \dots, b_l)$ to denote that the values $a_1, \dots, a_k$ are provided publicly to all parties in the protocol, while the values $b_1, \dots, b_l$ are secret shared among the parties. When $\party_i$ knows the values $(a_1, \dots, a_k)$, and has shares $\sharei{b_1}, \dots, \share{b_l})$, we use the notation $\prot(a_1, \dots, a_k \mid \sharei{b_1}, \dots, \sharei{b_l})$ to denote that $\party_i$ runs the protocol with its local inputs. 
+For a protocol $\prot$, we use the notation $\prot(a_1, \dots, a_k \mid b_1, \dots, b_l)$ to denote that the values $a_1, \dots, a_k$ are provided publicly to all parties ($\party_1$ to $\party_N$) in the protocol, while the values $b_1, \dots, b_l$ are secret shared among the parties. When $\party_i$ knows the values $(a_1, \dots, a_k)$, and has shares $\sharei{b_1}, \dots, \share{b_l})$, we use the notation $\prot(a_1, \dots, a_k \mid \sharei{b_1}, \dots, \sharei{b_l})$ to denote that $\party_i$ runs the protocol with its local inputs. 
 
 Given public values $a_1, \dots, a_k$, it is straightforward for the protocol parties to compute a sharing $\share{f(a_1, \dots, a_k)}$ for a function $f$ (for example, $\party_1$ computes the function as its share, and all other parties set their share to $0$).
 \greg{Remind readers that ``$x$ over $\Z_p$'' is short for $x$ over $\Z_p^n$, etc. we drop the dimensions of matrices and vectors.}
 \fi
 
 \subsubsection{Distributed Computation of Circuit Gates}
-\greg{These protocols generalize to $N$ parties and we use this for the signatures use case.  Maybe call that out here?}
-We provide detailed (local) protocols to compute each circuit gate in this section. The description of inputs (including shared correlated randomness) and outputs for each gate protocol is also summarized in Table~\ref{table:gate_protocol_summary}. 
+We provide detailed (local) protocols to compute each circuit gate in this section. The description of inputs (including shared correlated randomness) and outputs for each gate protocol is also summarized in Table~\ref{table:gate_protocol_summary}. Note that the protocols work for any number of parties.
 Protocols for the $\LMap$ and $\Add$ gates directly follow from the homomorphic properties of additive secret sharing, while the protocol for the $\BLMap$ gate is essentially a generalization of Beaver's multiplication triples~\cite{boyle2019-fss-preprocess,beaver1991-triples}. \iffull\else In this section, we briefly provide our novel protocols for the $\Convert_{(2,3)}$ and $\Convert_{(3,2)}$ gates and defer the details (as well as other gate protocols) to Appendix~\ref{appendix:protocol_gates}.\fi
 
 \begin{table}[t!]
@@ -41,7 +40,7 @@ Protocols for the $\LMap$ and $\Add$ gates directly follow from the homomorphic 
 
 \hline
 Protocol & \makecell{Public \\ Inputs} & \makecell{Shared \\ Inputs} & \makecell{Shared \\ Correlated Randomness} & \makecell{Output Shares \\ (over base group $\mathbb{G}$)} \\
-\hline
+\hline \hline 
 $\prot_{\LMap}^{\mat{A},p}$ & $\mat{A}$ & $x$ & - & $y = \mat{A}x$ (over $\Z_p$)\\
 \hline
 $\prot_{\Add}^{p}$ & & $x, x'$ & - & $y = x + x'$ (over $\Z_p$)\\
@@ -340,14 +339,14 @@ As preprocessing, each party also receives shares of $\tilde{\mat{K}}, \tilde{x}
 
 Furthermore, if each party is given a PRG seed, then they can use the PRG to compute their shares of $\tilde{\mat{K}}$ and $\tilde{x}$. In this case, the dealer only needs to provide $\party_1$ with its shares for $\tilde{\mat{K}}\tilde{x} + \tilde{w}$ and $r$. $\party_2$ can compute its shares for those values using its PRG seed and the dealer can use its knowledge of $\party_2$'s seed to appropriately set the shares for $\party_1$. Consequently, across both parties, only $m + \log_2{3} \cdot m$ bits of preprocessing is required apart from the PRG seeds. Short $\secparam$-bit seeds can be provided to each party beforehand and reused for multiple evaluations.
 
-% \iffull\else
+\iffull\else
 \paragraph{Other settings.} In Appendix~\ref{appendix:protocols_other_settings}, we detail a 1-round protocol in the public-input setting (i.e., when the input $x$ is public.). We also provide a 1-round protocol for distributed 3PC evaluation with no preprocessing (using replicated shares) that is secure against one passive corruption.
-% \fi
+\fi
 
 \fi
 
 \iffull
-\subsubsection{Public-input setting}
+\subsubsection{Public-Input Setting}
 It is also straightforward to use the same generic technique to construct distributed protocols in the public-input setting. For keyed primitives, in public-input setting, the key is secret shared between the parties but the input is publicly known. The goal of the protocol is for the parties to compute shares of the output.
 
 One useful optimization is that in the public-input setting, a $\BLMap$ gate where the input is known, essentially reduces to a linear gate where the key $\mat{K}$ is secret shared and the input $x$ is publicly known.
@@ -360,7 +359,7 @@ In total, the evaluation takes a single round and a communication of $m$ bits pe
 
 %------------------%
 
-\subsection{3-party Distributed Evaluation}
+\subsection{3-Party Distributed Evaluation}
 \label{subsec:3party_protocol}
 
 In this section, we provide a 3-party (semi-honest) protocol for computing the \ttwPRF candidate that is secure against one passive corruption and does not require any preprocessing.
@@ -553,7 +552,8 @@ Given a (1-out-of-3) OT-correlation $((z_0,z_1,z_2), (c,z_c))$ for 2-bit strings
   \end{itemize}
 \label{prot:ot-to-32}
 \end{protocol}
-This is less efficient than our protocol to generate a $(2,3)$ correlation and takes 6 bits of communication per instance. Note that the communication is still unidirectional as only $\party_1$ sends a message. Consequently, the $(3,2)$ correlations can also be generated on the fly given OT correlations as part of the first protocol round.  More details are given in Appendix~\ref{appendix:correlated_randomness}.
+This is less efficient than our protocol to generate a $(2,3)$ correlation and takes 6 bits of communication per instance. Note that the communication is still unidirectional as only $\party_1$ sends a message. Consequently, the $(3,2)$ correlations can also be generated on the fly given OT correlations as part of the first protocol round.  
+\iffull\else More details are given in Appendix~\ref{appendix:correlated_randomness}.\fi
 
 \iffull
 \begin{lemma}

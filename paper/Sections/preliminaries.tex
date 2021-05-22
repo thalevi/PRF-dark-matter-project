@@ -17,7 +17,7 @@ We briefly recall the standard definitions for the symmetric primitives we consi
 
 \begin{definition}[Weak Pseudorandom Function (wPRF)]
 Let $\keyspace = \{\keyspace_\secparam\}_{\secparam \in \N}$, $\inspace = \{\inspace_\secparam\}_{\secparam \in \N}$, and $\outspace = \{\outspace_\secparam\}_{\secparam \in \N}$ be ensembles of finite sets indexed by a security parameter $\secparam$. Consider an efficiently computable function family $\{\mathsf{F}_\secparam\}_{\secparam \in \N}$ where each function is given by $\mathsf{F}_\secparam: \keyspace_\secparam \times \inspace_\secparam \to \outspace_\secparam$.
-We say that $\{\mathsf{F}_\secparam\}_{\secparam \in \N}$ is an $(l, t, \varepsilon)$-weak pseudorandom function if for all adversaries $\advA$ running in time at most $t(\secparam)$, the following holds: taking $f_\secparam \getsr \Funcs[\inspace_\secparam, \outspace_\secparam]$, $k \getsr \keyspace_\lambda$, and $x_1, \dots, x_l \getsr \inspace_\secparam$, we have that,
+We say that $\{\mathsf{F}_\secparam\}_{\secparam \in \N}$ is an $(l, t, \varepsilon)$-weak pseudorandom function if for infinitely many $\secparam \in \N$ and all adversaries $\advA$ running in time at most $t(\secparam)$, the following holds: taking $f_\secparam \getsr \Funcs[\inspace_\secparam, \outspace_\secparam]$, $k \getsr \keyspace_\lambda$, and $x_1, \dots, x_l \getsr \inspace_\secparam$, we have that,
 \[
     \left|\Pr\left[ \advA\left(1^\secparam, {\{ x_i, \mathsf{F}_\secparam(k,x_i)\}}_{i \in [l]} \right)\right]
     - \Pr\left[ \advA\left(1^\secparam, {\{ x_i, f_\secparam(x_i)\}}_{i \in [l]}\right)\right] \right| \leq \varepsilon(\secparam).
@@ -27,7 +27,7 @@ We say that $\{\mathsf{F}_\secparam\}_{\secparam \in \N}$ is an $(l, t, \varepsi
 
 \begin{definition}[One-way Function (OWF)]
 Let $\inspace = \{\inspace_\secparam\}_{\secparam \in \N}$, and $\outspace = \{\outspace_\secparam\}_{\secparam \in \N}$ be ensembles of finite sets indexed by a security parameter $\secparam$. Consider an efficiently computable function family $\{\mathsf{F}_\secparam\}_{\secparam \in \N}$ where each function is given by $\mathsf{F}_\secparam: \inspace_\secparam \to \outspace_\secparam$.
-We say that $\{\mathsf{F}_\secparam\}_{\secparam \in \N}$ is a $(t, \varepsilon)$-one-way function if for infinitely many $\secparam \in \N$ and all adversaries $\advA$ running in time at most $t(\secparam)$, the following holds:
+We say that $\{\mathsf{F}_\secparam\}_{\secparam \in \N}$ is a $(t, \varepsilon)$-one-way function if for infinitely many $\secparam \in \N$ and all adversaries $\advA$ running in time at most $t(\secparam)$, we have that,
 \[
     \Pr\left[x \getsr \inspace; y \gets \mathsf{F}_\secparam(x) : \mathsf{F}_\secparam(\advA(1^{\abs{x}}, y)) = y \right] \leq \varepsilon(\secparam)
 \]

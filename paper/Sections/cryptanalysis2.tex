@@ -2,6 +2,8 @@
 \section{Cryptanalysis}
 \label{sec:cryptanalysis}
 
+\newcommand{\zerovec}{\textbf{0}}
+
 We give a summary of cryptanalysis of our constructions,
 focusing on the main attacks that influence our parameters.
 The details are found in Appendix~\ref{appendix:cryptanalysis}.
@@ -19,11 +21,11 @@ Our most interesting attack on the \ttOWF is based on a reduction to subset-sum.
 We give the full details below.
 
 \paragraph{Reduction to subset-sum.}
-For a vector $w \in \Z_2^m$, there is an $(m -n) \times m$ (parity check) matrix $\mat{P}$ such that there exists $x \in \Z_2^n$ for which $\mat{A}x = w$ if and only if $\mat{P} w=0$.
+For a vector $w \in \Z_2^m$, there is an $(m -n) \times m$ (parity check) matrix $\mat{P}$ such that there exists $x \in \Z_2^n$ for which $\mat{A}x = w$ if and only if $\mat{P} w=\zerovec$.
 Assume that $\hat{y}$ is the output of the \ttOWF on $x \in \Z_2^n$, and let $w = \mat{A}x$. Then,
-$w$ satisfies the conditions $\mat{P} w = 0$ (over $\Z_2$) and $\mat{B}w = \hat{y}$ (over $\Z_3$).
+$w$ satisfies the conditions $\mat{P} w = \zerovec$ (over $\Z_2$) and $\mat{B}w = \hat{y}$ (over $\Z_3$).
 We attempt to find such $w$ by a reduction to subset-sum, as detailed below. Suppose we find a set $J \subseteq [m]$ such that
-$$\left( \sum_{j \in J} \mat{P}e_j  \bmod 2, \sum_{j \in J} \mat{B}e_j  \bmod 3 \right) = (\vec{0},\hat{y}),$$
+$$\left( \sum_{j \in J} \mat{P}e_j  \bmod 2, \sum_{j \in J} \mat{B}e_j  \bmod 3 \right) = (\zerovec,\hat{y}),$$
 where $e_i \in \{0,1\}^m$ is the $i$'th unit vector.
 Then, the preimage $x$ can be computed by solving the linear equation system
 $\mat{A}x = \sum_{j \in J} e_j  \bmod 2$.
@@ -32,7 +34,7 @@ Thus, we have reduced the problem to subset-sum with $m$ binary variables
 $(\epsilon_1, \ldots, \epsilon_m) \in \{0,1\}^m$, where we associate $\epsilon_i = 1$
 with $(\mat{P}e_i, \mat{B}e_i) \in \Z_2^{m-n} \times \Z_3^t,$
 and define the target
-as $(\vec{0},\hat{y}) \in \Z_2^{m-n} \times \Z_3^t$.
+as $(\zerovec,\hat{y}) \in \Z_2^{m-n} \times \Z_3^t$.
 
 \paragraph{Solving the subset-sum problem.}
 We can now apply the advanced subset-sum algorithm by
@@ -45,7 +47,7 @@ and explain how to apply them to the special subset-sum problem
 we consider.
 
 In the subset-sum problem over the integers,
-we are given a list of $m$ positive  integers $(a_1,a_2,\ldots,a_m)$
+we are given a list $(a_1,a_2,\ldots,a_m)$ of $m$ positive  integers 
 and another positive integer $S$ such that $S = \sum_{i=1}^{m} \epsilon_i a_i$
 for $\epsilon_i \in \{0,1\}$. The goal is to recover the unknown coefficients $\epsilon_i$.
 
@@ -103,13 +105,15 @@ parameters have more margin when better accounting for the cost of memory. }
 \subsection{Summary of Security Evaluation of the \ttwPRF}
 
 For the \ttwPRF, the attacker obtains several samples 
-$(x^{(1)},\mat{B},y^{(1)}) ,\ldots, (x^{(2^r)},
-\mat{B},y^{(2^r)})$
+% $(x^{(1)},\mat{B},y^{(1)}) ,\ldots, (x^{(2^r)},
+% \mat{B},y^{(2^r)})$
+$(x_1,\mat{B},y_1) ,\ldots, (x_{2^r},
+\mat{B},y_{2^r})$
 and tries to
 mount a key recovery and/or a distinguishing attack.
 We restrict the number of samples produced with a single secret to $2^{40}$.
-\greg{Notation: In Preliminaries, the definition of wPRF gives the attacker $l$ samples, indexed 
-with subscripts (the superscript notation is used for secret shares).}
+% \greg{Notation: In Preliminaries, the definition of wPRF gives the attacker $l$ samples, indexed 
+% with subscripts (the superscript notation is used for secret shares).}
 
 We will set the parameters such that $n - \log 3 \cdot t \geq s$,
 and thus there are $2^s$ keys on average that are consistent with a single sample.

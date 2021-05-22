@@ -4,9 +4,11 @@
 \label{appendix:cryptanalysis}
 
 In this appendix we describe in detail the cryptanalysis of our new constructions.
-We start with some general remarks and then analyze each construction.
+We start with some general remarks (Section~\ref{subsec:cryptanalysis_remarks}) and then analyze our constructions in subsections that follow.
 
-\subsubsection{Choosing public inputs.}
+\subsection{Overview}
+\label{subsec:cryptanalysis_remarks}
+\subsubsection{Choosing public inputs}
 
 All the cryptosystems we define receive public inputs chosen at random.
 For example, the \ttOWF receives matrices $\mat{A}$ and $\mat{B}$ as public inputs.
@@ -21,7 +23,7 @@ PRFs and the PRG we define.
 Of course, there are bad choices of the public inputs which could degrade security,
 and we need to show that these are unlikely to be occur.
 
-Finally, for the PRFs we define, this still leaves open the question of how to select the public inputs $x$ and $B$
+Finally, for the PRFs we define, this still leaves open the question of how to select the public inputs $x$ and $\mat{B}$
 per sample computed with a secret key. We chose to select $x$ independently per sample,
 while fixing $\mat{B}$ per secret key, as this allows to optimize performance by preprocessing.
 In terms of security, the choice of fixing $\mat{B}$ does allow for a wider range of attacks
@@ -36,7 +38,7 @@ Gilbert–Varshamov bound for linear codes, which is the main tool we use in the
 \paragraph{Private matrices for PRF constructions.}
 The private matrix $\mat{K}$ in the PRF constructions is a circulant matrix
 defined by rotations of a secret $k \in \{0,1\}^n$.
-While a choice of $K$ with a small rank deficiency does not seem to
+While a choice of $\mat{K}$ with a small rank deficiency does not seem to
 have a significant impact on the security,
 some attacks on the schemes (particularly on the 2-3 PRF) may exploit
 matrices of particularly low rank
@@ -55,7 +57,7 @@ Let $n = 2^{n'}$ for a positive integer $n'$
 and let $\mat{K} \in \Z_2^{n \times n}$
 be a circulant matrix selected uniformly at random.
 Then, for any $a \in \{0,\ldots n\}$,
-$\Pr[rank(K) \leq a] = 2^{-n+a}$.
+$\Pr[rank(\mat{K}) \leq a] = 2^{-n+a}$.
 \end{proposition}
 
 \begin{proof}
@@ -66,12 +68,12 @@ $u(x) = \sum_{j=0}^{n-1} u_j x^{j} \in \Z_2[x]$.
 Assume that $\mat{K}$ is formed by rotations
 of $k \in \Z_2^{n}$.
 Then for $i \in \{0,\ldots, n-1\}$,
-the $i$'th column of $K$ is associated with the polynomial
+the $i$'th column of $\mat{K}$ is associated with the polynomial
 $x^i \cdot k(x) \bmod x^n - 1$.
 Thus, for $u \in \Z_2^{n}$, $\mat{K}u$ is given
 by the coefficients of the polynomial
 $u(x) \cdot k(x) \bmod x^n - 1$,
-and $Ku = 0$ if and only if
+and $\mat{K}u = 0$ if and only if
 $u(x) \cdot k(x)$ divides $x^n - 1$.
 
 Therefore, there is a bijection between the kernel space of $\mat{K}$
@@ -125,17 +127,17 @@ The key $k \in \Z_2^n$ that defines the secret matrix $\mat{K}$ is chosen unifor
 Moreover, the public matrix
 $\mat{B} \in \Z_3^{t \times m}$ (or $\mat{B} \in \Z_2^{t \times m}$) is chosen uniformly at random
 (or as a random Toeplitz matrix).
-For a parameter $r$, an adversary is given $2^{r}$ samples $(x^{(1)},\mat{B},y^{(1)}) ,\ldots, (x^{(2^r)},
-\mat{B},y^{(2^r)})$,
-where each $x^{(i)} \in \Z_2^n$ is chosen independently and uniformly at random.
+For a parameter $r$, an adversary is given $2^{r}$ samples $(x_1,\mat{B},y_1) ,\ldots, (x_{2^r},
+\mat{B},y_{2^r})$,
+where each $x_i \in \Z_2^n$ is chosen independently and uniformly at random.
 
 We will place a restriction of $r \leq 40$,
 corresponding to a practical limit of $2^{40}$ on the number of samples available to the adversary.
 
 We consider two types of adversaries.
-The first type is a distinguisher that attempts to distinguish $2^r$ samples where each $y^{(i)}$
+The first type is a distinguisher that attempts to distinguish $2^r$ samples where each $y_i$
 is generated using the PRF with a fixed $k$ from
-$2^r$ samples where each vector $y^{(i)}$ is chosen uniformly at random.
+$2^r$ samples where each vector $y_i$ is chosen uniformly at random.
 The second type attempts to find the secret key given samples generated using the PRF.
 
 We say that the PRF has $s$ bits of security if given (at most) $2^r$ samples both conditions below hold.
@@ -225,11 +227,11 @@ subset-sum reduction (given in Section~\ref{sec:cryptanalysis}) shows how this c
 \paragraph{Induced schemes.}
 Given the scheme \ttOWF with a matrix $\mat{B}$ and output $y$ such that $\mat{B}w = y$, and any positive integer $r$, we can left-multiply both sides by any $r \times t$ matrix $\mat{C}$ over $\Z_3$ to obtain $\mat{C}\mat{B}w = \mat{C}y$. Note that each row of the matrix $\mat{CB}$ is a linear combination of the rows of $\mat{B}$. Using such a matrix $\mat{C}$, we can perform Gaussian elimination on the rows of $\mat{B}$.
 
-We denote the resultant induced scheme by $OWF_\mat{C}(\cdot)$. Observe that if $OWF(x) = y$, then $OWF_\mat{C}(x) = \mat{C}y$.
+We denote the resultant induced scheme by $\textnormal{OWF}_\mat{C}(\cdot)$. Observe that if $\textnormal{OWF}(x) = y$, then $\textnormal{OWF}_\mat{C}(x) = \mat{C}y$.
 We now describe a simple attack that uses an induced scheme where $\mat{C}$ is only a row vector.
 
 \paragraph{Low Hamming weight combinations of the rows of $\mat{B}$.}
-Assume that there is a vector $v \in \Z_3^m$ of Hamming weight $\ell$ in the row space of $\mat{B}$, namely, there exists a vector $u \in \Z_3^t$ for which $u \mat{B} = v$. If $\ell$ is sufficiently small, then we could use the induced scheme $OWF_u(\cdot)$ to speed up exhaustive search.
+Assume that there is a vector $v \in \Z_3^m$ of Hamming weight $\ell$ in the row space of $\mat{B}$, namely, there exists a vector $u \in \Z_3^t$ for which $u \mat{B} = v$. If $\ell$ is sufficiently small, then we could use the induced scheme $\textnormal{OWF}_u(\cdot)$ to speed up exhaustive search.
 
 Denote the set of $\ell$ non-zero indices of $v$ by $I$. Given $\hat{y} = \mat{B}w \bmod 3$, we compute the value of $u\hat{y} \bmod 3 = vw \bmod 3$. We can now enumerate the values of the corresponding set $I$ of $\ell$ bits of $w$ for which $u\hat{y} \bmod 3 = vw \bmod 3$ holds. This set of bits has $\tfrac{2^\ell}{3}$ possible values. Each such $\ell$-bit value gives rise of a system of $\ell$ linear equations on $x$, and we exhaustively search its solution space of size $2^{n-\ell}$. Overall, if $\ell \leq n$ the complexity of the attack is
 $\tfrac{2^{\ell}}{3}$, while if $\ell = n+1$, the complexity is $\tfrac{2^{\ell+1}}{3}$. When $\ell > n+1$, the complexity is higher than $2^n$.
@@ -357,14 +359,14 @@ As described above, the bias of expressions of the form $\sum_{i \in I} v_i w_i 
 are independent and uniformly distributed random variables) is bounded by $2^{-\ell+1}$.
 
 However, the bias may increase if information about the variables $w_i$ is known.
-In particular, the case in which $\sum_{i \in I} w_i \bmod 2$ is known was analyzed in~\cite{CheonCKK20},
+In particular, the case in which $\sum_{i \in I} w_i \bmod 2$ is known was analyzed in~\cite{cheon2020-adventures},
 where the authors showed that the conditional biases such as
 $$\left| \Pr \left[\sum_{i \in I} w_i \bmod 3 = 0 \mid \sum_{i \in I} w_i \bmod 2 = 0 \right] - 1/3 \right|$$
 can be as large as about $2^{-0.21\ell}$.
 While this is still exponentially small in $\ell$,
 it is more significant than the unconditional bias.
 
-The PRF candidate proposed in~\cite{boneh2018-darkmatter} and analyzed in~\cite{CheonCKK20}
+The PRF candidate proposed in~\cite{boneh2018-darkmatter} and analyzed in~\cite{cheon2020-adventures}
 is similar to the one we analyze for $n = m$,
 yet the matrix $\mat{B}$ contains a single row that sums $\bmod$ 3 all the entries of $w$.
 Moreover, since $\mat{K}$ is a circulant matrix and $x$ has even Hamming weight,
@@ -652,7 +654,7 @@ at least $s \cdot 0.1/\log 3 < 0.07 s$ (except with small probability).
 
 
 \begin{remark}
-In~\cite{CheonCKK20} the authors analyze the constructions presented in~\cite{boneh2018-darkmatter}.
+In~\cite{cheon2020-adventures} the authors analyze the constructions presented in~\cite{boneh2018-darkmatter}.
 In particular, for the alternative PRF construction,
 given a sample $(a \in \Z_2^n, x \cdot a)$,
 they show that there exists $j \in [n]$ such that
@@ -792,39 +794,6 @@ $f_3(m,t,\ell) \leq 2 \cdot 3^{t-m} \cdot 2^{m H(\ell/m) + \ell} = 2 \cdot 2^{m 
 %-------------------------------------------------%
 
 
-\begin{table}[t]
-\resizebox{\textwidth}{!}{ 
-\begin{tabular}{l|l|l}
-OWF Params      & KKW params        & Sig. size (KB)\\
-$(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
-$(128,453,81)$  & $(16, 150, 51)$   & 13.30 \\
-                & $(16, 168, 45)$   & 12.48 \\ 
-                & $(16, 250, 36)$   & \textbf{11.54} \\
-Picnic3-L1      & $(16, 250, 36)$   & 12.60 \\ \hline
-$(128,453,81)$  & $(64, 151, 45)$   & 13.59 \\
-                & $(64, 209, 34)$   & 11.70 \\ 
-                & $(64, 343, 27)$   & \textbf{10.66} \\
-Picnic2-L1      & $(64, 343, 27)$   & 12.36 \\ \hline
-\end{tabular}
-
-\quad
-\begin{tabular}{l|l|l}
-OWF Params      & KKW params        & Sig. size (KB)\\
-$(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
-$(256,906,162)$ & $(16, 324, 92)$   & 50.19 \\ 
-                & $(16, 400, 79)$   & 47.08 \\ 
-                & $(16, 604, 68)$   & \textbf{45.82} \\ 
-Picnic3-L5      & $(16, 604, 68)$   & 48.72 \\ \hline
-$(256,906,162)$ & $(64, 322, 82)$   & 51.23 \\
-                & $(64, 518, 60)$   & 44.04 \\ 
-                & $(64, 604, 57)$   & \textbf{43.45} \\ 
-Picnic2-L5      & $(64, 604, 58)$   & 46.18 \\ \hline
-\end{tabular}
- }
-\caption{ \label{table:sig-sizes}Signature size estimates for Picnic using
-\ttOWF, compared to Picnic using LowMC.  The left table shows
-security level L1 (128 bits) with $N=16$ and $N=64$ parties, and the right table shows level L5 (256 bits).}
-\end{table}
 
 
 \section{Signature Scheme Details}
@@ -867,7 +836,45 @@ The parties can then compute the OWF using the homomorphic properties of the sec
 and the share conversion gate (to convert shares mod 2 to mod 3, used when computing~$z$)
 setup during preprocessing that we describe below. 
 During the online phase, parties broadcast values to all other parties and we write $\msgs_i$
-to denote the broadcast messages of party $i$. 
+to denote the broadcast messages of party $i$.
+
+
+\iffull\else
+\begin{table}[t!]
+\resizebox{\textwidth}{!}{ 
+\begin{tabular}{l|l|l}
+OWF Params      & KKW params        & Sig. size (KB)\\
+$(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
+$(128,453,81)$  & $(16, 150, 51)$   & 13.30 \\
+                & $(16, 168, 45)$   & 12.48 \\ 
+                & $(16, 250, 36)$   & \textbf{11.54} \\
+Picnic3-L1      & $(16, 250, 36)$   & 12.60 \\ \hline
+$(128,453,81)$  & $(64, 151, 45)$   & 13.59 \\
+                & $(64, 209, 34)$   & 11.70 \\ 
+                & $(64, 343, 27)$   & \textbf{10.66} \\
+Picnic2-L1      & $(64, 343, 27)$   & 12.36 \\ \hline
+\end{tabular}
+
+\quad
+\begin{tabular}{l|l|l}
+OWF Params      & KKW params        & Sig. size (KB)\\
+$(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
+$(256,906,162)$ & $(16, 324, 92)$   & 50.19 \\ 
+                & $(16, 400, 79)$   & 47.08 \\ 
+                & $(16, 604, 68)$   & \textbf{45.82} \\ 
+Picnic3-L5      & $(16, 604, 68)$   & 48.72 \\ \hline
+$(256,906,162)$ & $(64, 322, 82)$   & 51.23 \\
+                & $(64, 518, 60)$   & 44.04 \\ 
+                & $(64, 604, 57)$   & \textbf{43.45} \\ 
+Picnic2-L5      & $(64, 604, 58)$   & 46.18 \\ \hline
+\end{tabular}
+ }
+\caption{ \label{table:sig-sizes}Signature size estimates for Picnic using
+\ttOWF, compared to Picnic using LowMC.  The left table shows
+security level L1 (128 bits) with $N=16$ and $N=64$ parties, and the right table shows level L5 (256 bits).}
+\end{table}
+\fi
+
 
 
 \paragraph{Preprocessing phase.} Preprocessing establishes random seeds of all parties and shares of 
@@ -1058,4 +1065,4 @@ similar as in Picnic, and we present some options from it in \cref{table:sig-siz
 
 
 %--------------------------%
-\input{Sections/Appendix_Sections/implementation_appendix}
+\iffull\else\input{Sections/Appendix_Sections/implementation_appendix}\fi
