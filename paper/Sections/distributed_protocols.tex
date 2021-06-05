@@ -21,15 +21,14 @@ We begin with distributed protocols to evaluate each of the five gates. Abstract
 
 \iffull
 \paragraph{Protocol notation and considerations.}
-For a protocol $\prot$, we use the notation $\prot(a_1, \dots, a_k \mid b_1, \dots, b_l)$ to denote that the values $a_1, \dots, a_k$ are provided publicly to all parties in the protocol, while the values $b_1, \dots, b_l$ are secret shared among the parties. When $\party_i$ knows the values $(a_1, \dots, a_k)$, and has shares $\sharei{b_1}, \dots, \share{b_l})$, we use the notation $\prot(a_1, \dots, a_k \mid \sharei{b_1}, \dots, \sharei{b_l})$ to denote that $\party_i$ runs the protocol with its local inputs. 
+For a protocol $\prot$, we use the notation $\prot(a_1, \dots, a_k \mid b_1, \dots, b_l)$ to denote that the values $a_1, \dots, a_k$ are provided publicly to all parties ($\party_1$ to $\party_N$) in the protocol, while the values $b_1, \dots, b_l$ are secret shared among the parties. When $\party_i$ knows the values $(a_1, \dots, a_k)$, and has shares $\sharei{b_1}, \dots, \share{b_l})$, we use the notation $\prot(a_1, \dots, a_k \mid \sharei{b_1}, \dots, \sharei{b_l})$ to denote that $\party_i$ runs the protocol with its local inputs. 
 
 Given public values $a_1, \dots, a_k$, it is straightforward for the protocol parties to compute a sharing $\share{f(a_1, \dots, a_k)}$ for a function $f$ (for example, $\party_1$ computes the function as its share, and all other parties set their share to $0$).
 \greg{Remind readers that ``$x$ over $\Z_p$'' is short for $x$ over $\Z_p^n$, etc. we drop the dimensions of matrices and vectors.}
 \fi
 
 \subsubsection{Distributed Computation of Circuit Gates}
-\greg{These protocols generalize to $N$ parties and we use this for the signatures use case.  Maybe call that out here?}
-We provide detailed (local) protocols to compute each circuit gate in this section. The description of inputs (including shared correlated randomness) and outputs for each gate protocol is also summarized in Table~\ref{table:gate_protocol_summary}. 
+We provide detailed (local) protocols to compute each circuit gate in this section. The description of inputs (including shared correlated randomness) and outputs for each gate protocol is also summarized in Table~\ref{table:gate_protocol_summary}. Note that the protocols work for any number of parties.
 Protocols for the $\LMap$ and $\Add$ gates directly follow from the homomorphic properties of additive secret sharing, while the protocol for the $\BLMap$ gate is essentially a generalization of Beaver's multiplication triples~\cite{boyle2019-fss-preprocess,beaver1991-triples}. \iffull\else In this section, we briefly provide our novel protocols for the $\Convert_{(2,3)}$ and $\Convert_{(3,2)}$ gates and defer the details (as well as other gate protocols) to Appendix~\ref{appendix:protocol_gates}.\fi
 
 \begin{table}[t!]
@@ -41,7 +40,7 @@ Protocols for the $\LMap$ and $\Add$ gates directly follow from the homomorphic 
 
 \hline
 Protocol & \makecell{Public \\ Inputs} & \makecell{Shared \\ Inputs} & \makecell{Shared \\ Correlated Randomness} & \makecell{Output Shares \\ (over base group $\mathbb{G}$)} \\
-\hline
+\hline \hline 
 $\prot_{\LMap}^{\mat{A},p}$ & $\mat{A}$ & $x$ & - & $y = \mat{A}x$ (over $\Z_p$)\\
 \hline
 $\prot_{\Add}^{p}$ & & $x, x'$ & - & $y = x + x'$ (over $\Z_p$)\\
@@ -288,6 +287,10 @@ We describe several optimizations to reduce the total cost of preprocessing. We 
 }
 \end{table}
 
+
+\paragraph{Concrete costs.}
+In Table~\ref{table:construction_costs}, we provide the concrete costs for our protocols in different settings for our specific parameter choices. For the distributed 2PC and public-input 2PC settings that use preprocessing, we provide the online and preprocessing costs when using a trusted dealer. Later, in Section~\ref{subsec:preprocessing}, we will show how to distribute the trusted dealer as well, through efficient protocols for generating the preprocessed correlations we require from standard OT-correlations. This combined with fast silent OT~\cite{boyle2019-pcg,yang2020-ferret} makes the gap between the online cost mentioned in Table~\ref{table:construction_costs} and the \textit{total} cost (including distributing the dealer) quite small. As a concrete example, the (amortized) total communication for the $\ttwPRF$ in the distributed 2PC setting is only 23\% higher than the online cost when a trusted dealer is used.
+
 \iffull
 \subsection{Distributed Evaluation in the Preprocessing Model}
 \label{subsec:distributed_protocol}
@@ -340,14 +343,14 @@ As preprocessing, each party also receives shares of $\tilde{\mat{K}}, \tilde{x}
 
 Furthermore, if each party is given a PRG seed, then they can use the PRG to compute their shares of $\tilde{\mat{K}}$ and $\tilde{x}$. In this case, the dealer only needs to provide $\party_1$ with its shares for $\tilde{\mat{K}}\tilde{x} + \tilde{w}$ and $r$. $\party_2$ can compute its shares for those values using its PRG seed and the dealer can use its knowledge of $\party_2$'s seed to appropriately set the shares for $\party_1$. Consequently, across both parties, only $m + \log_2{3} \cdot m$ bits of preprocessing is required apart from the PRG seeds. Short $\secparam$-bit seeds can be provided to each party beforehand and reused for multiple evaluations.
 
-% \iffull\else
+\iffull\else
 \paragraph{Other settings.} In Appendix~\ref{appendix:protocols_other_settings}, we detail a 1-round protocol in the public-input setting (i.e., when the input $x$ is public.). We also provide a 1-round protocol for distributed 3PC evaluation with no preprocessing (using replicated shares) that is secure against one passive corruption.
-% \fi
+\fi
 
 \fi
 
 \iffull
-\subsubsection{Public-input setting}
+\subsubsection{Public-Input Setting}
 It is also straightforward to use the same generic technique to construct distributed protocols in the public-input setting. For keyed primitives, in public-input setting, the key is secret shared between the parties but the input is publicly known. The goal of the protocol is for the parties to compute shares of the output.
 
 One useful optimization is that in the public-input setting, a $\BLMap$ gate where the input is known, essentially reduces to a linear gate where the key $\mat{K}$ is secret shared and the input $x$ is publicly known.
@@ -360,7 +363,7 @@ In total, the evaluation takes a single round and a communication of $m$ bits pe
 
 %------------------%
 
-\subsection{3-party Distributed Evaluation}
+\subsection{3-Party Distributed Evaluation}
 \label{subsec:3party_protocol}
 
 In this section, we provide a 3-party (semi-honest) protocol for computing the \ttwPRF candidate that is secure against one passive corruption and does not require any preprocessing.
@@ -394,11 +397,12 @@ The protocol requires only 1 round, with two messages sent by $\party_1$ and one
 \label{subsec:oprf_protocol}
 Our distributed evaluation protocols from Section~\ref{subsec:distributed_protocol} can be used directly for semi-honest \textit{oblivious} PRF, or OPRF, evaluation in the preprocessing model. Recall that in the OPRF setting, one party $\party_1$ (called the ``server'') holds the key $\mat{K}$ and the other party $\party_2$ (called the ``client'') holds the input $x$. The goal of the protocol is to have the client learn the output of the PRF for key $\mat{K}$ and input $x$, while the server learns nothing. In the semi-honest setting, both parties can first use the distributed protocol to obtain shares of the PRF output. The server can then send its share to the client so that only the client learns the final output. Such an OPRF protocol would require one extra round over the corresponding distributed PRF protocol. We can however construct much better protocols whose efficiency rivals that of existing DDH-based OPRF protocols. Here, we provide two concrete efficient protocols for evaluating the \ttwPRF candidate (Construction~\ref{construction:23-central-wprf}) in the OPRF setting. 
 
-\paragraph{General structure.} Both protocols take $3$ rounds and involve 2 messages from the server to the client and 1 message from the client to the server. The first server message however, is only required when the key needs to be changed (or re-masked). We call this the key-update phase. Now, when the masked key is already known, our protocols are optimal in the sense that they require only a single message from the client followed by a single message from the server. Since OPRF applications usually involve reusing the same key for many PRF invocations, in such a \textit{multi-input} setting, our protocols are comparable to other 2-round OPRF protocols in literature (e.g., DDH-based). 
+\paragraph{General structure.} Both protocols take $3$ rounds and involve 2 messages from the server to the client and 1 message from the client to the server. The first server message however, is only required when the key needs to be changed (or re-masked). We call this the key-update phase. Now, when the masked key is already known, our protocols are optimal in the sense that they require only a single message from the client followed by a single message from the server. Since OPRF applications usually involve reusing the same key for many PRF invocations, in such a \textit{multi-input} setting, our protocols are comparable to other 2-round OPRF protocols in literature (e.g., DDH-based). We detail the two protocols, $\prot^{\textsf{oprf}}_1$ and $\prot^{\textsf{oprf}}_2$, in Sections~\ref{subsec:oprf1} and~\ref{subsec:oprf2} respectively.
 \greg{For a real-world use of OPRFs where our construction might be the best option, see \url{https://www.usenix.org/system/files/sec19-thomas.pdf}. 
 It uses the DDH-based OPRF for a private set intersection protocol (where the client has one element and the server has a masssive set). }
 
-We detail the two protocols, $\prot^{\textsf{oprf}}_1$ and $\prot^{\textsf{oprf}}_2$, in Sections~\ref{subsec:oprf1} and~\ref{subsec:oprf2} respectively. In Section~\ref{subsec:oprf-comparison}, we compare our OPRF protocols to other common constructions in the literature. Later, in Section~\ref{sec:implementation_and_eval}, we also report on our protocol implementations and compare their performance (both computation and communication) with related work. To foreshadow, a key observation is that in comparison to common OPRF protocols, our protocols are much faster to compute but require preprocessing as well as slightly more communication.
+\paragraph{Cost comparison.}
+In Section~\ref{subsec:oprf-comparison}, we compare our OPRF protocols to other common constructions in the literature. Later, in Section~\ref{sec:implementation_and_eval} (specifically Table~\ref{table:oprf_comparison}), we also report on our protocol implementations and compare their performance (both computation and communication) with related work. To foreshadow, a key observation is that in comparison to common OPRF protocols, our protocols are much faster to compute but require preprocessing as well as slightly more communication. Similar to our distributed protocols, it is also possible to distribute the trusted dealer at a reasonable cost. Depending on how frequently the key is changed, the total online communication (i.e., including the cost to generate the preprocessing), is 30\%-39\% higher than the online cost when processing is already done by a trusted dealer. This is still quite competitive with DDH-based OPRFs, especially since our constructions are substantially better for computation, which typically dominates the overall cost in real-world settings (see Section~\ref{sec:implementation_and_eval} for details).
 
 
 \subsubsection{Oblivious PRF Protocol $\prot^{\textsf{oprf}}_1$}
@@ -420,7 +424,7 @@ Our first OPRF protocol is in spirit similar to the distributed evaluation for t
 
   % \item The client now runs $\prot_\Convert^{(2,3)}(\hat{w} \mid \share{r}^{(2)})$ to get $\share{w^*}^{(2)}$ (over $\Z_3$) and then $\prot_\LMap^{\mat{B},3}(\mat{B} \mid \share{w^*}^{(2)})$ to obtain $\share{y}^{(2)}$. Finally, it uses the share received from the server to reconstruct the PRF output $y$ 
 \end{itemize}
-For evaluating a client input, $\prot^{\textsf{oprf}}_1$ takes 2 rounds and involves a single message in each direction. The client sends $2n$ bits while the server sends $m$ bits and $t$ $\Z_3$ elements. For our parameters ($n=m=256, t=81$), and with proper $\Z_3$ packing, this amounts to roughly $897$ bits of total online communication. To update $\tilde{\mat{K}}$, the server sends a 256-bit message to the client.
+For evaluating a client input, $\prot^{\textsf{oprf}}_1$ takes 2 rounds and involves a single message in each direction. The client sends $2n$ bits while the server sends $m$ bits and $t$ $\Z_3$ elements. For our parameters ($n=m=256, t=81$), and with proper $\Z_3$ packing, this amounts to roughly $897$ bits of online communication. To update $\tilde{\mat{K}}$, the server sends a 256-bit message to the client.
 
 
 \subsubsection{Oblivious PRF Protocol $\prot^{\textsf{oprf}}_2$}
@@ -437,7 +441,7 @@ For the second protocol, the server masks the PRF in a different way; a multipli
 
   \item The client also runs $\prot_\Convert^{(2,3)}$ followed by $\prot_\LMap^{\mat{B},3}$ to obtain its share $\share{y}^{(2)}$ of the PRF output. It can now use the server's share to reconstruct the PRF output $y$.
 \end{itemize}
-For evaluating a client input, $\prot^{\textsf{oprf}}_2$ also takes 2 rounds and involves a single message in each direction. The client sends $n$ bits while the server sends $m$ bits and $t$ $\Z_3$ elements. This is $n$ fewer bits of communication as compared to the first protocol. The key-update phase is slower however, since it involves a convolution rather than a simple vector addition. For our parameters ($n=m=256, t=81$), and with proper $\Z_3$ packing, this amounts to roughly $641$ bits of total online communication. To update $\bar{\mat{K}}$, the server sends a 256-bit message to the client.
+For evaluating a client input, $\prot^{\textsf{oprf}}_2$ also takes 2 rounds and involves a single message in each direction. The client sends $n$ bits while the server sends $m$ bits and $t$ $\Z_3$ elements. This is $n$ fewer bits of communication as compared to the first protocol. The key-update phase is slower however, since it involves a convolution rather than a simple vector addition. For our parameters ($n=m=256, t=81$), and with proper $\Z_3$ packing, this amounts to roughly $641$ bits of online communication. To update $\bar{\mat{K}}$, the server sends a 256-bit message to the client.
 \else
 
 \subsection{Oblivious Evaluation}
@@ -553,7 +557,8 @@ Given a (1-out-of-3) OT-correlation $((z_0,z_1,z_2), (c,z_c))$ for 2-bit strings
   \end{itemize}
 \label{prot:ot-to-32}
 \end{protocol}
-This is less efficient than our protocol to generate a $(2,3)$ correlation and takes 6 bits of communication per instance. Note that the communication is still unidirectional as only $\party_1$ sends a message. Consequently, the $(3,2)$ correlations can also be generated on the fly given OT correlations as part of the first protocol round.  More details are given in Appendix~\ref{appendix:correlated_randomness}.
+This is less efficient than our protocol to generate a $(2,3)$ correlation and takes 6 bits of communication per instance. Note that the communication is still unidirectional as only $\party_1$ sends a message. Consequently, the $(3,2)$ correlations can also be generated on the fly given OT correlations as part of the first protocol round.  
+\iffull\else More details are given in Appendix~\ref{appendix:correlated_randomness}.\fi
 
 \iffull
 \begin{lemma}

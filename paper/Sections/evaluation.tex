@@ -6,9 +6,10 @@ We implemented our 2-party protocols to compute the \ttwPRF candidate (Construct
 \iffull
 \subsection{Optimizations}
 \label{subsec:implementation_opt}
+We start with a centralized implementation of the 23-wPRF. We find optimizations that provide a roughly 25x better performance over a na\"ive implementation. We use three major optimizations in our implementation. First, we use \textit{bit packing} for $\Z_2$ vectors through which we can pack several elements in a machine word and operate on them together in an SIMD manner. Second, we use \textit{bit slicing} for $\Z_3$ vectors by representing them as a pair of $\Z_2$ vectors. All operations on the $\Z_3$ vectors can now be translated to operations on the $\Z_2$ vectors. Finally, we use a lookup table optimization for the final $\Z_3$ linear mapping (i.e., multiplication by $\mat{B}$). For this, we split the 256-column matrix $\mat{B}$ into 16 pieces with 16 columns each and store multiplications with all $\Z_3^{16}$ vectors for each piece. The size for each piece was decided as a tradeoff between the lookup table size and the computational efficiency. We provide details below.
 \else
 \paragraph{Optimizations.}
-We start with a centralized implementation of the 23-wPRF. We find optimizations that provide 25x better performance over a na\"ive implementation.
+We start with a centralized implementation of the 23-wPRF. We find optimizations that provide a roughly 25x better performance over a na\"ive implementation.
 \iffull\else 
 We use three major optimizations in our implementation. First, we use \textit{bit packing} for $\Z_2$ vectors through which we can pack several elements in a machine word and operate on them together in an SIMD manner. Second, we use \textit{bit slicing} for $\Z_3$ vectors by representing them as a pair of $\Z_2$ vectors. All operations on the $\Z_3$ vectors can now be translated to operations on the $\Z_2$ vectors. Finally, we use a lookup table optimization for the final $\Z_3$ linear mapping (i.e., multiplication by $\mat{B}$). For this, we split the 256-column matrix $\mat{B}$ into 16 pieces with 16 columns each and store multiplications with all $\Z_3^{16}$ vectors for each piece. The size for each piece was decided as a tradeoff between the lookup table size and the computational efficiency. We defer the details for our optimization techniques to Appendix~\ref{appendix:implementation} and provide the benchmarks in Table~\ref{table:optimization_benchmarks}.\fi
 % In Table~\ref{table:optimization_benchmarks}, we compare the performance gain.
@@ -182,7 +183,7 @@ We start with benchmarks for the different optimization techniques detailed in S
 % Table~\ref{table:optimization_benchmarks} shows the performance gain of our optimization techniques compared to a baseline implementation.
 \fi
 
-\begin{table}[t]
+\begin{table}[!t]
 	{
 		\centering
         \iffull\else\resizebox{0.7\textwidth}{!}{\fi
@@ -214,7 +215,7 @@ We also implement the 2-party semi-honest distributed protocol detailed in Secti
 
 % We consider two 2-party weak PRF protocols. The first protocol is described in \cite{boneh2018-darkmatter} and the second one is our construction as described in \ref{newProtocol}. Since the goal of the implementation was timing the local {\em online}run-time, the implementation used a trusted party 
 
-\begin{table}[t]
+\begin{table}[t!]
 {
 \centering
 \begin{tabular}{|c|c|c|c|c|c|}
@@ -238,6 +239,30 @@ We implement our 2-party semi-honest distributed protocol for evaluating the \tt
 
 \fi
 
+\begin{table}[!t]
+{
+\centering
+\resizebox{0.9\textwidth}{!}{%
+    \begin{tabular}{|ccc|c|c|c|c|c|c|}%8 columns    
+        \hline
+        \multicolumn{3}{|c|}{\multirow{2}{*}{Protocol}} & \multicolumn{2}{c|}{Runtime ($\mu$s)} & \multirow{2}{*}{Preprocessing (bits)} & \multicolumn{2}{c|}{Communication (bits)}\\
+        & && Client & Server & & Client & Server\\
+        \hline\hline
+        \multirow{2}{*}{\makecell{$\prot_1^\textsf{oprf}$ \\ (Section~\ref{subsec:oprf1})}} &\quad\quad& Key Update & - & 0.65 & 256 & - & 256 \\
+        && Evaluation & 8.54 & 9.45 & 2092 & 512 & 385 \\
+        \hline
+        \multirow{2}{*}{\makecell{$\prot_2^\textsf{oprf}$ \\ (Section~\ref{subsec:oprf2})}} && Key Update & - & 3.16 & 256 & - & 256\\
+        && Evaluation & 7.91 & 8.21 & 1836 & 256 & 385 \\
+        \hline
+        \multicolumn{3}{|c|}{DDH-based OPRF} & 57.38 & 28.69 & - & 256 & 256\\
+        \hline
+    \end{tabular}}
+    \caption{Comparison of protocols for (semi-honest) OPRF evaluation in the preprocessing model. Runtimes in microseconds ($\mu$s) are provided separately for refreshing the key (Key Update) and for evaluating an input (Evaluation). Communication and preprocessing are also provided separately for the two stages.}
+    \label{table:oprf_comparison}
+}
+\end{table}
+
+
 \paragraph{OPRF evaluation.}
 In Table~\ref{table:oprf_comparison}, we provide performance benchmarks for both our oblivious protocols (see Section~\ref{subsec:oprf_protocol}) for the \ttwPRF construction. We also compare our results to the standard DDH-based OPRF (see \iffull Section~\ref{subsec:oprf-comparison}\else Appendix~\ref{appendix:oprf-comparison}\fi). For our timing results, we report both the server and client runtimes (averages over 1000 runs). For each construction, we also include the size of the preprocessed correlated randomness, and the online communication cost. All constructions are parameterized appropriately to provide 128-bit security.
 
@@ -250,28 +275,6 @@ We point out that both of our OPRF protocols are much faster than the DDH-based 
 
 % \yuval{Communication costs in bits can be computed analytically. Maybe talk about estimated breakeven points: (1) minimal network speed in which computation dominates communication, and (2) minimal network speed where we estimate our OPRF to be faster than the DDH-based alternative.  }
 
-\begin{table}[t!]
-{
-\centering
-\resizebox{0.9\textwidth}{!}{%
-	\begin{tabular}{|ccc|c|c|c|c|c|c|}%8 columns	
-		\hline
-		\multicolumn{3}{|c|}{\multirow{2}{*}{Protocol}} & \multicolumn{2}{c|}{Runtime ($\mu$s)} & \multirow{2}{*}{Preprocessing (bits)} & \multicolumn{2}{c|}{Communication (bits)}\\
-		& && Client & Server & & Client & Server\\
-		\hline\hline
-		\multirow{2}{*}{\makecell{$\prot_1^\textsf{oprf}$ \\ (Section~\ref{subsec:oprf1})}} &\quad\quad& Key Update & - & 0.65 & 256 & - & 256 \\
-		&& Evaluation & 8.54 & 9.45 & 2092 & 512 & 385 \\
-		\hline
-		\multirow{2}{*}{\makecell{$\prot_2^\textsf{oprf}$ \\ (Section~\ref{subsec:oprf2})}} && Key Update & - & 3.16 & 256 & - & 256\\
-		&& Evaluation & 7.91 & 8.21 & 1836 & 256 & 385 \\
-		\hline
-		\multicolumn{3}{|c|}{DDH-based OPRF} & 57.38 & 28.69 & - & 256 & 256\\
-		\hline
-	\end{tabular}}
-	\caption{Comparison of protocols for (semi-honest) OPRF evaluation in the preprocessing model. Runtimes in microseconds ($\mu$s) are provided separately for refreshing the key (Key Update) and for evaluating an input (Evaluation). Communication and preprocessing are also provided separately for the two stages.}
-	\label{table:oprf_comparison}
-}
-\end{table}
 
 
 

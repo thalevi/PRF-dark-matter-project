@@ -4,9 +4,11 @@
 \label{appendix:cryptanalysis}
 
 In this appendix we describe in detail the cryptanalysis of our new constructions.
-We start with some general remarks and then analyze each construction.
+We start with some general remarks (Section~\ref{subsec:cryptanalysis_remarks}) and then analyze our constructions in subsections that follow.
 
-\subsubsection{Choosing public inputs.}
+\subsection{Overview}
+\label{subsec:cryptanalysis_remarks}
+\subsubsection{Choosing public inputs}
 
 All the cryptosystems we define receive public inputs chosen at random.
 For example, the \ttOWF receives matrices $\mat{A}$ and $\mat{B}$ as public inputs.
@@ -21,7 +23,7 @@ PRFs and the PRG we define.
 Of course, there are bad choices of the public inputs which could degrade security,
 and we need to show that these are unlikely to be occur.
 
-Finally, for the PRFs we define, this still leaves open the question of how to select the public inputs $x$ and $B$
+Finally, for the PRFs we define, this still leaves open the question of how to select the public inputs $x$ and $\mat{B}$
 per sample computed with a secret key. We chose to select $x$ independently per sample,
 while fixing $\mat{B}$ per secret key, as this allows to optimize performance by preprocessing.
 In terms of security, the choice of fixing $\mat{B}$ does allow for a wider range of attacks
@@ -36,7 +38,7 @@ Gilbert–Varshamov bound for linear codes, which is the main tool we use in the
 \paragraph{Private matrices for PRF constructions.}
 The private matrix $\mat{K}$ in the PRF constructions is a circulant matrix
 defined by rotations of a secret $k \in \{0,1\}^n$.
-While a choice of $K$ with a small rank deficiency does not seem to
+While a choice of $\mat{K}$ with a small rank deficiency does not seem to
 have a significant impact on the security,
 some attacks on the schemes (particularly on the 2-3 PRF) may exploit
 matrices of particularly low rank
@@ -55,7 +57,7 @@ Let $n = 2^{n'}$ for a positive integer $n'$
 and let $\mat{K} \in \Z_2^{n \times n}$
 be a circulant matrix selected uniformly at random.
 Then, for any $a \in \{0,\ldots n\}$,
-$\Pr[rank(K) \leq a] = 2^{-n+a}$.
+$\Pr[rank(\mat{K}) \leq a] = 2^{-n+a}$.
 \end{proposition}
 
 \begin{proof}
@@ -66,12 +68,12 @@ $u(x) = \sum_{j=0}^{n-1} u_j x^{j} \in \Z_2[x]$.
 Assume that $\mat{K}$ is formed by rotations
 of $k \in \Z_2^{n}$.
 Then for $i \in \{0,\ldots, n-1\}$,
-the $i$'th column of $K$ is associated with the polynomial
+the $i$'th column of $\mat{K}$ is associated with the polynomial
 $x^i \cdot k(x) \bmod x^n - 1$.
 Thus, for $u \in \Z_2^{n}$, $\mat{K}u$ is given
 by the coefficients of the polynomial
 $u(x) \cdot k(x) \bmod x^n - 1$,
-and $Ku = 0$ if and only if
+and $\mat{K}u = 0$ if and only if
 $u(x) \cdot k(x)$ divides $x^n - 1$.
 
 Therefore, there is a bijection between the kernel space of $\mat{K}$
@@ -101,13 +103,13 @@ $\tfrac{2^{a}}{2^n} = 2^{-n+a}$ as claimed.
 For each scheme the goal is to obtain parameter sets $n,m,t$ such that it offers
 $s$-bit security, while achieving good performance in distributed protocols.
 
-The definition of $s$-bit security that we use below is inspired 
+The definition of $s$-bit security that we use below is inspired
 by with the work of Micciancio and Walter~\cite{Micciancio018}.
 We intentionally do not bound the attacker to a particular computational model,
 as this may rule out valid attacks in other natural models.
-Moreover, the definition is also valid against non-uniform adversaries 
-(that are allowed to use a computationally unbounded preprocessing phase), 
-as our constructions have auxiliary inputs 
+Moreover, the definition is also valid against non-uniform adversaries
+(that are allowed to use a computationally unbounded preprocessing phase),
+as our constructions have auxiliary inputs
 (with sufficiently large min-entropy) that are not available during preprocessing.
 
 \paragraph{OWF security.}
@@ -125,17 +127,17 @@ The key $k \in \Z_2^n$ that defines the secret matrix $\mat{K}$ is chosen unifor
 Moreover, the public matrix
 $\mat{B} \in \Z_3^{t \times m}$ (or $\mat{B} \in \Z_2^{t \times m}$) is chosen uniformly at random
 (or as a random Toeplitz matrix).
-For a parameter $r$, an adversary is given $2^{r}$ samples $(x^{(1)},\mat{B},y^{(1)}) ,\ldots, (x^{(2^r)},
-\mat{B},y^{(2^r)})$,
-where each $x^{(i)} \in \Z_2^n$ is chosen independently and uniformly at random.
+For a parameter $r$, an adversary is given $2^{r}$ samples $(x_1,\mat{B},y_1) ,\ldots, (x_{2^r},
+\mat{B},y_{2^r})$,
+where each $x_i \in \Z_2^n$ is chosen independently and uniformly at random.
 
 We will place a restriction of $r \leq 40$,
 corresponding to a practical limit of $2^{40}$ on the number of samples available to the adversary.
 
 We consider two types of adversaries.
-The first type is a distinguisher that attempts to distinguish $2^r$ samples where each $y^{(i)}$
+The first type is a distinguisher that attempts to distinguish $2^r$ samples where each $y_i$
 is generated using the PRF with a fixed $k$ from
-$2^r$ samples where each vector $y^{(i)}$ is chosen uniformly at random.
+$2^r$ samples where each vector $y_i$ is chosen uniformly at random.
 The second type attempts to find the secret key given samples generated using the PRF.
 
 We say that the PRF has $s$ bits of security if given (at most) $2^r$ samples both conditions below hold.
@@ -158,13 +160,14 @@ In our case, the output of the schemes we define
 mix between the sums $\bmod$ 2 and $\bmod$ 3.
 For example, in the \ttOWF and PRF constructions each output entry is a sum $\bmod$ 3 of entries of $w$,
 where each such entry is a sum $\bmod$ 2 of the unknown bits of the secret input.
-Due to the mix between the sums $\bmod$ 2 and $\bmod$ 3 we conjecture (similarly to~\cite{boneh2018-darkmatter}) that
-the output cannot be represented (or well-approximated) by a low degree polynomial over any specific polynomial ring.
-In particular, it was shown in~\cite{boneh2018-darkmatter} that the sum $\bmod$ 3 of $\ell$ binary-valued variables is
-a high-degree polynomial over $\Z_2$,
-as long as $\ell$ is large (e.g., $\ell \approx n$).
-Crucially, our choice of parameters will ensure that the sums $\bmod$ 2 and $\bmod$ 3
-are dense and contain many terms.
+We conjecture (similarly to~\cite{boneh2018-darkmatter}) that
+the output cannot be represented (or well-approximated) by a low degree polynomial over any specific polynomial ring. This was shown rigorously in~\cite[Lemma 4.2]{boneh2018-darkmatter} for polynomials over $\mathrm{GF}(3^r)$ (for any $r \geq 1$), and this analysis carries
+over to our $(2,3)$ constructions since they use the same ``modulus-switching'' mapping $\mathrm{map}_2:\{0,1\}^\ell \rightarrow \mathbb{Z}_3$ (namely,
+$x \mapsto \sum_{i \in [\ell]}x_i \, (\bmod \, 3)$).
+Crucially, for this lemma to be meaningful, 
+$\ell$ has to be sufficiently large (e.g., $\ell \approx n$),
+and our choice of parameters will ensure that the sums $\bmod$ 2 and $\bmod$ 3
+are indeed dense and contain many terms.
 In particular, for the
 \ttOWF and PRF constructions
 we will make sure that the linear code spanned by the rows of $B$ has large minimal distance,
@@ -225,11 +228,11 @@ subset-sum reduction (given in Section~\ref{sec:cryptanalysis}) shows how this c
 \paragraph{Induced schemes.}
 Given the scheme \ttOWF with a matrix $\mat{B}$ and output $y$ such that $\mat{B}w = y$, and any positive integer $r$, we can left-multiply both sides by any $r \times t$ matrix $\mat{C}$ over $\Z_3$ to obtain $\mat{C}\mat{B}w = \mat{C}y$. Note that each row of the matrix $\mat{CB}$ is a linear combination of the rows of $\mat{B}$. Using such a matrix $\mat{C}$, we can perform Gaussian elimination on the rows of $\mat{B}$.
 
-We denote the resultant induced scheme by $OWF_\mat{C}(\cdot)$. Observe that if $OWF(x) = y$, then $OWF_\mat{C}(x) = \mat{C}y$.
+We denote the resultant induced scheme by $\textnormal{OWF}_\mat{C}(\cdot)$. Observe that if $\textnormal{OWF}(x) = y$, then $\textnormal{OWF}_\mat{C}(x) = \mat{C}y$.
 We now describe a simple attack that uses an induced scheme where $\mat{C}$ is only a row vector.
 
 \paragraph{Low Hamming weight combinations of the rows of $\mat{B}$.}
-Assume that there is a vector $v \in \Z_3^m$ of Hamming weight $\ell$ in the row space of $\mat{B}$, namely, there exists a vector $u \in \Z_3^t$ for which $u \mat{B} = v$. If $\ell$ is sufficiently small, then we could use the induced scheme $OWF_u(\cdot)$ to speed up exhaustive search.
+Assume that there is a vector $v \in \Z_3^m$ of Hamming weight $\ell$ in the row space of $\mat{B}$, namely, there exists a vector $u \in \Z_3^t$ for which $u \mat{B} = v$. If $\ell$ is sufficiently small, then we could use the induced scheme $\textnormal{OWF}_u(\cdot)$ to speed up exhaustive search.
 
 Denote the set of $\ell$ non-zero indices of $v$ by $I$. Given $\hat{y} = \mat{B}w \bmod 3$, we compute the value of $u\hat{y} \bmod 3 = vw \bmod 3$. We can now enumerate the values of the corresponding set $I$ of $\ell$ bits of $w$ for which $u\hat{y} \bmod 3 = vw \bmod 3$ holds. This set of bits has $\tfrac{2^\ell}{3}$ possible values. Each such $\ell$-bit value gives rise of a system of $\ell$ linear equations on $x$, and we exhaustively search its solution space of size $2^{n-\ell}$. Overall, if $\ell \leq n$ the complexity of the attack is
 $\tfrac{2^{\ell}}{3}$, while if $\ell = n+1$, the complexity is $\tfrac{2^{\ell+1}}{3}$. When $\ell > n+1$, the complexity is higher than $2^n$.
@@ -357,14 +360,14 @@ As described above, the bias of expressions of the form $\sum_{i \in I} v_i w_i 
 are independent and uniformly distributed random variables) is bounded by $2^{-\ell+1}$.
 
 However, the bias may increase if information about the variables $w_i$ is known.
-In particular, the case in which $\sum_{i \in I} w_i \bmod 2$ is known was analyzed in~\cite{CheonCKK20},
+In particular, the case in which $\sum_{i \in I} w_i \bmod 2$ is known was analyzed in~\cite{cheon2020-adventures},
 where the authors showed that the conditional biases such as
 $$\left| \Pr \left[\sum_{i \in I} w_i \bmod 3 = 0 \mid \sum_{i \in I} w_i \bmod 2 = 0 \right] - 1/3 \right|$$
 can be as large as about $2^{-0.21\ell}$.
 While this is still exponentially small in $\ell$,
 it is more significant than the unconditional bias.
 
-The PRF candidate proposed in~\cite{boneh2018-darkmatter} and analyzed in~\cite{CheonCKK20}
+The PRF candidate proposed in~\cite{boneh2018-darkmatter} and analyzed in~\cite{cheon2020-adventures}
 is similar to the one we analyze for $n = m$,
 yet the matrix $\mat{B}$ contains a single row that sums $\bmod$ 3 all the entries of $w$.
 Moreover, since $\mat{K}$ is a circulant matrix and $x$ has even Hamming weight,
@@ -441,24 +444,24 @@ with minimal Hamming weight (e.g., a lower bound of $n/4$).
 \paragraph{Attacks that exploit the structure of $\mat{K}$.}
 Recall the $\mat{K}$ is a circulant matrix and we consider attacks that exploit its
 special structure. A notable property of $\mat{K}$ as a circulant matrices is that it preserves symmetry.
-Specifically, if $x \in \Z_2^n$ is 2-symmetric (i.e., its two halves are equal), 
+Specifically, if $x \in \Z_2^n$ is 2-symmetric (i.e., its two halves are equal),
 then $w = \mat{K}x$ is also 2-symmetric. Thus, given a sample $(x,\mat{B},y)$
-such that $x$ is 2-symmetric, we know that $w$ is 2-symmetric and this fact can be used to 
+such that $x$ is 2-symmetric, we know that $w$ is 2-symmetric and this fact can be used to
 uniquely recover $w$ (which is effectively of length $m/2$) in time $2^{n - m/2 - \log 3 \cdot t}$.
-Consequently, we can derive $m/2$ linear equations $\bmod$ 2 on the secret key 
+Consequently, we can derive $m/2$ linear equations $\bmod$ 2 on the secret key
 and perhaps use another sample to recover it completely.
 
 The probability that such a 2-symmetric vector is found in the data is $2^{-n/2 + r}$.
 We require that this quantity is negligible.
 
-It is also possible to consider even more symmetry, such as 4-symmetric vectors, 
-but these have lower probability of being picked. 
+It is also possible to consider even more symmetry, such as 4-symmetric vectors,
+but these have lower probability of being picked.
 
 Finally, we leave it to future work to extend this attack beyond the simple case analyzed above.
-For example, one may consider input vectors that are close to 2-symmetric, 
+For example, one may consider input vectors that are close to 2-symmetric,
 or pairs of samples $(x,\mat{B},y),(x',\mat{B},y')$ such that $x + x' \bmod 2$ is 2-symmetric
-(implying that $\mat{K} (x + x')$ is 2-symmetric). 
- 
+(implying that $\mat{K} (x + x')$ is 2-symmetric).
+
 
 \paragraph{Attacks based on self-similarity.}
 
@@ -652,7 +655,7 @@ at least $s \cdot 0.1/\log 3 < 0.07 s$ (except with small probability).
 
 
 \begin{remark}
-In~\cite{CheonCKK20} the authors analyze the constructions presented in~\cite{boneh2018-darkmatter}.
+In~\cite{cheon2020-adventures} the authors analyze the constructions presented in~\cite{boneh2018-darkmatter}.
 In particular, for the alternative PRF construction,
 given a sample $(a \in \Z_2^n, x \cdot a)$,
 they show that there exists $j \in [n]$ such that
@@ -792,39 +795,6 @@ $f_3(m,t,\ell) \leq 2 \cdot 3^{t-m} \cdot 2^{m H(\ell/m) + \ell} = 2 \cdot 2^{m 
 %-------------------------------------------------%
 
 
-\begin{table}[t]
-\resizebox{\textwidth}{!}{ 
-\begin{tabular}{l|l|l}
-OWF Params      & KKW params        & Sig. size (KB)\\
-$(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
-$(128,453,81)$  & $(16, 150, 51)$   & 13.30 \\
-                & $(16, 168, 45)$   & 12.48 \\ 
-                & $(16, 250, 36)$   & \textbf{11.54} \\
-Picnic3-L1      & $(16, 250, 36)$   & 12.60 \\ \hline
-$(128,453,81)$  & $(64, 151, 45)$   & 13.59 \\
-                & $(64, 209, 34)$   & 11.70 \\ 
-                & $(64, 343, 27)$   & \textbf{10.66} \\
-Picnic2-L1      & $(64, 343, 27)$   & 12.36 \\ \hline
-\end{tabular}
-
-\quad
-\begin{tabular}{l|l|l}
-OWF Params      & KKW params        & Sig. size (KB)\\
-$(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
-$(256,906,162)$ & $(16, 324, 92)$   & 50.19 \\ 
-                & $(16, 400, 79)$   & 47.08 \\ 
-                & $(16, 604, 68)$   & \textbf{45.82} \\ 
-Picnic3-L5      & $(16, 604, 68)$   & 48.72 \\ \hline
-$(256,906,162)$ & $(64, 322, 82)$   & 51.23 \\
-                & $(64, 518, 60)$   & 44.04 \\ 
-                & $(64, 604, 57)$   & \textbf{43.45} \\ 
-Picnic2-L5      & $(64, 604, 58)$   & 46.18 \\ \hline
-\end{tabular}
- }
-\caption{ \label{table:sig-sizes}Signature size estimates for Picnic using
-\ttOWF, compared to Picnic using LowMC.  The left table shows
-security level L1 (128 bits) with $N=16$ and $N=64$ parties, and the right table shows level L5 (256 bits).}
-\end{table}
 
 
 \section{Signature Scheme Details}
@@ -835,16 +805,16 @@ new primitives, in particular the \ttOWF.
 
 \paragraph{An $N$-party protocol.}
 There will be $N$ parties for our MPC protocol, each holding a secret share of
-$x$, who jointly compute $y = \sfF(x)$.  The protocol tolerates up to  $N-1$ 
+$x$, who jointly compute $y = \sfF(x)$.  The protocol tolerates up to  $N-1$
 corruptions: given the views of $N-1$ parties we can simulate the remaining
 party's view, to prove that the $N-1$ parties have no information about the
-remaining party's share. 
+remaining party's share.
 
 The preprocessing phase is similar to that in Picnic.  Each party has a random
 tape that they can use to sample a secret sharing of a uniformly random value
 (e.g.,  a scalar, vector, or a matrix with terms in $\Z_2$ or $\Z_3$).  Each
 party samples their share $\share{r}$ and the shared value is implicitly defined as
-$r = \sum_{i=1}^N \share{r}^{(i)}$.  
+$r = \sum_{i=1}^N \share{r}^{(i)}$.
 %We use $\share{r}^{(i)}$ to denote party $i$'s share of $r$,
 %or simply $\share{r}$ when the context makes the party's index clear.
 
@@ -858,52 +828,90 @@ tape for  party $i$ is
 generated by a random seed, denoted $\seed_i$, using a PRG. The state of the first
 $N-1$ parties after pre-processing is a seed value used to generate the random
 tape, and for the $N$-th party the state is the seed value plus the list of
-auxiliary values, denoted $\aux$. 
+auxiliary values, denoted $\aux$.
 
-After pre-processing, the parties enter the \emph{online} phase of the protocol. 
+After pre-processing, the parties enter the \emph{online} phase of the protocol.
 The prover computes $\hat{x}= x + \tilde{x}$, where $\tilde{x}$ is a random value, established during
-preprocessing so that each party has a share $\share{\tilde{x}}$. 
-The parties can then compute the OWF using the homomorphic properties of the secret sharing, 
+preprocessing so that each party has a share $\share{\tilde{x}}$.
+The parties can then compute the OWF using the homomorphic properties of the secret sharing,
 and the share conversion gate (to convert shares mod 2 to mod 3, used when computing~$z$)
-setup during preprocessing that we describe below. 
+setup during preprocessing that we describe below.
 During the online phase, parties broadcast values to all other parties and we write $\msgs_i$
-to denote the broadcast messages of party $i$. 
+to denote the broadcast messages of party $i$.
 
 
-\paragraph{Preprocessing phase.} Preprocessing establishes random seeds of all parties and shares of 
+\iffull\else
+\begin{table}[t!]
+\resizebox{\textwidth}{!}{
+\begin{tabular}{l|l|l}
+OWF Params      & KKW params        & Sig. size (KB)\\
+$(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
+$(128,453,81)$  & $(16, 150, 51)$   & 13.30 \\
+                & $(16, 168, 45)$   & 12.48 \\
+                & $(16, 250, 36)$   & \textbf{11.54} \\
+Picnic3-L1      & $(16, 250, 36)$   & 12.60 \\ \hline
+$(128,453,81)$  & $(64, 151, 45)$   & 13.59 \\
+                & $(64, 209, 34)$   & 11.70 \\
+                & $(64, 343, 27)$   & \textbf{10.66} \\
+Picnic2-L1      & $(64, 343, 27)$   & 12.36 \\ \hline
+\end{tabular}
+
+\quad
+\begin{tabular}{l|l|l}
+OWF Params      & KKW params        & Sig. size (KB)\\
+$(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
+$(256,906,162)$ & $(16, 324, 92)$   & 50.19 \\
+                & $(16, 400, 79)$   & 47.08 \\
+                & $(16, 604, 68)$   & \textbf{45.82} \\
+Picnic3-L5      & $(16, 604, 68)$   & 48.72 \\ \hline
+$(256,906,162)$ & $(64, 322, 82)$   & 51.23 \\
+                & $(64, 518, 60)$   & 44.04 \\
+                & $(64, 604, 57)$   & \textbf{43.45} \\
+Picnic2-L5      & $(64, 604, 58)$   & 46.18 \\ \hline
+\end{tabular}
+ }
+\caption{ \label{table:sig-sizes}Signature size estimates for Picnic using
+\ttOWF, compared to Picnic using LowMC.  The left table shows
+security level L1 (128 bits) with $N=16$ and $N=64$ parties, and the right table shows level L5 (256 bits).}
+\end{table}
+\fi
+
+
+
+\paragraph{Preprocessing phase.} Preprocessing establishes random seeds of all parties and shares of
 \begin{enumerate}
 \item $\tilde{x}$: a random vector in $\Z_2^{n}$,\algcomment{Sampled from random tapes}
-\item $\tilde{w}$: the vector $\matA \tilde{x}$ in $\Z_2^{m}$, 
+\item $\tilde{w}$: the vector $\matA \tilde{x}$ in $\Z_2^{m}$,
 \item $r$: a sharing of $\tilde{w} \mod 3$, shares in $\Z_3^m$,  \algcomment{Tapes + one $\aux$ value}
 \item $\overline{r}$: a sharing of $1-\tilde{w} \mod 3$, shares in $\Z_3^m$. \algcomment{Computed from $\share{r}$}
 \end{enumerate}
 The shares of $\overline{r}$ are computed from shares of $r$ as follows (all arithmetic in $\Z_3^m$): the first
 party computes $\share{\overline{r}} = 1 - \share{r}$, then the remaining parties compute
-$\share{\overline{r}} = - \share{r}$.  Then observe that 
+$\share{\overline{r}} = - \share{r}$.  Then observe that
 \[\sum_{i=1}^N \share{\overline{r}}^{(i)} = 1 - \share{r}^{(1)} - \ldots - \share{r}^{(N)} = 1 - \sum_{i=1}^{N} \share{r}^{(i)} = 1-r \]
- as required. 
+ as required.
 
 \paragraph{Online phase.}
-The public input to the online phase is $\hat{x} = x + \tilde{x}$. 
+The public input to the online phase is $\hat{x} = x + \tilde{x}$.
 \begin{enumerate}
 
-\item The parties locally compute $\hat{w} \in \Z_2^{m}$ as $\hat{w} = \matA\hat{x}$ (since both $\hat{x}$ and $\matA$ are public). 
+\item The parties locally compute $\hat{w} \in \Z_2^{m}$ as $\hat{w} = \matA\hat{x}$ (since both $\hat{x}$ and $\matA$ are public).
 
-\item Let $z$ be a vector in $\Z_3^m$ and let $z_i$ denote the $i$-th component. Each party defines 
+\item Let $z$ be a vector in $\Z_3^m$ and let $z_i$ denote the $i$-th component. Each party defines
 \[
     \share{z_i}  = \begin{cases}
                 \share{r_i}  & \text{if $\hat{w}_i = 0$} \algcomment{\text{Note that $\share{r_i} = \share{w_i'}$}}\\
                 \share{\overline{r}_i}  & \text{if $\hat{w}_i = 1$} \algcomment{\text{Note that $\share{\overline{r}_i} = \share{1- w_i'}$}}\\
             \end{cases}
 \]
-then locally computes $\share{y} = \matB\share{z}$. All parties broadcast $\share{y}$ and reconstruct the output $y\in\Z_{3}^t$. 
+then locally computes $\share{y} = \matB\share{z}$. All parties broadcast $\share{y}$ and reconstruct the output $y\in\Z_{3}^t$.
 In this step each party broadcasts $t$ values in $\Z_3$.
 \end{enumerate}
 
 \paragraph{Correctness.} The protocol correctly computes the \ttOWF.  The
-first step computes $w = \matA x$, 
+first step computes $w = \matA x$,
 updating the public value $\hat{x} = x + x'$ with $\hat{w} = w + \tilde{w}$.  The
-second step is where the bits of $w$ are cast from $\Z_2$ to $\Z_3$.  The 
+second step is where the bits of $w$ are cast from $\Z_2$ to $\Z_3$.  The
 parties have sharings of $\tilde{w}$ and $1-\tilde{w}$ mod 3 (we focus on a single bit here, for simplicity). The key observation is
 that when $\hat{w} = 0$, then $w$ and $\tilde{w}$ are the same, and when $\hat{w} =
 1$, $w$ and $\tilde{w}$ are different. So in the first case we set the shares of $ z =
@@ -912,18 +920,18 @@ shares of $z$ to the complement of $\tilde{w}$.
 
 \paragraph{Communication costs.}
 Here we quantify the cost of communication for the MPC inputs, the $\aux$ values and the broadcast $\msgs$ of one party,
-as this will directly contribute to the signature size. 
+as this will directly contribute to the signature size.
 Let $\ell_3$ be the bit length of an element in $\Z_3$; the direct encoding has
 $\ell_3 = 2$, but with compression we can reduce $\ell_3$ to as little as
 $\log_2(3) \approx 1.58$. \footnote{To compress a vector $v\in\Z_3^{n}$, convert it to the base-3 integer it represents: $V = \sum_{i=0}^n v_i3^i$
 and output the binary representation of $V$. }   The size of the
-$\aux$ information is $m\ell_3$, the MPC input value has size $n$ bits, 
-and the broadcast values have size $t\ell_3$ bits (per party). 
-The total in bits is thus 
+$\aux$ information is $m\ell_3$, the MPC input value has size $n$ bits,
+and the broadcast values have size $t\ell_3$ bits (per party).
+The total in bits is thus
 \begin{equation} \label{eqn:sizeMPC}
 |\textsf{MPC}(n,m,t)| = m\ell_3 + n + t\ell_3\;.
 \end{equation}
-For the parameters 
+For the parameters
 $(n,m,t)=(128, 453, 81)$ the total is 972 bits (L1 security: 128-bit classical, 64-bit quantum)
 and when $(n,m,t) = (256, 906, 162)$ the total is 1943 bits (L5 security: 256-bit classical, 128-bit quantum).  This compares favorably to
 Picnic at the same security level, which communicates 1161--1328 bits at L1
@@ -939,20 +947,20 @@ Picnic.  The signature generation and verification algorithms for the
 We use a cryptographic hash function $\hash: \{0,1\}^*\to \{0,1\}^{2\secpar}$
 for computing commitments, and the function $\Expand$ takes as input a random $2\secpar$-bit string
 and derives a challenge having the form $(\CCC, \PPP)$ where $\CCC$ is a subset of $[M]$
-of size $\tau$, and $\PPP$ is a list of length $\tau$, with entries in $[N]$. 
+of size $\tau$, and $\PPP$ is a list of length $\tau$, with entries in $[N]$.
 The challenge $(\CCC, \PPP)$ defines $\tau$ pairs $(c,p_c)$ where $c$ is the
 index of  an MPC instance for which the verifier will check the online phase,
-and $p_c$ is the index of the party that will remain unopened. 
+and $p_c$ is the index of the party that will remain unopened.
 
 
 \paragraph{Optimizations and simplifications.}
 For ease of presentation, \cref{fig:23-picnic} omits some optimizations that
-are essential for efficiency, but are not unique to the $(2,3)$-signature schemes, 
+are essential for efficiency, but are not unique to the $(2,3)$-signature schemes,
 they are exactly as in Picnic. All random seeds in a signature are derived from
 a single random root seed, using a binary tree construction. First we derive
 $M$ initial seeds, once for each MPC instance, then from from the initial seed
 we derive the $N$ per-party seeds. This allows the signer to reveal the seeds
-of $N-1$ parties by revealing only $\log_2(N)$ intermediate seeds, similarly, 
+of $N-1$ parties by revealing only $\log_2(N)$ intermediate seeds, similarly,
 the initial seeds for $M-\tau$ of $M$ instances may be revealed by communicating
 only $\tau\log_2(M/\tau)$ seeds (each $\secpar$ bits long).
 
@@ -960,31 +968,31 @@ For the commitments $h'^{(k)}$ to the online execution, $\tau$ are recomputed
 by the verifier, and the prover provides the missing $M-\tau$.  Here we compute
 the $h'^{(k)}$ as the leaves of a Merkle tree,  so that the prover can provide
 the missing commitments by sending only $\tau\log_2(M/\tau)$ $2\secpar$-bit
-digests. 
+digests.
 
 Finally, \cref{fig:23-picnic} omits a random salt, included in each signature, as well as counter
 inputs to the hash functions to prevent multi-target
 attacks~\cite{dinur2019-picnic-attacks}. Also, hashing the public key when computing the
 challenge, and prefixing the inputs to $\hash$ in each use for domain
-separation should also be done, as in~\cite{picnic-spec}. 
+separation should also be done, as in~\cite{picnic-spec}.
 
 \paragraph{Signature size}
 The size of the signature in bits is:
 \begin{align*}
-\textunderbrace{\secpar\tau\log_2\left(\frac{M}{\tau}\right)}{initial seeds} + 
-\textunderbrace{2\secpar\tau\log_2\left(\frac{M}{\tau}\right)}{Merkle tree commitments} + 
-\tau\left( 
-     \textunderbrace{\secpar\log_2N}{per-party seeds}  + 
-     \textunderbrace{|\textsf{MPC}(n,m,t)|}{one MPC instance, \cref{eqn:sizeMPC}} 
+\textunderbrace{\secpar\tau\log_2\left(\frac{M}{\tau}\right)}{initial seeds} +
+\textunderbrace{2\secpar\tau\log_2\left(\frac{M}{\tau}\right)}{Merkle tree commitments} +
+\tau\left(
+     \textunderbrace{\secpar\log_2N}{per-party seeds}  +
+     \textunderbrace{|\textsf{MPC}(n,m,t)|}{one MPC instance, \cref{eqn:sizeMPC}}
 \right)
-\end{align*} 
+\end{align*}
 and we note that the direct contribution of OWF choice is limited to
 $|\textsf{MPC}(n,m,t)|$\footnote{The size $|\textsf{MPC}(n,m,t)|$ is a slight
 overestimate since for $1/N$ instances we don't have to send $\aux$, if the
 last party is unopened. In \cref{table:sig-sizes} our estimates include this,
 but it's a very small difference as $\tau$ is quite small. }.  However, the
 size of this term can impact the choice of $(N,M,\tau)$.  The Picnic parameters
-$(N, M, \tau)$ must be chosen so that the soundness error, 
+$(N, M, \tau)$ must be chosen so that the soundness error,
 \begin{equation*} \label{eqn:soundness}
     \epsilon(N,M,\tau) = \max_{M-\tau \le k \le M} \left\lbrace  \frac{\binom{k}{M-\tau} }{\binom{M}{M-\tau} N^{k-M+\tau} } \right\rbrace\,.
 \end{equation*}
@@ -1003,12 +1011,12 @@ similar as in Picnic, and we present some options from it in \cref{table:sig-siz
             parameters of the protocol $(M, N, \tau)$ are described in the text.
     \item[Commit] For each MPC instance $k\in[M]$, the signer does the following.
     \begin{enumerate}
-        \item Choose uniform $\seed^{(k)}$ and use  to generate values $(\seed^{(k)}_i)_{i \in [N]}$, and compute  
-        $\aux^{(k)}$ as described in the text. 
+        \item Choose uniform $\seed^{(k)}$ and use  to generate values $(\seed^{(k)}_i)_{i \in [N]}$, and compute
+        $\aux^{(k)}$ as described in the text.
         For $i=1,\ldots N-1$, let $\state^{(k)}_i = \seed^{(k)}_i$ and  let $\state^{(k)}_{N} = \seed^{(k)}_{N} || \aux^{(k)}$.
         \item Commit to the preprocessing phase:
         \begin{align*}
-        \com^{(k)}_{i} = \hash(\state^{(k)}_i) \text{ for all } i\in [N], \quad 
+        \com^{(k)}_{i} = \hash(\state^{(k)}_i) \text{ for all } i\in [N], \quad
         h^{(k)} = \hash(\com^{(k)}_{1},\ldots,\com^{(k)}_{N}).
         \end{align*}						
         \item Compute MPC input $\hat{x}^{(k)} = x + \tilde{x}^{(k)}$ based on the secret key $x$ and the random values $\tilde{x}^{(k)}$ defined by preprocessing.
@@ -1018,44 +1026,44 @@ similar as in Picnic, and we present some options from it in \cref{table:sig-siz
          h'^{(k)}= \hash(\hat{x}^{(k)}, \msgs_{1}^{(k)}, \ldots, \msgs_{N}^{(k)} ).
         $
     \end{enumerate}
-    
-    \item[Challenge] 
+
+    \item[Challenge]
     The signer computes $\ch = \hash(h_1, \ldots h_M, h_1', \ldots, h_M',
-    \Msg)$, then expands $\ch$ to the challenge $(\CCC, \PPP) := \Expand(\ch)$, as described in the text. 
-    
+    \Msg)$, then expands $\ch$ to the challenge $(\CCC, \PPP) := \Expand(\ch)$, as described in the text.
+
     \item[Signature output]
-    The signature $\sigma$ on $\Msg$ is 
+    The signature $\sigma$ on $\Msg$ is
     \[
-    \sigma = (\ch, 
-              ((\seed^{(k)}, h^{(k)} )_{k\not\in\CCC}, 
+    \sigma = (\ch,
+              ((\seed^{(k)}, h^{(k)} )_{k\not\in\CCC},
               ( \com^{(k)}_{p_k}, (\state^{(k)}_{i})_{i\neq p_k}, \hat{x}^{(k)}, \msgs_{p_k}^{(k)} )_{k\in\CCC})_{k\in[M]})
     \]
-    
-    \item[Verification] The verifier parses $\sigma$ as above, and does the following.  
+
+    \item[Verification] The verifier parses $\sigma$ as above, and does the following.
     \begin{enumerate}
         \item Check the preprocessing phase. For each $k\in[M]$:
         \begin{enumerate}
-        \item If $k \in \CCC$: for all $i\in[N]$  such that $i \neq p_k$, the verifier uses $\state^{(k)}_{i}$ to compute $\com^{(k)}_{i}$ as 
-            the signer did, then computes $h'^{(k)} = \hash(\com^{(k)}_{1},\ldots,\com^{(k)}_{N})$ using 
-            the value $\com^{(k)}_{p_k}$ from $\sigma$. 
+        \item If $k \in \CCC$: for all $i\in[N]$  such that $i \neq p_k$, the verifier uses $\state^{(k)}_{i}$ to compute $\com^{(k)}_{i}$ as
+            the signer did, then computes $h'^{(k)} = \hash(\com^{(k)}_{1},\ldots,\com^{(k)}_{N})$ using
+            the value $\com^{(k)}_{p_k}$ from $\sigma$.
         \item If $k\not\in\CCC$: the verifier uses $\seed^{(k)}$ to compute $h'^{(k)}$ as the signer did.
-        \end{enumerate} 
-        
+        \end{enumerate}
+
         \item Check the online phase:
         \begin{enumerate}
-            \item For each $k \in \CCC$ the verifier simulates the online phase using $(\state^{(k)}_{i})_{i \neq p_k}$,  
-                masked witness $\hat{x}$ and $\msgs^{(k)}_{p_k}$ to compute $(\msgs_i)_{i \neq p_k}$. 
+            \item For each $k \in \CCC$ the verifier simulates the online phase using $(\state^{(k)}_{i})_{i \neq p_k}$,
+                masked witness $\hat{x}$ and $\msgs^{(k)}_{p_k}$ to compute $(\msgs_i)_{i \neq p_k}$.
                 Then compute $h^{(k)}$ as the signer did. The verifier outputs `invalid' if the output of the MPC simulation is not equal to $y$.
         \end{enumerate}
-    \item The verifier computes $\ch' = \hash(h_1, \ldots h_M, h_1', \ldots, h_M', \Msg)$ and outputs `valid' if $\ch' = \ch$ and `invalid' otherwise. 
+    \item The verifier computes $\ch' = \hash(h_1, \ldots h_M, h_1', \ldots, h_M', \Msg)$ and outputs `valid' if $\ch' = \ch$ and `invalid' otherwise.
     \end{enumerate}
  \end{description}
  \end{protocolbox}
  \end{minipage}
 	\vspace*{-10pt}
-	\caption{\label{fig:23-picnic}Picnic-like signature scheme using the \ttOWF and the KKW proof system.} 
+	\caption{\label{fig:23-picnic}Picnic-like signature scheme using the \ttOWF and the KKW proof system.}
 \end{figure}
 
 
 %--------------------------%
-\input{Sections/Appendix_Sections/implementation_appendix}
+\iffull\else\input{Sections/Appendix_Sections/implementation_appendix}\fi
