@@ -15,7 +15,7 @@ The \textnormal{LPN-wPRF} candidate is a family of functions $\PRFfunc : \Z_2^{m
     \item Let $\mat{K}^* = \Convert_{(2,3)}(\mat{K})$ and $x^* = \Convert_{(2,3)}(x)$. Compute $v = \Convert_{(3,2)}(\BLMap_3(\mat{K}^*, x^*)) = \mat{K}^* x^* \bmod 2$. That is, compute $v = (\mat{K}x \bmod 3) \bmod 2$ where both $\mat{K}$ and $x$ are first reinterpreted over $\Z_3$.
     \item Compute $w = u \xor v$ and output $y = \LMap_2^{\mat{B}}(w)$.
 \end{enumerate}
-\label{construction:23-central-wprf}
+\label{construction:lpn-central-wprf}
 \end{construction}
 
 \begin{construction}[LPN-PRG Candidate]
