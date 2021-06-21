@@ -90,7 +90,7 @@ Motivated by the above questions, we make the following contributions.
 
 \iffalse
 \paragraph{\bf \textnormal{OT} and \textnormal{VOLE} friendliness}.
-    MPC protocols in the preprocessing modelcan take advantage of input-independent correlated randomness to better handle nonlinear gates~\cite{Beaver,BDOZ,SPDZ,PowerOfCorrelatedRandomness,TinyTables,BGI19}. However, some kinds of correlated randomness are better than other. Recent work~\cite{?} for instance, has shown how pseudorandom correlation generators (PCGs) can be used to generate millions of ``OT'' and ``VOLE'' correlations with very low and computation costs. Furthermore, it is not necessary to store all of these correlations; they can stored in a compressed form, and expanded only when needed~\cite{?}. Roughly speaking, an OT correlation is useful for evaluating a ``simple'' nonlinear gates (such as Boolean AND) and a VOLE correlation is useful for scalar-vector products. We would like to maximize the potential benefit from these recent techniques.
+    MPC protocols in the preprocessing model can take advantage of input-independent correlated randomness to better handle nonlinear gates~\cite{Beaver,BDOZ,SPDZ,PowerOfCorrelatedRandomness,TinyTables,BGI19}. However, some kinds of correlated randomness are better than other. Recent work~\cite{?} for instance, has shown how pseudorandom correlation generators (PCGs) can be used to generate millions of ``OT'' and ``VOLE'' correlations with very low and computation costs. Furthermore, it is not necessary to store all of these correlations; they can stored in a compressed form, and expanded only when needed~\cite{?}. Roughly speaking, an OT correlation is useful for evaluating a ``simple'' nonlinear gates (such as Boolean AND) and a VOLE correlation is useful for scalar-vector products. We would like to maximize the potential benefit from these recent techniques.
 
 
 \mahimna{still writing}
@@ -289,6 +289,20 @@ on MPC parameter choices).  This
 shows that OWFs based on alternating moduli are competitive with block-cipher
 based designs, with potential for future improvements, and we can choose a OWF with an (arguably) simpler mathematical
 description, without sacrificing performance.
+
+\iffull
+We remark that while our efficiency metrics of low nonlinear depth and small
+nonlinear size are ideal for MPC, and as a consequence, helpful for signatures
+based on zero-knowledge proofs, some proof systems can be very efficient for
+limited computations with large nonlinear size.  A recent example is the
+Rainier signature scheme~\cite{dobraunig2021-rainier}, whose underlying one-way
+function \textsc{Rain} uses inversion in large finite fields as a nonlinear
+operation. When compared to the \ttOWF, \textsc{Rain} currently results in
+shorter signatures, but is tightly coupled to that application, and
+\textsc{Rain}-like primitives would not be efficient in the other applications
+of this paper, since general-purpose MPC protocols for these primitives are
+relatively inefficient.
+\fi
 
 \paragraph{Oblivious pseudorandom functions.}
 %\yuval{Literature pointers, compare with DDH-based (better computation, post-quantum), compare with Legendre-based.}
