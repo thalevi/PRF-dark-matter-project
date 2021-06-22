@@ -2,21 +2,23 @@
 \section{Distributed Protocols}
 \label{sec:distributed_protocols}
 \iffull
-We now describe efficient protocols to compute our candidate constructions in several interesting distributed settings. This section is structured as follows. First, in Section~\ref{subsec:protocol_overview}, we provide a technical overview for our overall protocol design. This includes computation protocols for each of our circuit gates as well as a generic way to compose them to obtain fully distributed protocols in the preprocessing model for all our constructions. Section~\ref{subsec:distributed_protocol} quantifies this approach by providing concrete communication and preprocessing costs for distributed evaluations for our constructions. In Section~\ref{subsec:3party_protocol}, for our \ttwPRF construction, we provide a 3-party protocol that does not require any preprocessing and is secure against one passive corruption. Finally, in Section~\ref{subsec:oprf_protocol}, we provide two OPRF protocols for our \ttwPRF construction in the preprocessing model. All provided protocols are for the semi-honest setting.
+We now describe efficient MPC protocols to compute our candidate constructions in several useful distributed settings. This section is structured as follows. First, in Section~\ref{subsec:protocol_overview}, we provide a technical overview for our overall protocol design. This includes secure subprotocols for each of our circuit gates as well as a generic way to compose them to obtain fully distributed protocols in the preprocessing model for all our constructions. Section~\ref{subsec:distributed_protocol} quantifies this approach by providing concrete communication and preprocessing costs for distributed evaluations for our constructions. In Section~\ref{subsec:3party_protocol}, for our \ttwPRF construction, we provide a 3-party protocol that does not require any preprocessing and is secure against one passive corruption. In Section~\ref{subsec:oprf_protocol}, we provide two OPRF protocols for our \ttwPRF construction in the preprocessing model.  Finally, in Section~\ref{subsec:preprocessing} we describe efficient protocols for distributing the generation of  correlated randomness for modulus conversion gates using only standard OT correlations.  All provided protocols are for the semi-honest setting.
 \else
-We now describe efficient protocols to compute our candidate constructions in several interesting distributed settings. First, in Section~\ref{subsec:protocol_overview}, we provide a technical overview for our overall protocol design. Section~\ref{subsec:distributed_protocol} quantifies this approach by providing concrete costs for distributed evaluations for our \ttwPRF construction. We also provide two novel OPRF protocols based on this PRF in Section~\ref{subsec:oprf_protocol}. 
+We now describe efficient MPC protocols to compute our candidate constructions in several useful distributed settings. First, in Section~\ref{subsec:protocol_overview}, we provide a technical overview for our overall protocol design. Section~\ref{subsec:distributed_protocol} quantifies this approach by providing concrete costs for distributed evaluations for our \ttwPRF construction. We also provide two novel OPRF protocols based on this PRF in Section~\ref{subsec:oprf_protocol}. In Section~\ref{subsec:preprocessing} we describe efficient protocols for distributing the generation of  correlated randomness for modulus conversion gates.
 In Appendix~\ref{appendix:protocols}, we also provide protocols for two more settings: the public-input setting (where the PRF input is known), and the 3PC setting without preprocessing where one party can be passively corrupt.
 \fi
 
 
-
 \subsection{Technical Overview}
 \label{subsec:protocol_overview}
-Recall that all our constructions can be succinctly represented using five basic gates. The main strategy now will be to evaluate each of these gates in a distributed manner. These gate evaluation subprotocols can then be easily composed to evaluate the  candidate constructions. 
+Recall that all our constructions can be succinctly represented using a set $\gateset$ of five basic 
+gates. We will view each construction as a circuit over the basis $\gateset$ and follow the approach of~\cite{damgard2017-tinytable,boyle2019-fss-preprocess} to securely evaluate such circuits using circuit-dependent correlated randomness. 
+
+%The main strategy now will be to evaluate each of these gates in a distributed manner. These gate evaluation subprotocols can then be easily composed to evaluate the  candidate constructions. 
 \greg{Should we justify security under composition a bit more?  I think the reason composition is secure is because all of the gates maintain the invariant that the inputs and outputs are all secret shared, and nothing is leaked about the inputs.}
 \mahimna{Yes; it would be good to have a composition theorem for security. It should be pretty straightforward I think. I'll add that as a todo.}
 
-We begin with distributed protocols to evaluate each of the five gates. Abstractly, the goal of a gate protocol is to convert shares of the inputs to shares of the outputs (or shares of the masked output). To make our formalism cleaner, the gate protocols, by themselves, will involve no communication. Instead, they can additionally take in masked versions of the inputs, and possibly some additional correlated randomness. When composing gate protocols, whenever a masked input is needed, the parties will exchange their local shares to publicly reveal the masked value. This choice also prevents redoing the same communication when the masked value is already available from earlier gate evaluations.
+We begin with distributed protocols to evaluate each of the five gates. Abstractly, the goal of a gate protocol is to convert  shares of the inputs to shares of the outputs (or shares of a masked output). To make our formalism cleaner, the gate protocols, by themselves, will involve no communication. Instead, they can additionally take in masked versions of the inputs, and possibly some additional correlated randomness. When composing gate protocols, whenever a masked input is needed, the parties will exchange their local shares to publicly reveal the masked value. This choice also prevents redoing the same communication when the masked value is already available from earlier gate evaluations.
 
 
 \iffull
@@ -29,7 +31,7 @@ Given public values $a_1, \dots, a_k$, it is straightforward for the protocol pa
 
 \subsubsection{Distributed Computation of Circuit Gates}
 We provide detailed (local) protocols to compute each circuit gate in this section. The description of inputs (including shared correlated randomness) and outputs for each gate protocol is also summarized in Table~\ref{table:gate_protocol_summary}. Note that the protocols work for any number of parties.
-Protocols for the $\LMap$ and $\Add$ gates directly follow from the homomorphic properties of additive secret sharing, while the protocol for the $\BLMap$ gate is essentially a generalization of Beaver's multiplication triples~\cite{boyle2019-fss-preprocess,beaver1991-triples}. \iffull\else In this section, we briefly provide our novel protocols for the $\Convert_{(2,3)}$ and $\Convert_{(3,2)}$ gates and defer the details (as well as other gate protocols) to Appendix~\ref{appendix:protocol_gates}.\fi
+Protocols for the $\LMap$ and $\Add$ gates directly follow from the homomorphic properties of additive secret sharing, while the protocol for the $\BLMap$ gate is a generalization of Beaver's multiplication triples~\cite{beaver1991-triples} (see, e.g.,~\cite{boyle2019-fss-preprocess}). \iffull\else In this section, we briefly provide our new protocols for the $\Convert_{(2,3)}$ and $\Convert_{(3,2)}$ gates and defer the details (as well as other gate protocols) to Appendix~\ref{appendix:protocol_gates}.\fi
 
 \begin{table}[t!]
 \lncsresize{
@@ -77,7 +79,7 @@ The linear gate is the easiest to evaluate, and follows from the standard linear
 The addition modulo $p$ gate is also easy to evaluate. Given shares of $x, x'$ over $\Z_p$, for the protocol each party $\party_i$ can locally compute its share of $x+x'$ as $\sharei{x} + \sharei{x'} \bmod p$. This directly follows from the additive homomorphism of additive shares. 
 
 \paragraph{Bilinear gate protocol $\prot_\BLMap^p$.}
-The bilinear gate protocol is essentially a generalization of Beaver's multiplication triples~\cite{boyle2019-fss-preprocess,beaver1991-triples} that computes the multiplication of two shared inputs. For Beaver's protocol, to compute a sharing of $ab$ given shares of $a$ and $b$ (all sharings are over a ring $\mathcal{R}$), the protocol parties are provided shares of a randomly sampled triple of the form $(\tilde{a},\tilde{b},\tilde{a}\tilde{b})$ in the preprocessing stage. Beaver's protocol first reconstructs the masked inputs $\hat{a}$ and $\hat{b}$ after which local computation is enough to produce shares of the output. For our bilinear gate protocol, we assume that  all parties are already provided with the masked inputs (to move the communication outside of the gate protocol), along with correlated randomness similar to a multiplication triple. 
+The bilinear gate protocol is a generalization of Beaver's multiplication triples~\cite{beaver1991-triples} that computes the multiplication of two shared inputs. For Beaver's protocol, to compute a sharing of $ab$ given shares of $a$ and $b$ (all sharings are over a ring $\mathcal{R}$), the protocol parties are provided shares of a randomly sampled triple of the form $(\tilde{a},\tilde{b},\tilde{a}\tilde{b})$ in the preprocessing stage. Beaver's protocol first reconstructs the masked inputs $\hat{a}$ and $\hat{b}$ after which local computation is enough to produce shares of the output. For our bilinear gate protocol, we assume that  all parties are already provided with the masked inputs (to move the communication outside of the gate protocol), along with correlated randomness similar to a multiplication triple. 
 
 \begin{itemize}
   \item \textbf{Functionality}: 
@@ -174,7 +176,32 @@ Consequently, $\sum_{\party_i \in \parties} \sharei{x^*} \bmod 2 = x \bmod 2$ ho
 %-------------------------------%
 \iffull
 \subsubsection{Composing Gate Protocols}
-We now describe a general technique to evaluate circuit composed of the previously specified gates in a distributed fashion. We provide details for the semi-honest fully distributed setting (with preprocessing), where all inputs are secret shared between all parties initially. This can also be thought of as a toolbox for constructing efficient distributed protocols for other constructions similar to ours. While the technique will also work for other settings (e.g., OPRF, public input), the concrete communication costs will be worse than more specially designed protocols. For these settings, we will provide more efficient protocols than provided by this general technique.
+We now describe how to evaluate a circuit composed of the previously specified gates in a distributed fashion. We provide details for the semi-honest fully distributed setting (with preprocessing), where all inputs are secret shared between all parties initially. This can also be thought of as a toolbox for constructing efficient distributed protocols for other constructions similar to ours. While the technique will also work for other settings (e.g., OPRF, public input), the concrete communication costs will be worse than more specially designed protocols. For these settings, we will provide more efficient protocols than provided by this general technique.
+
+\paragraph{Circuit notation.}
+%We can represent our constructions by circuits consisting of the gates described previously. 
+We use the convention of~\cite{boyle2019-fss-preprocess} to describe circuits whose wires take values from finite Abelian groups and whose gates come from $\gateset$.
+  
+\begin{definition}[Computation circuit]
+A computation circuit $C$ with input space $\Gin = \prod \Gin_i$ and output space $\Gout = \prod \Gout_i$ is a (labeled) directed acyclic graph $(\mathcal{V},\mathcal{E})$ where $\mathcal{V}$ denotes the set of vertices and $\mathcal{E}$ denotes the set of edges according to the following:
+\begin{itemize}
+
+\item Each source vertex corresponds to exactly one $\Gin_i$ and vice versa. The label for the vertex is the identity function on the corresponding $\Gin_i$. Each sink vertex corresponds to exactly one $\Gout_i$ and vice versa. The label for the vertex is the identity function on the corresponding $\Gout_i$. Each non-source $V \in \mathcal{V}$ is labeled with a gate $\mathcal{G}_V \in \gateset$ that computes the function $\mathcal{G}_V: \mathbb{G}^{\textsf{in}}_V \to \mathbb{G}^{\textsf{out}}_V$. The depth of a vertex $V \in \mathcal{V}$, denoted by $\textsf{depth}(V)$ is the length of the largest directed path from a source vertex to $V$.
+
+
+\item For an edge $(V_a, V_b)$, let $\Gout_{V_a} = \prod \Gout_{V_a,i}$ and $\Gin_{V_b} = \prod \Gin_{V_b, i}$. Then, there exists indices $j$ and $k$ such that $\Gout_{V_a,j} = \Gin_{V_b,k}$. Further, for each input $\Gin_{V_b,i}$ for $V_b$, there is some edge $(V_c, V_b)$ that satisfies the above.
+
+\item The evaluation of the gate for vertex $V$ on input $x \in \Gin_V$ is defined as $y = \mathcal{G}_V(x)$. The evaluation of the circuit $C$, denoted by $\textsf{Eval}_C(x)$, where $x \in \Gin$ is the value $y \in \Gout$, that is obtained by recursively evaluating each gate function in the circuit.
+\end{itemize}
+
+
+%Let $\mathsf{F} = \{\mathsf{F}_\secparam\}_{\secparam \in \N}$ denote a family of functions $\mathsf{F}_\secparam:\mathcal{X}_\secparam \to \mathcal{Y}_\secparam$. We say that $\{C_\secparam\}_{\secparam \in \N}$ is a family of computation circuits for $\mathsf{F}$ if 
+%all $C_\secparam$ have the same topological structure, and 
+%for all $\secparam \in \N$, $\mathsf{F}_\secparam(x) = \textsf{Eval}_C(x)$ for all $x \in \mathcal{X}_\secparam$.
+\label{def:computation_circuit}
+\end{definition}
+
+
 
 \paragraph{Composition protocol.} Consider a circuit $C$ (Definition~\ref{def:computation_circuit}) with input space $\Gin = \prod \Gin_i$. To evaluate $C$ with input $(x_1, \dots, x_l) \in \Gin$, in the fully distributed setting, all parties are given additive shares for each $x_i$. Now, the distributed evaluation of $C$ proceeds as follows:
 \begin{itemize}
@@ -211,15 +238,15 @@ A na{\"i}ve technique to compute the preprocessing required is to add the prepro
 \begin{itemize}
 \item The $\LMap$ and $\Add$ gates are computed locally and require no preprocessing.
 
-\item Each $\BLMap_p$ gate requires a multiplication triple which provides masks for the two inputs and a multiplication of the two masks. Specifically, for $\BLMap_p(\mat{K}, x)$ where $\mat{K} \in \Z_p^{l_2 \times l_1}$ and $x \in \Z_p^{l_1}$, the preprocessed shares are of the form $(\tilde{\mat{K}}, \tilde{x}, \tilde{\mat{K}}\tilde{x})$. Consequently, when $\mat{K}$ is circulant, a total of $(2l_1 + l_2) \log_p$ bits needs to be provided as preprocessing to each party.
+\item Each $\BLMap_p$ gate requires a (generalized) multiplication triple which provides masks for the two inputs and a multiplication of the two masks. Specifically, for $\BLMap_p(\mat{K}, x)$ where $\mat{K} \in \Z_p^{l_2 \times l_1}$ and $x \in \Z_p^{l_1}$, the preprocessed shares are of the form $(\tilde{\mat{K}}, \tilde{x}, \tilde{\mat{K}}\tilde{x})$. Consequently, when $\mat{K}$ is circulant, a total of $(2l_1 + l_2) \log_p$ bits needs to be provided as preprocessing to each party.
 
 \item Each $\Convert_{(2,3)}$ gate requires shares of a random mask $\tilde{x}$ both over $\Z_2$ and $\Z_3$. In other words, for $x \in \Z_2^l$, it requires $l + \log_2{3} \cdot l$ bits of preprocessing per party.
 
 \item Each $\Convert_{(3,2)}$ gate requires shares of a random mask $\tilde{x}$ (over $\Z_3$) as well as $u = \tilde{x}$ and $v = (\tilde{x} + \textbf{1} \bmod 3)\bmod 2$ (both over $\Z_2$). In other words, for $x \in \Z_3^l$, it requires $\log_2{3} \cdot l + 2l$ bits of preprocessing per party.
 \end{itemize}
 
-\paragraph{Compressing preprocessing required.}
-We describe several optimizations to reduce the total cost of preprocessing. We assume here the presence of a trusted dealer to generate any correlations in the randomness. We note that some of the optimizations, while reducing the size of preprocessing, would be more complicated to generate if a dealer is not present.
+\paragraph{Compressing correlated randomness.}
+We describe several optimizations to reduce the size of preprocessed correlated randomness. We assume here the presence of a trusted dealer to generate this correlated randomness; see  Section~\ref{subsec:preprocessing} for eliminating this trust. We note that some of the optimizations, while reducing the size of preprocessing, would increase the cost of distributing the dealer.
 
 \begin{itemize}
 
@@ -309,9 +336,9 @@ For this, we provide the parties with preprocessed tuples for the $\BLMap$ gate,
 
 \iffull
 %---------------
-\subsubsection{$2$-Party Protocol for \ttwPRF.}
+\subsubsection{$2$-Party Protocol for \ttwPRF}
 \label{subsec:2pc-wprf}
-We detail a $2$-party semi-honest protocol for evaluating our \ttwPRF candidate (Construction~\ref{construction:23-central-wprf}). In this setting, two parties, denoted by $\party_1$ and $\party_2$ hold additive shares of a key $\mat{K} \in \Z_2^{m \times n}$, and an input $x \in \Z_2^n$. The goal is to compute an additive sharing of the wPRF output $y = \LMap^\mat{B}_3(\mat{K}x)$ where $\mat{B} \in \Z_3^{t \times m}$ is a publicly known matrix.
+We detail a $2$-party semi-honest protocol for evaluating the \ttwPRF candidate (Construction~\ref{construction:23-central-wprf}). In this setting, two parties, denoted by $\party_1$ and $\party_2$ hold additive shares of a key $\mat{K} \in \Z_2^{m \times n}$, and an input $x \in \Z_2^n$. The goal is to compute an additive sharing of the wPRF output $y = \LMap^\mat{B}_3(\mat{K}x)$ where $\mat{B} \in \Z_3^{t \times m}$ is a publicly known matrix.
 
 
 \paragraph{Preprocessing.}
@@ -476,7 +503,7 @@ Many prior OPRF constructions~\cite{freedman2005-oprf,jarecki2009-oprf} require 
 \fi
 
 %-------------------%
-\subsection{Generating the correlated randomness}
+\subsection{Distributing the Trusted Dealer}
 \label{subsec:preprocessing}
 \iffull
 While our distributed protocols are primarily built for use in the preprocessing model, in this section we will also show how to generate the preprocessing we require efficiently and without a trusted dealer. We will focus on the 2-party setting specifically. Three of our gate protocols, namely $\prot_\BLMap$, $\prot_\Convert^{(2,3)}$, and $\prot_\Convert^{(3,2)}$, require correlated randomness as preprocessing. In this section, we will show how to efficiently generate the randomness they require.

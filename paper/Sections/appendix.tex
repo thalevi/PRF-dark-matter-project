@@ -690,9 +690,9 @@ We consider this as a negligible probability
 as the consequences of the this unlikely event are mild.
 
 
-\subsection{Security analysis of LPN-PRF}
+\subsection{Security analysis of LPN-wPRF}
 
-The overall structure of the LPN-PRF is similar to the PRG.
+The overall structure of the LPN-wPRF is similar to the PRG.
 However, unlike PRG, in the first transformation, the key is part of the matrix and
 $x$ is a public value.
 Thus, $w$ can be viewed as $m$ outputs of (another) more
@@ -723,7 +723,7 @@ we require that each linear combination of the output
 has bias of at most $2^{-0.1 s}$
 (toward some linear combination of the key over $\Z_2$).
 
-\paragraph{Parameter selection for the LPN-PRF.}
+\paragraph{Parameter selection for the LPN-wPRF.}
 For $s$-bit security, we set $n=m= 2s$ and $t =s$.
 By our analysis, exhaustive search requires $2^{m - t} = 2^s$ time.
 
