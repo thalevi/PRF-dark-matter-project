@@ -170,7 +170,6 @@ with any particular key. This reduces the probability of bad events such as coll
 between the input and the structured circulant matrix $\mat{K}$.
 More details about such inputs are given in the security analysis.
 
-
 \paragraph{Concrete parameters.}
 In Table~\ref{table:concrete} we summarize the recommended
 concrete parameters for our constructions
@@ -181,6 +180,10 @@ sizes, while for wPRFs we use a larger secret.
 This is a result of different tradeoffs between security and performance.
 For example, we could have set $n = s$ for the \ttwPRF, but cryptanalysis would
 force setting $m$ to be much larger than $2s$ and result in less efficient protocols.
+A lower bound on $m$ in case $n=s$ is deduced by a subset-sum attack which resembles the one 
+on the \ttOWF construction. Yet, optimizations that exploit the additional data available 
+may be possible. While we do not expect security to degrade sharply in this case,
+we leave the concrete analysis for this parameter setting to future work.
 On the other hand, setting $n = 2s$ for the \ttOWF would also require
 doubling the size of the output,\footnote{
 Otherwise, each output would have $2^s$ preimages and there would be no security advantage.}
