@@ -1,0 +1,1069 @@
+%!TEX root = ../main.tex
+
+\section{Detailed Cryptanalysis}
+\label{appendix:cryptanalysis}
+
+In this appendix we describe in detail the cryptanalysis of our new constructions.
+We start with some general remarks (Section~\ref{subsec:cryptanalysis_remarks}) and then analyze our constructions in subsections that follow.
+
+\subsection{Overview}
+\label{subsec:cryptanalysis_remarks}
+\subsubsection{Choosing public inputs}
+
+All the cryptosystems we define receive public inputs chosen at random.
+For example, the \ttOWF receives matrices $\mat{A}$ and $\mat{B}$ as public inputs.
+One option is to choose $\mat{A}$ and $\mat{B}$ independently per secret input.
+While an alternative option is to fix one (or even both) of the matrices and reuse them.
+Generally, this alternative option is more susceptible to multi-target
+attacks and attacks that are based on self-similarity.
+Thus, in general, the first option is considered more secure and this is the option we use.
+For similar reasons we choose the public parameters independently per secret for the
+PRFs and the PRG we define.
+
+Of course, there are bad choices of the public inputs which could degrade security,
+and we need to show that these are unlikely to be occur.
+
+Finally, for the PRFs we define, this still leaves open the question of how to select the public inputs $x$ and $\mat{B}$
+per sample computed with a secret key. We chose to select $x$ independently per sample,
+while fixing $\mat{B}$ per secret key, as this allows to optimize performance by preprocessing.
+In terms of security, the choice of fixing $\mat{B}$ does allow for a wider range of attacks
+that we need to consider, as we demonstrate in the security analysis.
+
+\paragraph{Restricted public matrices.}
+In order to optimize performance, we select the public matrices
+for the schemes as random Toeplitz matrices. These matrices
+define a pairwise independent hash family and are known to satisfy the
+Gilbert–Varshamov bound for linear codes, which is the main tool we use in the analysis.
+
+\paragraph{Private matrices for PRF constructions.}
+The private matrix $\mat{K}$ in the PRF constructions is a circulant matrix
+defined by rotations of a secret $k \in \{0,1\}^n$.
+While a choice of $\mat{K}$ with a small rank deficiency does not seem to
+have a significant impact on the security,
+some attacks on the schemes (particularly on the 2-3 PRF) may exploit
+matrices of particularly low rank
+(as $w = \mat{K}x \bmod 2$ resides in a subspace of small dimension).
+
+Thus, if possible, it is preferable to select $k$ such that $\mat{K}$
+is a full rank matrix. Yet, this may require additional communication
+is distributed protocols.
+Otherwise, we need to understand the rank distribution of $\mat{K}$
+when $k$ is selected uniformly at random and prove that $\mat{K}$
+has very small rank with negligible probability.
+For particular choices of $n$ the analysis is simple.
+\begin{proposition}
+\label{prop:rank}
+Let $n = 2^{n'}$ for a positive integer $n'$
+and let $\mat{K} \in \Z_2^{n \times n}$
+be a circulant matrix selected uniformly at random.
+Then, for any $a \in \{0,\ldots n\}$,
+$\Pr[rank(\mat{K}) \leq a] = 2^{-n+a}$.
+\end{proposition}
+
+\begin{proof}
+For every vector $u \in \Z_2^{n}$
+we associate a polynomial of degree at most $n-1$,
+$u(x) = \sum_{j=0}^{n-1} u_j x^{j} \in \Z_2[x]$.
+
+Assume that $\mat{K}$ is formed by rotations
+of $k \in \Z_2^{n}$.
+Then for $i \in \{0,\ldots, n-1\}$,
+the $i$'th column of $\mat{K}$ is associated with the polynomial
+$x^i \cdot k(x) \bmod x^n - 1$.
+Thus, for $u \in \Z_2^{n}$, $\mat{K}u$ is given
+by the coefficients of the polynomial
+$u(x) \cdot k(x) \bmod x^n - 1$,
+and $\mat{K}u = 0$ if and only if
+$u(x) \cdot k(x)$ divides $x^n - 1$.
+
+Therefore, there is a bijection between the kernel space of $\mat{K}$
+of the subspace of polynomials $u(x) \in \Z_2[x]$
+of degree at most $n-1$
+that satisfy $u(x) \cdot k(x) \bmod x^n - 1 = 0$.
+The dimension of this subspace of polynomials is equal to
+the degree of $\gcd(k(x), x^n - 1)$ over $\Z_2[x]$.
+
+Recalling that $n = 2^{n'}$, over $\Z_2[x]$ we have
+$x^{2^{n'}} - 1 = (x - 1)^{2^{n'}} = (x - 1)^n$.
+To conclude the proof,
+$rank(\mat{K}) \leq a$ if and only if
+the kernel dimension of $\mat{K}$ is at least $n-a$.
+Equivalently, the degree of $\gcd(k(x), (x - 1)^n)$
+is at least $n-a$, or
+$k(x)$ divides $(x - 1)^{n-a}$.
+There are exactly $2^a$ polynomials of degree at most
+$n-1$ that divide $(x - 1)^{n-a}$
+and the probability of selecting one of them is
+$\tfrac{2^{a}}{2^n} = 2^{-n+a}$ as claimed.
+\end{proof}
+
+
+
+\subsubsection{Concrete security goals.}
+For each scheme the goal is to obtain parameter sets $n,m,t$ such that it offers
+$s$-bit security, while achieving good performance in distributed protocols.
+
+The definition of $s$-bit security that we use below is inspired
+by with the work of Micciancio and Walter~\cite{Micciancio018}.
+We intentionally do not bound the attacker to a particular computational model,
+as this may rule out valid attacks in other natural models.
+Moreover, the definition is also valid against non-uniform adversaries
+(that are allowed to use a computationally unbounded preprocessing phase),
+as our constructions have auxiliary inputs
+(with sufficiently large min-entropy) that are not available during preprocessing.
+
+\paragraph{OWF security.}
+Given a OWF scheme $F(\cdot)$ (applied to a secret input, where the public parameters are embedded into $F$),
+we define an inversion attack game by choosing $\hat{x} \in \Z_2^n$
+uniformly at random and giving $\hat{y}= F(\hat{x})$ to the adversary, whose
+goal to output some $x \in \Z_2^n$ such that $F(x) = \hat{y}$.
+We say that $F(\cdot)$ has $s$ bits of security if no adversary can win the inversion attack game on $F(\cdot)$ with average complexity below $2^{s-1}$.
+
+
+\paragraph{Weak PRF security.}
+We refer to both weak PRFs we define.
+
+The key $k \in \Z_2^n$ that defines the secret matrix $\mat{K}$ is chosen uniformly at random.
+Moreover, the public matrix
+$\mat{B} \in \Z_3^{t \times m}$ (or $\mat{B} \in \Z_2^{t \times m}$) is chosen uniformly at random
+(or as a random Toeplitz matrix).
+For a parameter $r$, an adversary is given $2^{r}$ samples $(x_1,\mat{B},y_1) ,\ldots, (x_{2^r},
+\mat{B},y_{2^r})$,
+where each $x_i \in \Z_2^n$ is chosen independently and uniformly at random.
+
+We will place a restriction of $r \leq 40$,
+corresponding to a practical limit of $2^{40}$ on the number of samples available to the adversary.
+
+We consider two types of adversaries.
+The first type is a distinguisher that attempts to distinguish $2^r$ samples where each $y_i$
+is generated using the PRF with a fixed $k$ from
+$2^r$ samples where each vector $y_i$ is chosen uniformly at random.
+The second type attempts to find the secret key given samples generated using the PRF.
+
+We say that the PRF has $s$ bits of security if given (at most) $2^r$ samples both conditions below hold.
+\begin{enumerate}
+  \item The advantage of a distinguishing adversary that runs in time $2^\tau$ is at most $2^{(\tau - s)/2}$.
+  \item The probability that an adversary that runs in time $2^\tau$ find the key is at most $2^{\tau - s}$.
+\end{enumerate}
+
+\paragraph{PRG security.}
+The secret seed $x \in \Z_2^n$ is chosen uniformly at random, along with the public parameters $\mat{A},\mat{B}$.
+The adversary is given a single sample $\mat{A},\mat{B},y$.
+As for PRFs, security is defined against the two types of adversaries and the definition is similar.
+
+\subsubsection{Algebraic attacks.}
+In algebraic attacks the attacker represents the outputs (on internal variables) of the cipher as multivariate polynomials in the secret key (or preimage), obtaining a system of polynomial equations. The attacker then attempts to the solve the system using techniques such as linearization or applying algorithms for finding a reduced representation of the ideal generated by the polynomials in the form of a Gr\"{o}bner basis.
+Such methods are known to be efficient only in particular cases where the polynomials have a special structure, or the
+polynomials equations are of low degree and the attacker obtains sufficiently many equations to solve the system by linearization.
+
+In our case, the output of the schemes we define
+mix between the sums $\bmod$ 2 and $\bmod$ 3.
+For example, in the \ttOWF and PRF constructions each output entry is a sum $\bmod$ 3 of entries of $w$,
+where each such entry is a sum $\bmod$ 2 of the unknown bits of the secret input.
+We conjecture (similarly to~\cite{boneh2018-darkmatter}) that
+the output cannot be represented (or well-approximated) by a low degree polynomial over any specific polynomial ring. This was shown rigorously in~\cite[Lemma 4.2]{boneh2018-darkmatter} for polynomials over $\mathrm{GF}(3^r)$ (for any $r \geq 1$), and this analysis carries
+over to our $(2,3)$ constructions since they use the same ``modulus-switching'' mapping $\mathrm{map}_2:\{0,1\}^\ell \rightarrow \mathbb{Z}_3$ (namely,
+$x \mapsto \sum_{i \in [\ell]}x_i \, (\bmod \, 3)$).
+Crucially, for this lemma to be meaningful, 
+$\ell$ has to be sufficiently large (e.g., $\ell \approx n$),
+and our choice of parameters will ensure that the sums $\bmod$ 2 and $\bmod$ 3
+are indeed dense and contain many terms.
+In particular, for the
+\ttOWF and PRF constructions
+we will make sure that the linear code spanned by the rows of $B$ has large minimal distance,
+except with very small probability.
+Overall, we do not expect algebraic attacks to pose a threat to our schemes,
+and our analysis is mainly based on combinatorial attacks that attempt to recover the secret,
+or on statistical attacks whose goal is to distinguish the output from random.
+
+
+\subsection{Security Evaluation of the \ttOWF}
+
+In this section we analyze the security of the \ttOWF.
+Beforehand, we note that we may assume without loss of generality that in the most efficient construction, the number of expected preimages is (about) 1. Specifically, in our case, we may assume that $n = \log 3 \cdot t$ (up to rounding factors).
+
+Indeed, setting $\log 3 \cdot t > n$ does not reduce the average number of preimages substantially. Consequently, any attack on a scheme with $n = \log 3 \cdot t'$ can be applied to a scheme with $\log 3 \cdot t > n$ by truncating the output to be of length $\log 3 \cdot t'$. Hence a scheme in which $\log 3 \cdot t > n$ does not offer better security than the truncated one.
+On the other hand, the truncated scheme has shorter output and is generally more efficient.
+Similarly, if $n > \log 3 \cdot t$, an attacker can fix $n - \log 3 \cdot t$ bits of the secret input to an arbitrary value and try to invert the image of the induced scheme where $n' = \log 3 \cdot t$ (note that on average, such a preimage exists).
+
+
+\subsubsection{Basic attacks.}
+%\label{sec:basic}
+We describe several basic attacks and analyze their complexity as a function of $n,m,t$.
+First, by exhaustive search, we can invert the \ttOWF in time complexity $2^n$ or $3^t = 2^{\log 3 \cdot t}$.
+
+Focusing on the value of $m$, by exhaustive search, we can find $x$ such that $\mat{A}x = \mat{A}\hat{x}$ (which implies that the outputs are identical) in time complexity $2^m$.
+A tighter restriction on $m$ is imposed by the following attack: guess $m - t$ bits of $w = \mat{A}x$ and solve the linear equation system $\hat{y} = \mat{B}w$ over $\Z_3$ (which has $t$ equations and variables) to obtain a full suggestion for $w$. A suggestion for $w$ allows to compute $x$ by solving the linear equation system $\mat{A}x=w$ over $\Z_2$. This attack has complexity $2^{m-t}$. An improved attack is described next.
+
+\paragraph{Enumerating $w$ values.}
+
+We show how to enumerate over all $w \in \{0,1\}^m$ that satisfy $\mat{B} w = \hat{y}$ in time complexity of about $2^{m/2}$ if $m \leq 2 \log 3 \cdot t = 2 n$, and $2^{m - \log 3 \cdot t} = 2^{m - n}$, otherwise.
+
+Given such an algorithm, we can test each $w$ by solving the equation system $\mat{A}x = w$ over $\Z_2$, and if a solution exists, we have successfully inverted~$\hat{y}$.
+
+Observe that if $w$ and $w'$ do not have a common $1$ entry, then $w + w' \bmod 2 = w + w' \bmod 3$
+(where the addition is performed entry-wise). Therefore,
+\begin{align}
+\label{eq:lineara}
+\begin{split}
+\mat{B}(w + w' \bmod 2) \bmod 3 = \\
+\mat{B}(w + w' \bmod 3) \bmod 3 = \\
+(\mat{B}w \bmod 3) + (\mat{B}w' \bmod 3) \bmod 3.
+\end{split}
+\end{align}
+
+We use this observation in the following algorithm, whose complexity as claimed above.
+\begin{enumerate}
+  \item Partition the $m$ indices of $w$ into 2 subsets $I_1$ and $I_2 = [m] \backslash I_1$, each of size $m/2$ bits.
+  \item For $i \in \{0,1,\ldots 2^{m/2} - 1\}$, let $w_i$ be the $m$-bit vector whose value on the $m/2$ indices of $I_1$ is $i$, and is 0 on the indices of $I_2$. For each such $i$,
+      evaluate $\mat{B} w_i \bmod 3 = y_i$ and store the pairs $(w_i,y_i)$ in a table $\mathcal{T}$, sorted by $y_i$ values.
+  \item For $j \in \{0,1,\ldots 2^{m/2} - 1\}$, let $w'_j$ be the $m$-bit vector whose value on the $m/2$ indices of $I_2$ is $j$, and is 0 on the indices of $I_1$. For each such $j$,
+      evaluate $\mat{B} w'_j \bmod 3 = y'_j$ and search $\mathcal{T}$ for the value $\hat{y} - y'_j \bmod 3$. If there exists a match $y_i$ such that $y_i = \hat{y} - y'_j \bmod 3$ (or $y_i + y'_j \bmod 3 = \hat{y}$), recover the value $w_i$ such that $\mat{B} w_i \bmod 3 = y_i$ from $\mathcal{T}$
+      and return $w = w_i + w'_j \bmod 2$.
+\end{enumerate}
+
+Note that the expected number of $w \in \{0,1\}^m$ that satisfy $\mat{B} w = \hat{y}$ is $2^{m - \log 3 \cdot t}$. Hence, we cannot hope to obtain better complexity than $2^{m - \log 3 \cdot t}$ without exploiting additional constraints on $w$, imposed by the matrix $\mat{A}$. Our
+subset-sum reduction (given in Section~\ref{sec:cryptanalysis}) shows how this can be done.
+
+\paragraph{Induced schemes.}
+Given the scheme \ttOWF with a matrix $\mat{B}$ and output $y$ such that $\mat{B}w = y$, and any positive integer $r$, we can left-multiply both sides by any $r \times t$ matrix $\mat{C}$ over $\Z_3$ to obtain $\mat{C}\mat{B}w = \mat{C}y$. Note that each row of the matrix $\mat{CB}$ is a linear combination of the rows of $\mat{B}$. Using such a matrix $\mat{C}$, we can perform Gaussian elimination on the rows of $\mat{B}$.
+
+We denote the resultant induced scheme by $\textnormal{OWF}_\mat{C}(\cdot)$. Observe that if $\textnormal{OWF}(x) = y$, then $\textnormal{OWF}_\mat{C}(x) = \mat{C}y$.
+We now describe a simple attack that uses an induced scheme where $\mat{C}$ is only a row vector.
+
+\paragraph{Low Hamming weight combinations of the rows of $\mat{B}$.}
+Assume that there is a vector $v \in \Z_3^m$ of Hamming weight $\ell$ in the row space of $\mat{B}$, namely, there exists a vector $u \in \Z_3^t$ for which $u \mat{B} = v$. If $\ell$ is sufficiently small, then we could use the induced scheme $\textnormal{OWF}_u(\cdot)$ to speed up exhaustive search.
+
+Denote the set of $\ell$ non-zero indices of $v$ by $I$. Given $\hat{y} = \mat{B}w \bmod 3$, we compute the value of $u\hat{y} \bmod 3 = vw \bmod 3$. We can now enumerate the values of the corresponding set $I$ of $\ell$ bits of $w$ for which $u\hat{y} \bmod 3 = vw \bmod 3$ holds. This set of bits has $\tfrac{2^\ell}{3}$ possible values. Each such $\ell$-bit value gives rise of a system of $\ell$ linear equations on $x$, and we exhaustively search its solution space of size $2^{n-\ell}$. Overall, if $\ell \leq n$ the complexity of the attack is
+$\tfrac{2^{\ell}}{3}$, while if $\ell = n+1$, the complexity is $\tfrac{2^{\ell+1}}{3}$. When $\ell > n+1$, the complexity is higher than $2^n$.
+Thus, we will require that such a vector $v$ of low Hamming weight about $n$ does not exist, except with small probability.
+This probability is computed in Proposition~\ref{prop:hw} in Appendix~\ref{app:distance}.
+
+If more such low Hamming weight vectors are available, then the complexity of the attack may be further reduced,
+although it seems unlikely to obtain a significant advantage over exhaustive search with this approach.
+
+
+
+
+%\subsubsection{Quantum attacks.}
+
+%Attackers with access to a quantum computer can improve upon the complexity of some of the attacks described in the classical setting. In the classical setting, exhaustive search and the subset-sum based algorithm are the most relevant attacks that we found of the scheme. This also applies to the post-quantum setting.
+
+%First, it is possible to invert $OWF(\cdot)$ with Grover's algorithm in time complexity $2^{n/2}$. Second, according to~\cite{BonnetainBSS20}, one can solve subset-sum (in $m$ binary variables) on a quantum computer in complexity $2^{0.2156 m}$ (ignoring polynomial factors).
+
+
+\subsubsection{Parameter Selection for the \ttOWF.}
+According to the analysis, we determine parameters $n,m,t$ for which
+we conjecture that the \ttOWF has $s$ bits of security.
+
+First, due to the exhaustive search, we require $n \geq s$.
+Second,
+the most restrictive constraint on $m$ is imposed by the subset-sum algorithm (Section~\ref{sec:cryptanalysis}).
+If we conservatively ignore the hidden polynomial factors and the large memory
+complexity of the subset-sum algorithm of~\cite{BonnetainBSS20}, we need to set
+$$0.283m \geq s.$$
+
+Overall, we obtain
+$$n = \log 3 \cdot t = s,$$
+and $$m = \tfrac{s}{0.283} \approx 3.53 s.$$
+
+We now consider the attack exploiting low Hamming weight combinations of the rows of $\mat{B}$,
+and in particular, Proposition~\ref{prop:hw}.
+In our case, we apply the proposition with $\log 3 \cdot t = n$ and $\ell = n$.
+For $m = 3.53 n$, we obtain that the probability of having a vector of Hamming weight at most $n$ is bounded by
+$$2 \cdot 2^{m (H(0.283) + 2 \cdot 0.283 - \log 3)} \approx 2 \cdot 2^{-0.16m} \approx 2 \cdot 2^{- 0.56 s}.$$
+For $s \geq 128$, the expression evaluates to (less than) $2^{-70}$, so it is unlikely to encounter such an event in practice.
+Moreover, even if the event occurs, security only regrades by a factor of 3, and by the same
+proposition the probability that two such vectors are spanned by the rows of $B$ is at most $2^{-140}$.
+Nevertheless, one may increase $n$ (and correspondingly $t$)
+by a few bits (at negligible cost) to defeat this attack vector completely.
+
+A more aggressive setting of the parameters may take into account the polynomial factors of~\cite{BonnetainBSS20} (and perhaps its high memory complexity). Unfortunately, the polynomial factors associated with the complexity formulas of the relevant subset-sum algorithms have not been analyzed.
+For example, if we assume that the polynomial factors are about $m^2$, and we aim for $s = 128$ bits of security, then
+we require $m^2 \cdot 2^{0.283m} \geq 2^{s} = 2^{128}$. Setting $m = 400 = 3.125 s$ is sufficient for satisfying the constraint in this setting.
+
+
+%\paragraph{Post-quantum setting.}
+
+%In the post-quantum setting, we have the constraints
+%$n/2 \geq s$
+%due to Grover's algorithm, and
+%$0.2156 m \geq s$
+%due to the quantum subset-sum algorithm.
+
+%Overall, we obtain
+%$n = \log 3 \cdot t = 2s,$
+%and $m = \tfrac{s}{0.2156} \approx 4.64 s.$
+
+
+\subsection{Security Evaluation of the \ttwPRF}
+\label{sec:basicprf}
+
+As for the \ttOWF, we describe several attacks and analyze their complexity as a function of the parameters $n,m,t$.
+
+Unlike the case of the \ttOWF (where the goal was to find a preimage of a give output),
+we can choose a small value of $t$ regardless of the other parameters without sacrificing security. In fact, it is clear that a small value of $t$ can only contribute to security, as any attack on a scheme with a small value of $t$ can be applied to a scheme with a larger value of $t$, simply by ignoring part of the output. Consequently, we may fix $t$ to the smallest value acceptable by the application.
+
+We also note that given a sufficiently large number of samples, we expect that the key $k$ would be uniquely determined by the samples (regardless of the value of $t$).
+
+\subsubsection{Key recovery attacks exploiting a few samples.}
+We describe key recovery attacks that make use of the minimal number of samples required to derive the secret key $k$.
+
+First, as for the \ttOWF, exhaustive search requires $2^{n}$ time. Also,
+similarly to the \ttOWF, given any sample $(x,\mat{B},y)$, we can guess $m - t$ bits of $w = \mat{K} x$ and solve the linear equation system $y = \mat{B} w \bmod 3$, which then allows to compute a suggestion for $k$ (that can be tested on the remaining samples). This attack has complexity $2^{m-t}$.
+
+Furthermore, given a single sample, we can apply the same attack for enumerating $w$ values for the \ttOWF.
+This attack has complexity which is the maximum between $2^{m/2}$ and $2^{m - \log 3 \cdot t}$.
+
+\paragraph{Reduction to subset-sum.}
+As for the \ttOWF, we can reduce the key recovery problem to the problem of solving subset-sum over the $m$ binary variables of $w$. However, it is clear that if the algorithm is applied to a single $(x,\mat{B},y)$ sample, then its expected complexity cannot drop below $2^{m - \log 3 \cdot t - (m -n)} = 2^{n - \log 3 \cdot t}$, which is the expected number of $w$ values possible given $(x,\mat{B},y)$
+(the remaining key candidate after analyzing one sample are tested against another sample).
+
+On the other hand, if we try to reduce the complexity by applying the algorithm to more than one sample (e.g., to $(x,\mat{B},y)$ and $(x',\mat{B},y')$), then we must take advantage of the dependency between $w = \mat{K} x$ and $w' = \mat{K} x'$, which are related via linear constraints, imposed by $k$ and by $x,x'$. However, it is not clear how to model these complex linear constraints in the subset-sum reduction and we were not able to improve the complexity of the single-sample attack.
+
+\subsubsection{Exploiting multiple samples.}
+The key recovery attacks described above make use of a minimal number of samples required to derive the secret key. On the other hand, when given more samples, it may be possible to exploit various relations among them to mount distinguishing and even key recovery attacks which we investigate below.
+
+\paragraph{Output bias.}
+We consider a single sample $(x,\mat{B},y)$ and analyze the bias of linear combinations of the entries of $y$ over $\Z_3$.
+If any such linear combination has a sufficiently high bias towards some constant,
+then an attacker can exploit it in a distinguishing attack.
+
+Similarly to the case analyzed for the corresponding \ttOWF, assume there are vectors $v \in \Z_3^m$ and $u \in \Z_3^t$ such that $u \mat{B} = v$ and the Hamming weight of $v$ is $\ell$. Given $y = \mat{B}w \bmod 3$, the attacker computes $uy \bmod 3 = vw \bmod 3$ and thus obtains the value of a linear combination $\bmod$ 3 of $\ell$ entries of $w \in \{0,1\}^m$.
+Specifically, denoting the set of $\ell$ non-zero indices of $v$ by $I$, the attacker computes $\sum_{i \in I} v_i w_i \bmod 3$.
+We now calculate the bias of sum the $\bmod $ 3, assuming that $w$ is uniformly distributed in $\Z_2^m$.
+
+Each non-zero coefficient of the linear combination $v$ is either 1 and 2.
+It is easy to prove by induction on $\ell$ (or by analysis of sums of binomial coefficients) that
+for any coefficients $v_i \in \{1,2\}$ where $i \in I$ and for any $a \in \{0,1,2\}$,
+$$\Pr\left[\sum_{i \in I} v_i w_i \bmod 3 = a\right] \in \{\tfrac{1}{3} \pm \tfrac{1}{2^\ell}, \tfrac{1}{3} \pm \tfrac{2}{2^\ell}\},$$
+where the actual probability depends on $v$, $a$ and $\ell$. Thus, the bias of $vw \bmod 3$ is bounded by $\tfrac{2}{2^\ell}$.
+
+We use Proposition~\ref{prop:hw} to deduce
+that the subspace spanned by the rows of $\mat{B}$ contains a vector of Hamming weight at most $\ell$ with probability at most
+$2 \cdot 2^{m (H(\ell/m) - \log 3) + \ell + \log 3 \cdot t}$.
+
+Our analysis is conservative, as we ignore the work performed
+by the attacker to find a low Hamming weight vector $v$ spanned by the rows of $B$.
+Thus, we will be interested in $\ell \approx s/2$,
+as we would like to avoid having a linear combination of the output with bias at least $2^{-s/2}$
+(except with small probability).
+Plugging this into the formula above we bound the probability by
+\begin{align}
+\label{eq:bias}
+2 \cdot 2^{m (H(s/2m) - \log 3) + s/2 + \log 3 \cdot t}.
+\end{align}
+
+\paragraph{Conditional output bias.}
+As described above, the bias of expressions of the form $\sum_{i \in I} v_i w_i \bmod 3$,
+(where $I \subseteq [m]$ is a set of size $\ell$, each $v_i \in \{1,2\}$ is fixed and $w_i \in \{0,1\}$
+are independent and uniformly distributed random variables) is bounded by $2^{-\ell+1}$.
+
+However, the bias may increase if information about the variables $w_i$ is known.
+In particular, the case in which $\sum_{i \in I} w_i \bmod 2$ is known was analyzed in~\cite{cheon2020-adventures},
+where the authors showed that the conditional biases such as
+$$\left| \Pr \left[\sum_{i \in I} w_i \bmod 3 = 0 \mid \sum_{i \in I} w_i \bmod 2 = 0 \right] - 1/3 \right|$$
+can be as large as about $2^{-0.21\ell}$.
+While this is still exponentially small in $\ell$,
+it is more significant than the unconditional bias.
+
+The PRF candidate proposed in~\cite{boneh2018-darkmatter} and analyzed in~\cite{cheon2020-adventures}
+is similar to the one we analyze for $n = m$,
+yet the matrix $\mat{B}$ contains a single row that sums $\bmod$ 3 all the entries of $w$.
+Moreover, since $\mat{K}$ is a circulant matrix and $x$ has even Hamming weight,
+then $\sum_{i \in [m]} w_i \bmod 2 = 0$ and the distinguishing attack is applicable.
+In our case, $\mat{B}$ is selected at random and the parameters are chosen
+such that the attacker cannot obtain $\sum_{i \in I} w_i \bmod 3$ for any fixed set $I$ (and particularly $I = [m]$),
+except with negligible probability.
+The general distinguishing attack is analyzed below.
+
+Assume that given a sample $(x,\mat{B},y)$,
+there exists a set $I \subseteq [m]$ (that depends of $x$)
+such that $\sum_{i \in I} w_i \bmod 2$ is known to the attacker.
+Moreover, assume that there exists $v$ in the row span of $\mat{B}$
+such that $v_i = 1$ for each $i \in I$ and $v_i = 0$
+for each $i \notin I$.
+Then, the value $\sum_{i \in I} w_i \bmod 3$ can be computed from
+the output, and the distinguishing advantage is as high as (about) $2^{-0.21\ell}$.
+Of course, if several samples are available, the distinguishing advantage can
+increase by accumulating the bias,
+assuming the above conditions are fulfilled for more than one sample.
+
+An extended variant of the attack may consider a vector
+$v' = v + u$ in the row span of $\mat{B}$.
+Denoting that Hamming weights of $v$ and $u$ by $\ell_1$,$\ell_2$, respectively,
+the conditional bias can be as high as $2^{-0.21\ell_1 - \ell_2 + 1}$.
+Note that here we conservatively ignore the work required to find such $v'$.
+
+Given $2^r$ samples (where $r \leq 40$),
+we wish to show that the distinguishing advantage is small
+(except with negligible probability).
+Indeed, calculation shows that this distinguisher is not stronger that the
+unconditional distinguisher.
+Essentially, given a single sample, for any fixed $I$, the vector $v$ as described above
+is in the row span of $\mat{B}$ with minuscule probability $3^{t - m}$.
+In the extended attack, we consider a ball around $v$, but this ball
+is much smaller than the one considered in the unconditional distinguisher (as $\ell_2 < s/2$).
+
+Finally, in a more general variant of the attack,
+the attacker may guess a parity of key bits and calculate the conditional bias over several samples,
+attempting to amplify it.
+Note that the desired vector $v$ changes for each sample according to $x$.
+By similar calculation, once the attacker has fixed the guess given a sample,
+almost all additional samples would not allow to amplify the conditional bias,
+as a good vector is unlikely to be in the row span of $\mat{B}$.
+
+\paragraph{Differential cryptanalysis and low Hamming weight samples.}
+As we argue below, the \ttwPRF seems to be immune to classical statistical differential cryptanalysis.
+
+Assume that the attacker obtains two samples $(x,\mat{B},y)$ and $(x+\delta \bmod 2,\mat{B},y')$, where $\delta \in \{0,1\}^n$.
+Denote $w = \mat{K} x \bmod 2$ and $w' = \mat{K} (x + \delta) \bmod 2 = w + \mat{K} \delta \bmod 2$.
+Thus, $y' = \mat{B} w' \bmod 3 = \mat{B} (w + \mat{K} \delta \bmod 2 ) \bmod 3$.
+In general, $y$ and $y'$ do not seem to have any statistical relation that holds with sufficiently high probability.
+Particularly, $w + \mat{K} \delta \bmod 2 \neq w + \mat{K} \delta \bmod 3$,
+except with very small probability.
+
+From an algebraic viewpoint, the attacker can consider the $m$ bits of $w = K x \bmod 2$ as variables over $\Z_2$,
+but then the algebraic degree of the output over $\Z_3$ would be large.
+The attacker can also consider the $m$ bits of $w$ as variables over $\Z_3$.
+In this case, the attacker obtains $t$ linear equations and $t$ quadratic equations $\bmod$ 3 (of the form $(w_i)^2 - w_i = 0$) from the sample $(x,\mat{B},y)$.
+On the other hand, the algebraic degree of $w' = \mat{K} (x +\delta) \bmod 2$ in the variables of $w$ would be large due the dense $\bmod$ 2 operations,
+hence it is not clear how to obtain additional low degree equations.
+In general, such algebraic attacks do not seem more efficient than the attack described above for enumerating $w$ values.
+
+Another scenario which we consider is when the attacker obtains a sample $(x,\mat{B},y)$
+such that $x$ is of low Hamming weight. In this case each entry of $w$ is a low Hamming weight sum $\bmod$ 2
+of the bits of $k$ and can thus be described as a low degree polynomial over $\Z_3$.
+Consequently, low degree polynomial equations over $\Z_3$ in the secret key can be deduced from the output.
+Obtaining several such samples may allow the attacker to solve for the key.
+In general, such low Hamming weight samples are avoided with high probability given the data limit,
+but we can also place a restriction on the sample generation, forcing it to generate vectors $x$
+with minimal Hamming weight (e.g., a lower bound of $n/4$).
+
+
+\paragraph{Attacks that exploit the structure of $\mat{K}$.}
+Recall the $\mat{K}$ is a circulant matrix and we consider attacks that exploit its
+special structure. A notable property of $\mat{K}$ as a circulant matrices is that it preserves symmetry.
+Specifically, if $x \in \Z_2^n$ is 2-symmetric (i.e., its two halves are equal),
+then $w = \mat{K}x$ is also 2-symmetric. Thus, given a sample $(x,\mat{B},y)$
+such that $x$ is 2-symmetric, we know that $w$ is 2-symmetric and this fact can be used to
+uniquely recover $w$ (which is effectively of length $m/2$) in time $2^{n - m/2 - \log 3 \cdot t}$.
+Consequently, we can derive $m/2$ linear equations $\bmod$ 2 on the secret key
+and perhaps use another sample to recover it completely.
+
+The probability that such a 2-symmetric vector is found in the data is $2^{-n/2 + r}$.
+We require that this quantity is negligible.
+
+It is also possible to consider even more symmetry, such as 4-symmetric vectors,
+but these have lower probability of being picked.
+
+Finally, we leave it to future work to extend this attack beyond the simple case analyzed above.
+For example, one may consider input vectors that are close to 2-symmetric,
+or pairs of samples $(x,\mat{B},y),(x',\mat{B},y')$ such that $x + x' \bmod 2$ is 2-symmetric
+(implying that $\mat{K} (x + x')$ is 2-symmetric).
+
+
+\paragraph{Attacks based on self-similarity.}
+
+There are several simple attacks that take advantage of the fact that $\mat{B}$ is fixed for all samples generated with the same secret $k$.
+A basic attack looks for a collision on the $w$ values for a pair of samples, which can be detected at the output.
+Given $2^r$ samples, the advantage of this attack is $2^{2r - rank(\mat{K})}$.
+we will set the parameters such that the advantage of this attack is negligible for the data complexity bound
+(assuming the rank of $K$ is not too small).
+
+Another simple attack is a multi-target attack, where given $2^r$ samples, the attacker guesses $w$, computes $\mat{B} w \bmod 3$ and compares the result with all given outputs. A match allows to recover a candidate for the secret $k$.
+The expected complexity of this attack is $2^{m-r}$, but cannot drop below $2^{m - \log 3 \cdot t}$ without exploiting relations between the different $w$ values. In general, given the data limit, the attack less efficient that the attack that enumerates all $w$ values considered above.
+
+\paragraph{Simultaneous sums.}
+
+We describe a more involved self-similarity attack, which exploits the fixed $\mat{B}$ value per secret $k$.
+
+Assume that for some index set $I$ of size at least 3, $\sum_{i \in I} x^{(i)} \bmod 2 = 0$. Then, $\sum_{i \in I} w^{(i)} \bmod 2 = 0$. While it is not clear how this relation influences the output,
+we extend this initial observation by simultaneously considering sums $\bmod$ 2 and 3, as follows:
+assume that there are 4 samples (denoted for simplicity
+by $ \{(x^{(i)},\mat{B},y^{(i)})\}_{i=1}^{4}$) such that for each $j \in [m]$,
+$$\sum_{i = 1}^{4} w^{(i)}_j = 2.$$
+Then, $\sum_{i = 0}^{4} x^{(i)} \bmod 2 = 0$ and $\sum_{i = 0}^{4} y^{(i)} \bmod 3 = B \cdot \vec{2} \bmod 3$ (where $\vec{2}$ is a vector with $m$ entries whose values are 2).
+Note that a random 4-tuple of samples satisfies this simultaneous sum constraint with probability
+$2^{-n - \log 3 \cdot t}$, but the probability that the constraint $\sum_{i = 0}^{4} w^{(i)}_j = 2$ is satisfied for every $j \in [m]$ is about
+$$\left( \tfrac{\tbinom{4}{2}}{16} \right) ^{-m} \approx 2^{- 1.415 m},$$
+which is higher than expected if $1.415 m < n + \log 3 \cdot t $.
+
+Since the adversary has about $2^{4r}$ such 4-tuples, the probability that such a simultaneous 4-sum exists is about $2^{4r - 1.415 m}$. It can be detected in time complexity of about $2^{2r}$ using a standard matching algorithm. The important constraints for defending against this attack are
+$$1.415 m > n + \log 3 \cdot t,$$ or
+\begin{align}
+\label{eq:sim}
+2^{4r - 1.415 m}
+\end{align}
+is negligible, otherwise.
+
+The simultaneous 4-sum distinguisher can be easily generalized to a
+simultaneous $d$-sum distinguisher for arbitrary $d$.
+In general, we look for $d$-tuples where (for example)
+for each $j \in [m]$, $$\sum_{i = 1}^{d} w^{(i)}_j = c,$$
+for some value $c$ (fixed $\bmod$ 6) such that $c \bmod 2 = 0$.
+However, calculation shows that $d = 4$ gives the most efficient
+distinguisher in our case (with the small data limit).
+
+
+
+%\subsubsection{Quantum attacks.}
+%The relevant attacks in the quantum setting are similar to ones for the OWF.
+%First, Grover's algorithm, breaks the scheme (recovers the key) is time $2^{n/2}$.
+%Second, the quantum subset-sum algorithm of~\cite{BonnetainBSS20} has complexity $2^{0.2156 m}$ (ignoring polynomial factors), but does not drop below $2^{n - \log 3 \cdot t}$.
+
+
+\subsubsection{Parameter selection for the \ttwPRF.}
+According to the analysis, we determine parameters $n,m,t$ for which
+we conjecture that the \ttwPRF has $s$ bits of security.
+
+In order to select the parameters, we may first set $t$ to it's minimal possible value
+(depending on the application).
+We also assume that $t$ is not too large, and particularly $\log 3 \cdot t \leq s$.
+
+The constraints imposed by the above attacks are as follows.
+First, due to exhaustive search, we require $$n \geq s.$$
+Second, the subset-sum algorithm
+imposes the constraint
+$n - \log 3 \cdot t \geq s,$
+(given that $n \geq m$ and $\log 3 \cdot t \leq s$).
+
+
+We consider two sets of parameter.
+The first is
+$$n = m = s + \log 3 \cdot t.$$
+In particular, if $\log 3 \cdot t  = s$, then
+$n = m = 2s$.
+The second parameter set
+$$n = m = 1.25(s + \log 3 \cdot t),$$
+and is less aggressive.
+
+Next, we analyze the bias of the output based on~(\ref{eq:bias}),
+assuming that $\log 3 \cdot t = s$.
+For the first parameter set,
+we obtain that the probability of having bias of $\tfrac{2}{2^{s/2}}$ is bounded by
+\begin{align*}
+2 \cdot 2^{m (H(s/2m) - \log 3) + s/2 + \log 3 \cdot t} =
+2 \cdot 2^{2s (H(1/4) - \log 3) + 3s/2} \approx
+2 \cdot 2^{-0.049s},
+\end{align*}
+which is non-negligible.
+On the other hand, the consequences of the distinguishing attack given the data limit
+seem relatively mild, and this parameter set may be considered by applications
+where performance is critical.
+
+For the second parameter set (assuming $\log 3 \cdot t = s$),
+the probability of having bias $\tfrac{2}{2^{s/2}}$ is bounded by
+\begin{align*}
+2 \cdot 2^{m (H(s/2m) - \log 3) + s/2 + \log 3 \cdot t} =
+2 \cdot 2^{2.5s (H(1/5) - \log 3) + 3s/2} \approx
+2 \cdot 2^{-0.65s},
+\end{align*}
+which we consider negligible.
+
+The advantage of the collision attack is $2^{2r - rank(\mat{K})} \leq 2^{80 - rank(\mat{K})}$.
+Given that $m = 2s \geq 256$, if we choose $n$ as a power of 2,
+based on Proposition~\ref{prop:rank},
+the advantage is much smaller than $2^{s/2}$ (except with negligible probability).
+
+Finally, we consider the attack that exploits the circulant matrix $\mat{K}$
+and the simultaneous 4-sum distinguisher.
+For defending against the first attack,
+when $s \geq 128, r \leq 40$, we have $2^{-n/2 + r} < 2^{-128 + 40} = 2^{-88}$ ($n \geq 2s$),
+which we consider negligible.
+
+Recall that the probability of having such a 4-sum in the output is estimated
+in~(\ref{eq:sim}) as $2^{4r - 1.415 m} \leq 2^{160 - 2.83s}$.
+For a minimal choice of $s = 128$, this probability is smaller than $2^{-200}$
+which is negligible.
+
+
+
+\subsection{Security Analysis of the LPN-PRG}
+
+We analyze the security of the LPN-PRG.
+
+If the matrix $\mat{A}$ was a random matrix, then
+the first step would consist of generating $m$ samples from the alternative weak PRF construction proposed
+in~\cite{boneh2018-darkmatter}. Each sample
+$w_i = \mat{A}[i] x \bmod 2 + ((\mat{A}[i] x \bmod 3) \bmod 2) \bmod 2 \in \Z_2^m$
+can be viewed as adding noise $((\mat{A}[i] x \bmod 3) \bmod 2)$ to the inner product $\mat{A}[i] x \bmod 2$.
+Given that $\mat{A}[i]$ is of sufficiently large Hamming weight, then
+$\Pr_x[(\mat{A}[i] x \bmod 3) \bmod 2 = 1] \approx 1/3$, which is the magnitude of noise added.
+The second step consists of a compressing linear transformation $B$ applied to $w$.
+The idea is to increase the noise of each sample by mixing it with other samples.
+This step should defeat standard attacks applied to LPN with a constant noise parameter
+(such as decoding attacks).
+
+In our case, the matrix $\mat{A}$ is structured (it is a random Toeplitz matrix),
+but we were not able to exploit this in an efficient attack.
+
+
+
+\subsubsection{Key recovery attacks.}
+We begin by considering attacks that attempt to recover the secret key (seed).
+
+Exhaustive search for the key recovery attacks requires time $2^n$.
+
+In a different approach for recovering the key, given a sample $\mat{A},\mat{B},y$,
+the attacker enumerates over the subspace of $w$ values that satisfy $\mat{B} w = y \bmod 2$.
+This subspace contains $2^{m - t}$ vectors. For each such vector, the attacker attempts to recover $x$
+given $\mat{A}$ and $w$. Thus, given $\mat{A},w$ the attacker has $m$ samples
+generated from the LPN-like construction proposed in~\cite{boneh2018-darkmatter} as a weak PRF
+(although we a structured matrix $\mat{A}$).
+Given that $m$ is not too large (i.e., it is a small multiple of $n$),
+then the best attack we have on this scheme simply tries to break the LPN instance (which has noise of $1/3$),
+without exploiting the deterministic way in which it is generated.
+The concrete security of LPN given a small number was analyzed in several publications such as~\cite{EsserKM17},
+and the complexity of known attack is generally exponential in $n$.
+Nevertheless, the attacker is required to solve $2^{m - t}$ related LPN instances,
+and perhaps can amortize the complexity. Moreover, the matrix $\mat{A}$ is structured.
+Thus, we (conservatively) estimate the total complexity of such attacks by $2^{m - t}$.
+
+\subsubsection{Noisy linear equations.}
+
+As noted above, each bit $w_i$ for $i \in [m]$ can be viewed as a noisy linear equation over $\Z_2$
+with noise of about $1/3$, or bias $2/3 - 1/2 = 1/6$.
+Our goal is to select the parameter $m$ such that
+the all linear combinations of the output bits of $y$
+have exponentially small bias towards a linear equation in the secret $x$.
+We will (heuristically) model each bit $w_i$ as having independent bias of $1/6$.
+
+If the linear subspace spanned by the rows of $\mat{B}$ contains a vector of Hamming weight $\ell$,
+then by the piling-up lemma, the bias of the corresponding linear combination of the bits of $w$ is
+\begin{align}\label{eq:bias_linear}
+2^{\ell - 1} \cdot (\tfrac{1}{6})^{\ell} < 2^{-\log 3 \cdot \ell}.
+\end{align}
+
+Thus, we will require
+that the rows of $\mat{B}$ do not span a vector whose Hamming weight is too low.
+This is similar to the previously analyzed schemes,
+but the lower bound on the Hamming weight we will enforce for the PRG will be lower.
+Indeed, the bias above is calculated with respect some linear equation in the unknown secret key bits.
+Such a bias is generally much less of a security concern compared to a bias towards a constant value
+(e.g., the bias analyzed for the \ttwPRF construction) which can be used
+to directly distinguish the output from random using statistical tests.
+Particularly, an alternative scheme where we change the first transformation
+to only compute the ``noise part''
+($w =(\mat{A}x \bmod 3) \bmod 2$) would require larger parameters to be secure,
+as we need a higher lower bound on the Hamming weight $\ell$ to avoid distinguishing attacks.
+
+For a PRG with $s$ bits of security, we will conservatively require a bias of at most $2^{-0.1 s}$.
+We are not aware of any attack that can exploit such a low bias.
+Effectively, this means that the minimal distance of $B$ should be
+at least $s \cdot 0.1/\log 3 < 0.07 s$ (except with small probability).
+
+
+\begin{remark}
+In~\cite{cheon2020-adventures} the authors analyze the constructions presented in~\cite{boneh2018-darkmatter}.
+In particular, for the alternative PRF construction,
+given a sample $(a \in \Z_2^n, x \cdot a)$,
+they show that there exists $j \in [n]$ such that
+$$|\Pr[a_j = 0 \mid x_j = 0 \text{ and } (a \cdot x \bmod 2 + ((a \cdot x \bmod 3) \bmod 2) \bmod 2) = 0]| \approx \tfrac{1}{2^{0.21 \ell}},$$
+where $\ell$ is the Hamming weight of $a$.
+This property was exploited in a distinguishing attack.
+
+Our PRG construction seems to be immune to this type of analysis
+because the attacker only has access to sufficiently dense linear combinations of (structured) samples
+of the alternative PRF construction.
+\end{remark}
+
+
+\subsubsection{Parameter selection for the LPN-PRG.}
+
+We determine parameters $n,m,t$ for which
+we conjecture that the
+PRG has $s$ bits of security.
+
+Recall the we set $t = 2n$.
+Exhaustive search implies that $n \geq s$ and we have lower
+bounded the effort required in key recover by $2^{m - t}$.
+Thus, a reasonable choice of parameters is $n = s$ and $m = 3s, t = 2s$.
+
+For these parameters, we consider the maximal bias of linear combinations according to~(\ref{eq:bias_linear}),
+with $\ell = 0.07 s$.
+By Proposition~\ref{prop:hw},
+the probability of having a vector of Hamming weight more than $0.07 s$
+in the row span of $B$ is
+$0.07 s \cdot 2^{3s (H(0.07/3) - 1) + 2s} < 0.07 s \cdot 2^{-0.52 s}$.
+We consider this as a negligible probability
+as the consequences of the this unlikely event are mild.
+
+
+\subsection{Security analysis of LPN-wPRF}
+
+The overall structure of the LPN-wPRF is similar to the PRG.
+However, unlike PRG, in the first transformation, the key is part of the matrix and
+$x$ is a public value.
+Thus, $w$ can be viewed as $m$ outputs of (another) more
+structured version of the construction of~\cite{boneh2018-darkmatter}.
+
+In terms of parameters, the main differences are that we have $n \geq m$
+and $t$ is not constraint to $2n$ (in fact, we will propose to set it smaller than $n$).
+Furthermore, we assume that the attacker obtains $2^r$ samples for $r \leq 40$ instead of a single sample.
+
+We note that variants of the basic attacks that were analyzed for the \ttwPRF (
+such as the attack that exploit the circulant $\mat(K)$, the collision attack
+and the multi-target attack) are also applicable to this construction.
+As in the case of the \ttwPRF,
+they do not seem to be a threat for our choice of parameters.
+
+Overall, we have not found any class of attacks that are
+applicable to this construction, but not to the previous ones.
+Below we briefly consider the most important attacks that influence the
+choice of parameters.
+
+\paragraph{Summary of attacks.}
+As for the PRG, we estimate the total complexity of key recovery attacks by $2^{m - t}$.
+Although we have more samples that for the PRF,
+it is not clear how to exploit them to obtain better complexity.
+
+In addition, similarly to the PRG,
+we require that each linear combination of the output
+has bias of at most $2^{-0.1 s}$
+(toward some linear combination of the key over $\Z_2$).
+
+\paragraph{Parameter selection for the LPN-wPRF.}
+For $s$-bit security, we set $n=m= 2s$ and $t =s$.
+By our analysis, exhaustive search requires $2^{m - t} = 2^s$ time.
+
+We consider the maximal bias of linear combinations according to~(\ref{eq:bias_linear}),
+with $\ell = 0.07 s$.
+By Proposition~\ref{prop:hw},
+the probability of having a vector of Hamming weight more than $0.07 s$
+in the row span of $\mat{B}$ is
+$0.07 s \cdot 2^{2s (H(0.07/2) - 1) + s} < 0.07 s \cdot 2^{-0.56 s}$,
+which we consider negligible.
+
+
+\section{Analysis of Random Linear Codes}
+\label{app:distance}
+
+We analyze the distance of random linear codes defined by a random matrix
+or a random Toeplitz matrix.
+The analysis is based on the probabilistic method and is
+similar to the analysis used to obtain the Gilbert–Varshamov bound.
+
+\begin{proposition}
+\label{prop:hw}
+Let $\mat{B} \in \Z^{t \times m}_{q}$ be a random matrix, or a random Toeplitz matrix whose rows define
+a linear code.
+Then, the minimal distance of (the code defined by) $\mat{B}$ is at most $\ell < m/2$ with probability at most
+$$f_q(m,t,\ell) \leq q^{t-m} \cdot Vol_q(m,\ell),$$
+where $Vol_q(m,\ell) = \sum_{i=1}^\ell \tbinom{m}{i} \cdot (q-1)^{i}$.
+Moreover, this code contains two such linearly independent vectors with probability at most $(f_q(m,t,\ell))^2$.
+
+Finally, let $H(p) = - p \log p - (1-p) \log(1-p)$ be the binary entropy function.
+Then
+$$f_2(m,t,\ell) \leq \ell \cdot 2^{m (H(\ell/m) - 1) + t},$$
+and
+$$f_3(m,t,\ell) \leq 2 \cdot 2^{m (H(\ell/m) - \log 3) + \ell + \log 3 \cdot t}.$$
+\end{proposition}
+
+\begin{proof}The number of non-zero vectors of Hamming weight at most $\ell$ over $\Z_q^m$ is
+$Vol_q(m,\ell) = \sum_{i=1}^\ell \tbinom{m}{i} \cdot (q-1)^{i}$.
+
+For $q = 2$, we have
+$Vol_2(m,\ell) = \sum_{i=1}^\ell \tbinom{m}{i} <
+\ell \cdot \tbinom{m}{\ell} \leq
+\ell \cdot 2^{m H(\ell/m)}$, while for $q = 3$, we have
+$Vol_3(m,\ell) = \sum_{i=1}^\ell \tbinom{m}{i} 2^i <
+2 \cdot \tbinom{m}{\ell} 2^\ell \leq
+2 \cdot 2^{m H(\ell/m) + \ell}.$
+
+Since $\mat{B}$ is selected uniformly from a pairwise independent hash family (either a random matrix or a random Toeplitz matrix),
+the probability that every non-zero vector is in the row space is $q^{t-m} - 1 < q^{t-m}$. By a union bound over all vectors of Hamming weight bounded by $\ell$, the probability that there exists such a vector in the row space of $B$ is at most
+\begin{align*}
+f_q(m,t,\ell) \leq q^{t-m} \cdot Vol_q(m,\ell).
+\end{align*}
+The bound $(f_q(m,t,\ell))^2$ on the probability of having two such linearly independent vectors follows by pairwise independence.
+
+Specifically, for $q = 2$, we obtain
+$f_2(m,t,\ell) \leq \ell \cdot 2^{m (H(\ell/m) - 1) + t}$,
+while for $t = 3$, we obtain
+$f_3(m,t,\ell) \leq 2 \cdot 3^{t-m} \cdot 2^{m H(\ell/m) + \ell} = 2 \cdot 2^{m (H(\ell/m) - \log 3) + \ell + \log 3 \cdot t}$.
+\end{proof}
+
+
+%-------------------------------------------------%
+
+\iffull\else
+\input{Sections/Appendix_Sections/protocol_appendix}
+\fi
+
+
+%-------------------------------------------------%
+
+
+
+
+\section{Signature Scheme Details}
+\label{appendix:picnic}
+In this section we provide additional details on how to construct a signature scheme from our
+new primitives, in particular the \ttOWF.
+
+
+\paragraph{An $N$-party protocol.}
+There will be $N$ parties for our MPC protocol, each holding a secret share of
+$x$, who jointly compute $y = \sfF(x)$.  The protocol tolerates up to  $N-1$
+corruptions: given the views of $N-1$ parties we can simulate the remaining
+party's view, to prove that the $N-1$ parties have no information about the
+remaining party's share.
+
+The preprocessing phase is similar to that in Picnic.  Each party has a random
+tape that they can use to sample a secret sharing of a uniformly random value
+(e.g.,  a scalar, vector, or a matrix with terms in $\Z_2$ or $\Z_3$).  Each
+party samples their share $\share{r}$ and the shared value is implicitly defined as
+$r = \sum_{i=1}^N \share{r}^{(i)}$.
+%We use $\share{r}^{(i)}$ to denote party $i$'s share of $r$,
+%or simply $\share{r}$ when the context makes the party's index clear.
+
+We must also be able to create a sharing mod 3, of a secret shared value mod 2.
+Let $\tilde{w}\in\Z_2$ be secret shared.  Then to establish shares of $r = \tilde{w} \pmod
+3$, the first $N-1$ parties sample a share $\share{r}$ from their random tapes. The
+$N$-th party's share is chosen by the prover, so that the sum of the shares is
+$r$.  We refer to the last party's share as an \emph{auxiliary value}, since
+it's provided by the prover as part of pre-processing.  For efficiency, the random
+tape for  party $i$ is
+generated by a random seed, denoted $\seed_i$, using a PRG. The state of the first
+$N-1$ parties after pre-processing is a seed value used to generate the random
+tape, and for the $N$-th party the state is the seed value plus the list of
+auxiliary values, denoted $\aux$.
+
+After pre-processing, the parties enter the \emph{online} phase of the protocol.
+The prover computes $\hat{x}= x + \tilde{x}$, where $\tilde{x}$ is a random value, established during
+preprocessing so that each party has a share $\share{\tilde{x}}$.
+The parties can then compute the OWF using the homomorphic properties of the secret sharing,
+and the share conversion gate (to convert shares mod 2 to mod 3, used when computing~$z$)
+setup during preprocessing that we describe below.
+During the online phase, parties broadcast values to all other parties and we write $\msgs_i$
+to denote the broadcast messages of party $i$.
+
+
+\iffull\else
+\begin{table}[t!]
+\resizebox{\textwidth}{!}{
+\begin{tabular}{l|l|l}
+OWF Params      & KKW params        & Sig. size (KB)\\
+$(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
+$(128,453,81)$  & $(16, 150, 51)$   & 13.30 \\
+                & $(16, 168, 45)$   & 12.48 \\
+                & $(16, 250, 36)$   & \textbf{11.54} \\
+Picnic3-L1      & $(16, 250, 36)$   & 12.60 \\ \hline
+$(128,453,81)$  & $(64, 151, 45)$   & 13.59 \\
+                & $(64, 209, 34)$   & 11.70 \\
+                & $(64, 343, 27)$   & \textbf{10.66} \\
+Picnic2-L1      & $(64, 343, 27)$   & 12.36 \\ \hline
+\end{tabular}
+
+\quad
+\begin{tabular}{l|l|l}
+OWF Params      & KKW params        & Sig. size (KB)\\
+$(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
+$(256,906,162)$ & $(16, 324, 92)$   & 50.19 \\
+                & $(16, 400, 79)$   & 47.08 \\
+                & $(16, 604, 68)$   & \textbf{45.82} \\
+Picnic3-L5      & $(16, 604, 68)$   & 48.72 \\ \hline
+$(256,906,162)$ & $(64, 322, 82)$   & 51.23 \\
+                & $(64, 518, 60)$   & 44.04 \\
+                & $(64, 604, 57)$   & \textbf{43.45} \\
+Picnic2-L5      & $(64, 604, 58)$   & 46.18 \\ \hline
+\end{tabular}
+ }
+\caption{ \label{table:sig-sizes}Signature size estimates for Picnic using
+\ttOWF, compared to Picnic using LowMC.  The left table shows
+security level L1 (128 bits) with $N=16$ and $N=64$ parties, and the right table shows level L5 (256 bits).}
+\end{table}
+\fi
+
+
+
+\paragraph{Preprocessing phase.} Preprocessing establishes random seeds of all parties and shares of
+\begin{enumerate}
+\item $\tilde{x}$: a random vector in $\Z_2^{n}$,\algcomment{Sampled from random tapes}
+\item $\tilde{w}$: the vector $\matA \tilde{x}$ in $\Z_2^{m}$,
+\item $r$: a sharing of $\tilde{w} \mod 3$, shares in $\Z_3^m$,  \algcomment{Tapes + one $\aux$ value}
+\item $\overline{r}$: a sharing of $1-\tilde{w} \mod 3$, shares in $\Z_3^m$. \algcomment{Computed from $\share{r}$}
+\end{enumerate}
+The shares of $\overline{r}$ are computed from shares of $r$ as follows (all arithmetic in $\Z_3^m$): the first
+party computes $\share{\overline{r}} = 1 - \share{r}$, then the remaining parties compute
+$\share{\overline{r}} = - \share{r}$.  Then observe that
+\[\sum_{i=1}^N \share{\overline{r}}^{(i)} = 1 - \share{r}^{(1)} - \ldots - \share{r}^{(N)} = 1 - \sum_{i=1}^{N} \share{r}^{(i)} = 1-r \]
+ as required.
+
+\paragraph{Online phase.}
+The public input to the online phase is $\hat{x} = x + \tilde{x}$.
+\begin{enumerate}
+
+\item The parties locally compute $\hat{w} \in \Z_2^{m}$ as $\hat{w} = \matA\hat{x}$ (since both $\hat{x}$ and $\matA$ are public).
+
+\item Let $z$ be a vector in $\Z_3^m$ and let $z_i$ denote the $i$-th component. Each party defines
+\[
+    \share{z_i}  = \begin{cases}
+                \share{r_i}  & \text{if $\hat{w}_i = 0$} \algcomment{\text{Note that $\share{r_i} = \share{w_i'}$}}\\
+                \share{\overline{r}_i}  & \text{if $\hat{w}_i = 1$} \algcomment{\text{Note that $\share{\overline{r}_i} = \share{1- w_i'}$}}\\
+            \end{cases}
+\]
+then locally computes $\share{y} = \matB\share{z}$. All parties broadcast $\share{y}$ and reconstruct the output $y\in\Z_{3}^t$.
+In this step each party broadcasts $t$ values in $\Z_3$.
+\end{enumerate}
+
+\paragraph{Correctness.} The protocol correctly computes the \ttOWF.  The
+first step computes $w = \matA x$,
+updating the public value $\hat{x} = x + x'$ with $\hat{w} = w + \tilde{w}$.  The
+second step is where the bits of $w$ are cast from $\Z_2$ to $\Z_3$.  The
+parties have sharings of $\tilde{w}$ and $1-\tilde{w}$ mod 3 (we focus on a single bit here, for simplicity). The key observation is
+that when $\hat{w} = 0$, then $w$ and $\tilde{w}$ are the same, and when $\hat{w} =
+1$, $w$ and $\tilde{w}$ are different. So in the first case we set the shares of $ z =
+w \mod 3$ to the shares of $[\tilde{w}] \mod 3$, and when $\hat{w} = 1$, we set the
+shares of $z$ to the complement of $\tilde{w}$.
+
+\paragraph{Communication costs.}
+Here we quantify the cost of communication for the MPC inputs, the $\aux$ values and the broadcast $\msgs$ of one party,
+as this will directly contribute to the signature size.
+Let $\ell_3$ be the bit length of an element in $\Z_3$; the direct encoding has
+$\ell_3 = 2$, but with compression we can reduce $\ell_3$ to as little as
+$\log_2(3) \approx 1.58$. \footnote{To compress a vector $v\in\Z_3^{n}$, convert it to the base-3 integer it represents: $V = \sum_{i=0}^n v_i3^i$
+and output the binary representation of $V$. }   The size of the
+$\aux$ information is $m\ell_3$, the MPC input value has size $n$ bits,
+and the broadcast values have size $t\ell_3$ bits (per party).
+The total in bits is thus
+\begin{equation} \label{eqn:sizeMPC}
+|\textsf{MPC}(n,m,t)| = m\ell_3 + n + t\ell_3\;.
+\end{equation}
+For the parameters
+$(n,m,t)=(128, 453, 81)$ the total is 972 bits (L1 security: 128-bit classical, 64-bit quantum)
+and when $(n,m,t) = (256, 906, 162)$ the total is 1943 bits (L5 security: 256-bit classical, 128-bit quantum).  This compares favorably to
+Picnic at the same security level, which communicates 1161--1328 bits at L1
+and 2295--2536 bits at L5, depending on whether LowMC uses a full or partial S-box layer~\cite{kales2020-picnic}.
+
+\paragraph{Signature scheme}
+Given the MPC protocol above, we can compute the values $\hat{x}$, $\aux$ and
+$\msgs$ for the \ttOWF and neatly drop it into the KKW proof system used in
+Picnic.  The signature generation and verification algorithms for the
+\ttOWF  signature scheme are given in \cref{fig:23-picnic}.
+
+
+We use a cryptographic hash function $\hash: \{0,1\}^*\to \{0,1\}^{2\secpar}$
+for computing commitments, and the function $\Expand$ takes as input a random $2\secpar$-bit string
+and derives a challenge having the form $(\CCC, \PPP)$ where $\CCC$ is a subset of $[M]$
+of size $\tau$, and $\PPP$ is a list of length $\tau$, with entries in $[N]$.
+The challenge $(\CCC, \PPP)$ defines $\tau$ pairs $(c,p_c)$ where $c$ is the
+index of  an MPC instance for which the verifier will check the online phase,
+and $p_c$ is the index of the party that will remain unopened.
+
+
+\paragraph{Optimizations and simplifications.}
+For ease of presentation, \cref{fig:23-picnic} omits some optimizations that
+are essential for efficiency, but are not unique to the $(2,3)$-signature schemes,
+they are exactly as in Picnic. All random seeds in a signature are derived from
+a single random root seed, using a binary tree construction. First we derive
+$M$ initial seeds, once for each MPC instance, then from from the initial seed
+we derive the $N$ per-party seeds. This allows the signer to reveal the seeds
+of $N-1$ parties by revealing only $\log_2(N)$ intermediate seeds, similarly,
+the initial seeds for $M-\tau$ of $M$ instances may be revealed by communicating
+only $\tau\log_2(M/\tau)$ seeds (each $\secpar$ bits long).
+
+For the commitments $h'^{(k)}$ to the online execution, $\tau$ are recomputed
+by the verifier, and the prover provides the missing $M-\tau$.  Here we compute
+the $h'^{(k)}$ as the leaves of a Merkle tree,  so that the prover can provide
+the missing commitments by sending only $\tau\log_2(M/\tau)$ $2\secpar$-bit
+digests.
+
+Finally, \cref{fig:23-picnic} omits a random salt, included in each signature, as well as counter
+inputs to the hash functions to prevent multi-target
+attacks~\cite{dinur2019-picnic-attacks}. Also, hashing the public key when computing the
+challenge, and prefixing the inputs to $\hash$ in each use for domain
+separation should also be done, as in~\cite{picnic-spec}.
+
+\paragraph{Signature size}
+The size of the signature in bits is:
+\begin{align*}
+\textunderbrace{\secpar\tau\log_2\left(\frac{M}{\tau}\right)}{initial seeds} +
+\textunderbrace{2\secpar\tau\log_2\left(\frac{M}{\tau}\right)}{Merkle tree commitments} +
+\tau\left(
+     \textunderbrace{\secpar\log_2N}{per-party seeds}  +
+     \textunderbrace{|\textsf{MPC}(n,m,t)|}{one MPC instance, \cref{eqn:sizeMPC}}
+\right)
+\end{align*}
+and we note that the direct contribution of OWF choice is limited to
+$|\textsf{MPC}(n,m,t)|$\footnote{The size $|\textsf{MPC}(n,m,t)|$ is a slight
+overestimate since for $1/N$ instances we don't have to send $\aux$, if the
+last party is unopened. In \cref{table:sig-sizes} our estimates include this,
+but it's a very small difference as $\tau$ is quite small. }.  However, the
+size of this term can impact the choice of $(N,M,\tau)$.  The Picnic parameters
+$(N, M, \tau)$ must be chosen so that the soundness error,
+\begin{equation*} \label{eqn:soundness}
+    \epsilon(N,M,\tau) = \max_{M-\tau \le k \le M} \left\lbrace  \frac{\binom{k}{M-\tau} }{\binom{M}{M-\tau} N^{k-M+\tau} } \right\rbrace\,.
+\end{equation*}
+is less than $2^{-\secpar}$.
+By searching the parameter space for fixed $N$ and various options for $M,
+\tau$, we get a curve, and choose from the combinations in the ``sweet spot'',
+near the bend of the curve with moderate computation costs. This part of the curve is
+similar as in Picnic, and we present some options from it in \cref{table:sig-sizes}.
+
+\begin{figure}[p]
+ \begin{minipage}[t]{1.1\textwidth}
+ \begin{protocolbox}{\ttOWF Signatures}
+ \begin{description}
+    \item[Inputs] Both signer and verifier have $\sfF$, $y = \sfF(x)$, the
+        message to be signed $\Msg$, and the signer has the secret key $x$.  The
+            parameters of the protocol $(M, N, \tau)$ are described in the text.
+    \item[Commit] For each MPC instance $k\in[M]$, the signer does the following.
+    \begin{enumerate}
+        \item Choose uniform $\seed^{(k)}$ and use  to generate values $(\seed^{(k)}_i)_{i \in [N]}$, and compute
+        $\aux^{(k)}$ as described in the text.
+        For $i=1,\ldots N-1$, let $\state^{(k)}_i = \seed^{(k)}_i$ and  let $\state^{(k)}_{N} = \seed^{(k)}_{N} || \aux^{(k)}$.
+        \item Commit to the preprocessing phase:
+        \begin{align*}
+        \com^{(k)}_{i} = \hash(\state^{(k)}_i) \text{ for all } i\in [N], \quad
+        h^{(k)} = \hash(\com^{(k)}_{1},\ldots,\com^{(k)}_{N}).
+        \end{align*}						
+        \item Compute MPC input $\hat{x}^{(k)} = x + \tilde{x}^{(k)}$ based on the secret key $x$ and the random values $\tilde{x}^{(k)}$ defined by preprocessing.
+        \item Simulate the online phase of the MPC protocol, producing $(\msgs^{(k)}_i)_{i \in [N]}$.			
+        \item Commit to the online phase:
+        $
+         h'^{(k)}= \hash(\hat{x}^{(k)}, \msgs_{1}^{(k)}, \ldots, \msgs_{N}^{(k)} ).
+        $
+    \end{enumerate}
+
+    \item[Challenge]
+    The signer computes $\ch = \hash(h_1, \ldots h_M, h_1', \ldots, h_M',
+    \Msg)$, then expands $\ch$ to the challenge $(\CCC, \PPP) := \Expand(\ch)$, as described in the text.
+
+    \item[Signature output]
+    The signature $\sigma$ on $\Msg$ is
+    \[
+    \sigma = (\ch,
+              ((\seed^{(k)}, h^{(k)} )_{k\not\in\CCC},
+              ( \com^{(k)}_{p_k}, (\state^{(k)}_{i})_{i\neq p_k}, \hat{x}^{(k)}, \msgs_{p_k}^{(k)} )_{k\in\CCC})_{k\in[M]})
+    \]
+
+    \item[Verification] The verifier parses $\sigma$ as above, and does the following.
+    \begin{enumerate}
+        \item Check the preprocessing phase. For each $k\in[M]$:
+        \begin{enumerate}
+        \item If $k \in \CCC$: for all $i\in[N]$  such that $i \neq p_k$, the verifier uses $\state^{(k)}_{i}$ to compute $\com^{(k)}_{i}$ as
+            the signer did, then computes $h'^{(k)} = \hash(\com^{(k)}_{1},\ldots,\com^{(k)}_{N})$ using
+            the value $\com^{(k)}_{p_k}$ from $\sigma$.
+        \item If $k\not\in\CCC$: the verifier uses $\seed^{(k)}$ to compute $h'^{(k)}$ as the signer did.
+        \end{enumerate}
+
+        \item Check the online phase:
+        \begin{enumerate}
+            \item For each $k \in \CCC$ the verifier simulates the online phase using $(\state^{(k)}_{i})_{i \neq p_k}$,
+                masked witness $\hat{x}$ and $\msgs^{(k)}_{p_k}$ to compute $(\msgs_i)_{i \neq p_k}$.
+                Then compute $h^{(k)}$ as the signer did. The verifier outputs `invalid' if the output of the MPC simulation is not equal to $y$.
+        \end{enumerate}
+    \item The verifier computes $\ch' = \hash(h_1, \ldots h_M, h_1', \ldots, h_M', \Msg)$ and outputs `valid' if $\ch' = \ch$ and `invalid' otherwise.
+    \end{enumerate}
+ \end{description}
+ \end{protocolbox}
+ \end{minipage}
+	\vspace*{-10pt}
+	\caption{\label{fig:23-picnic}Picnic-like signature scheme using the \ttOWF and the KKW proof system.}
+\end{figure}
+
+
+%--------------------------%
+\iffull\else\input{Sections/Appendix_Sections/implementation_appendix}\fi

@@ -1,7 +1,7 @@
 \newif \ifcomments \commentstrue
 \newif \iffull \fulltrue
 
-\fulltrue
+\fullfalse
 \commentsfalse
 
 \iffull
@@ -35,7 +35,7 @@
 \blfootnote{A preliminary version of this paper appears in the proceedings of CRYPTO 2021. This is the full version.}
 \else
 \titlerunning{MPC-Friendly Symmetric Cryptography from Alternating Moduli}
-%\author{Anonymous Crypto 2021 Submission}
+\authorrunning{Dinur et al.}
 \author{
     Itai Dinur\inst{1} \and
     Steven Goldfeder\inst{2} \and
@@ -51,5 +51,5 @@
 
 \maketitle
 
-\input{Sections/all}
+\iffull\input{Sections/all} \else \input{SectionsProceedings/all}\fi
 \end{document}

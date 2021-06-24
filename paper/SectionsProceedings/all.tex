@@ -1,0 +1,34 @@
+%!TEX root = ../main.tex
+
+\begin{abstract}
+We study new candidates for symmetric cryptographic primitives that leverage alternation between linear functions over $\Z_2$ and $\Z_3$ to support fast protocols for secure multiparty computation (MPC). This continues the study of weak pseudorandom functions of this kind initiated by Boneh et al.\ (TCC 2018) and Cheon et al.\ (PKC 2021).
+
+We make the following contributions. 
+\begin{itemize}
+\item {\bf Candidates.} We propose new designs of symmetric primitives based on alternating moduli. These include candidate one-way functions, pseudorandom generators, and weak pseudorandom functions. We propose concrete parameters based on cryptanalysis. 
+\item {\bf Protocols.} We provide a unified approach for securely evaluating modulus-alternating primitives in different MPC models. For the original candidate of Boneh et al., our protocols obtain at least 2x improvement in all performance measures. We report efficiency benchmarks of an optimized implementation.
+\item {\bf Applications.} We showcase the usefulness of our candidates for a variety of applications. This includes short ``Picnic-style'' signature schemes, as well as protocols for oblivious pseudorandom functions, hierarchical key derivation, and distributed key generation for function secret sharing.
+\end{itemize}
+
+\end{abstract}
+
+\input{SectionsProceedings/introduction}
+\input{SectionsProceedings/preliminaries}
+\input{SectionsProceedings/core_primitives}
+\input{SectionsProceedings/cryptanalysis}
+\input{SectionsProceedings/distributed_protocols}
+\input{SectionsProceedings/applications}
+\input{SectionsProceedings/evaluation}
+
+\section*{Acknowledgments}
+Itai Dinur is supported by ISF grants~573/16 and~1903/20, and by the European Research Council under the ERC starting grant agreement No.~757731 (LightCrypt).
+Yuval Ishai is supported by ERC Project NTSC (742754), ISF grant 2774/20, NSF-BSF grant 2015782, and BSF grant 2018393.
+
+\printbibliography
+
+\appendix
+\newpage
+\iffull\else
+\section*{SUPPLEMENTARY MATERIAL}
+\fi
+\input{Sections/appendix}

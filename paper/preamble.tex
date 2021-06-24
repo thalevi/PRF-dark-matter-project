@@ -206,8 +206,9 @@
 \renewcommand\subsubsection{\@startsection{subsubsection}{3}{0mm}{-0.5\baselineskip}{0.5\baselineskip}{\normalfont\normalsize\bfseries}}
 \makeatother
 
-\setitemize{label=$\bullet$}
-\patchcmd{\paragraph}{\itshape}{\bfseries\boldmath}{}{}
+\setitemize{label=$\bullet$,topsep=0pt}
+% \patchcmd{\paragraph}{\itshape}{\bfseries\boldmath}{}{}
+\newcommand{\mypara}[1]{\smallskip\noindent\textbf{#1}}
 \captionsetup[table]{skip=5pt}
 \fi
 

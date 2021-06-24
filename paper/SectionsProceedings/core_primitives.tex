@@ -1,0 +1,75 @@
+%!TEX root = ../main.tex
+
+\section{Candidate Constructions}
+\label{sec:candidates}
+In this section, we introduce our suite of candidate constructions for a number of cryptographic primitives: weak pseudo-random function families (wPRF), one-way functions (OWF), and pseudo-random generators (PRG). Our constructions are all based on alternating mod-2 and mod-3 linear maps. 
+Given the wide range of candidates we propose, we find it useful to have a clean and unified way to describe the candidate constructions in a way that will later (in Section~\ref{sec:distributed_protocols}) support a unified design of matching MPC protocols.  
+
+\mypara{Circuit gates.}
+We make use of five types of basic operations, or ``gates,'' which we detail below. All our constructions can be succinctly represented using just these gates. We denote by $\gateset$ the set comprising of these gates.
+
+\begin{itemize}
+    \item \textbf{Mod-$p$ Public Linear Gate.}
+    For a prime $p$, given a public matrix $\mat{A} \in \Z_p^{s \times l}$, the gate $\LMap^\mat{A}_p(\cdot)$ takes as input $x \in \Z_p^l$ and outputs $y = \mat{A}x \in \Z_p^s$.
+
+    \item \textbf{Mod-$p$ Addition Gate.}
+    For a prime $p$, the gate $\Add_p(\cdot,\cdot)$ takes input $x,x' \in \Z_p^{l}$ and outputs $y = x + x' \bmod p$.
+
+    \item \textbf{Mod-$p$ Bilinear Gate.}
+    For a prime $p$, and positive integers $s$ and $l$, the gate $\BLMap_p^{s,l}(\cdot, \cdot)$ takes as input a matrix $\mat{K} \in \Z_p^{s \times l}$ and a vector $x \in \Z_p^l$ and outputs $y = \mat{K}x \in \Z_p^s$. When clear from context, we will drop the superscript and simply write $\BLMap_p(\mat{K}, x)$.
+    
+    \item \textbf{$\Z_2 \to \Z_3$ conversion.} For a positive integer $l$, the gate $\Convert^l_{(2,3)}(\cdot)$ takes as input a vector $x \in \Z_2^l$ and returns its equivalent representation $x^*$ in $\Z_3^l$. When clear from context, we will drop the superscript and simply write $\Convert_{(2,3)}(x)$.
+
+    \item \textbf{$\Z_3 \to \Z_2$ conversion.} For a positive integer $l$, the gate $\Convert^l_{(3,2)}(\cdot)$ takes as input a vector $x \in \Z_3^l$ and computes its map $x^*$ in $\Z_2^l$. For this, each $\Z_3$ element in $x$ is computed modulo 2 to get the corresponding $\Z_2$ element in the output $x^*$. Specifically, each $0$ and $2$ are mapped to $0$ while each $1$ is mapped to $1$. When clear from context, we will drop the superscript and simply write $\Convert_{(3,2)}(x)$.
+\end{itemize}
+
+
+\noindent The $\LMap$ and the $\BLMap$ gates will behave very differently in the context of distributed protocols. For $\LMap$, the matrix $\mat{A}$ will be publicly available to all parties, while the input $x$ will be secret shared. On the other hand, for $\BLMap$, both the key $\mat{K}$ and the input $x$ will be secret shared. We call this gate \textit{bilinear} because its output is linear in both of its (secret-shared) inputs. Also note that although the $\Convert_{(2,3)}$ gate is effectively a no-op in a centralized evaluation, in the distributed setting, the gate will be used to convert an additive sharing over $\Z_2$ to an additive sharing over $\Z_3$.
+
+As described previously, for the (bi)linear maps, we focus only on constructions that use mod-2 and mod-3 maps. In \fig~\ref{fig:graphical_gates}, we provide a pictorial representation for each circuit gate. We will connect these pieces together to also provide clean visual representations for all our constructions. 
+
+The homomorphic properties of linear secret sharing directly imply that $\LMap$ and $\textsf{Add}$ can be computed locally on shared inputs without any preprocessing or communication. For the other gates, we provide protocols to evaluate them in a distributed setting (i.e., where all inputs/outputs are secret shared) in Section~\ref{sec:distributed_protocols}.
+
+\input{Figures/tikzfigs/graphical_gates.tex}
+
+
+\mypara{Construction styles.}
+The candidate constructions we introduce follow one of two broad styles which we detail below. A wPRF construction for the first style was first proposed by~\cite{boneh2018-darkmatter}. Here, we also propose a suite of symmetric primitives (e.g., OWFs, PRGs) with the same basic structure.
+\input{Figures/23-constructions}
+\input{Figures/lpn-constructions}
+\begin{itemize}
+    \item \textbf{$(p,q)$-constructions.}
+    For distinct primes $p, q$, the $(p,q)$-constructions have the following structure: On an input $x$ over $\Z_p$, first a linear $\bmod~p$ map is applied, followed by a linear $\bmod~q$ map. Note that after the $\bmod~p$ map, the input is first reinterpreted as a vector over $\Z_q$. For unkeyed primitives (e.g., OWF), both maps are public, while for keyed primitives (e.g., wPRF), the key is used for the first linear map. The construction is parameterized by positive integers $n, m, t$ (functions of the security parameter $\secparam$) denoting the length of the input vector (over $\Z_p$), the length of the intermediate vector, and the length of the output vector (over $\Z_q$) respectively. The two linear maps can be represented by matrices $\mat{A} \in \Z_p^{m \times n}$ and $\mat{B} \in \Z_q^{t \times m}$. For keyed primitives, the key $\mat{K} \in \Z_p^{m \times n}$ will be used instead of $\mat{A}$.
+
+    \hspace*{1em} Concretely, given an input $x \in \Z_p^n$, the construction output is of the form $y = \mat{B}w \in \Z_q^t$ where $w = \mat{A}{x}$ is first viewed over $\Z_q$. In this paper, we will analyze this style of construction for $(p,q) = (2,3)$ and $(3,2)$ since these are arguably the simplest constructions that employ linear maps over alternate moduli. We find that the $(2,3)$-constructions outperform the $(3,2)$-constructions and we will primarily use the former style for our constructions. We will use $(3,2)$-conversion gates in primitives where both the input {\em and the output} are shared over $\Z_2$.  
+    
+    \item \textbf{LPN-style-constructions.}
+    These constructions have the following general structure: On input $x$ over $\Z_2$, first a linear $\bmod~2$ map given by the matrix $\mat{A}$ is applied to obtain~$u$. Concurrently, the same linear map is also applied over $\Z_3$ (where both $x$ and $\mat{A}$ are now reinterpreted over $\Z_3$) and then reduced modulo $2$ to obtain $v$. The sum $w = u \oplus v$ is then multiplied by a second linear map (given by $\mat{B}$) over $\Z_2$. The map $\mat{B}$ is always public, while for keyed primitives, the key $\mat{K}$ is used instead of $\mat{A}$.
+
+    \hspace*{1em} The construction is parameterized by positive integers $n,m,t$ (as functions of the security parameter $\secparam$) denoting the size of the input vector, the intermediate vector(s), and the output vector (all over $\Z_p$).
+    Concretely, given $\mat{A} \in \Z_2^{m \times n}$ and a public $\mat{B} \in \Z_2^{t \times m}$, for an input $x \in \Z_2^n$, the construction first computes the intermediate vector:
+   \[
+        w = \left[(\mat{A}x \bmod 2) + (\mat{A}x \bmod 3) \bmod 2\right] \bmod 2.
+    \]
+    The output $y$ is then computed as $y = \mat{B}w \bmod 2$. The upshot of this style is that the input and the output are both over $\Z_2$. Intuitively, each intermediate vector bit can be thought of as a deterministic Learning-Parity-with-Noise (LPN) instance with a noise rate of $1/3$. The noise is deterministically generated and is dependent on the input $x$ and a specific column of $\mat{A}$. The noise for the $i^\thtext$ instance will be $1$ if and only if $\left<\mat{A}_i, x\right> = 1$.
+
+    \hspace*{1em} A similar construction was considered in~\cite{boneh2018-darkmatter} but only for a single-bit output. Specifically, they considered $\mat{A} \in \Z_2^{1 \times n}$ and output the single bit $w$. In our construction, we additionally apply a compressive linear map (using $\mat{B}$) to get the final output. This is done to resist standard attacks on LPN (see Section~\ref{sec:cryptanalysis} and Appendix~\ref{appendix:cryptanalysis} for details).
+\end{itemize}
+
+
+\mypara{Winning candidates.}
+Through cryptanalysis and considering the cost for each candidate (See Sections~\ref{sec:cryptanalysis} and \ref{sec:distributed_protocols} for details), we find that some of our candidates are more suited (i.e., ``win'') for a particular setting.
+Specifically, out of the candidates we consider, we find the following: \ttwPRF and \ttOWF are the best wPRF / OWF candidates with no restriction on the input/output space. LPN-wPRF is the best wPRF candidate when the input and output space are over $\Z_2$. LPN-PRG is the best PRG candidate. We provide formal and pictorial descriptions of our winning candidates in Figures~\ref{fig:primary-constructions} and~\ref{fig:lpn-constructions}.
+
+\mypara{Structured keys.}
+The constructions we described previously use general matrices in, e.g., $\Z_p^{m \times n}$. For keyed primitives, this results in a key size of $mn$ elements of $\Z_p$ which is expensive to communicate within distributed protocols. Therefore, we will instead take advantage of structured matrices whose representation is only linear in $n$ and $m$. Since both $n$ and $m$ are $O(\secparam)$ in our constructions, this reduces the communication complexity from quadratic to linear in $\secparam$. Furthermore, some structured matrices also benefit from asymptotically faster algorithms (e.g., FFT-based) for matrix multiplications and matrix-vector products. We briefly describe the types of structured matrices we utilize below. For this, consider a matrix $\mat{M} \in \Z_p^{m \times n}$.
+
+\begin{itemize}
+    \item (Toeplitz matrices).
+    A Toeplitz matrix, or a diagonal-constant matrix, is a matrix where each diagonal from left to right is constant. Specifically, $\mat{M}$ is Toeplitz if for all $i \in [m]$ and $j \in [n]$, it holds that $M_{i,j} = M_{i+1, j+1}$ where $M_{i,j}$ denotes the element in row $i$ and column $j$ of $\mat{M}$. This means that a Toeplitz matrix can be represented by a single column and a single row, i.e., with $n + m - 1$ field elements.
+
+    \item (Generalized circulant matrices). 
+    A generalized circulant matrix is a matrix where each row after the first, is a cyclic rotation of the first row. Specifically, if the first row of generalized circulant matrix $\mat{M}$ is the vector $(a_1, \dots, a_n)$, then the $m^\thtext$ row of $\mat{M}$ will be given by the same vector cyclically rotated $m-1$ times. In general, $m \neq n$, but the special case of $m = n$ is called a (square) circulant matrix. Unless specified, for brevity, we will often use the term \textit{circulant} to denote either generalized circulant matrices or the more specific (square) circulant matrices. This will not matter for our setting, since both can be efficiently represented using just $n$ field elements (given the dimension of the matrix).
+\end{itemize}
+
+We will usually instantiate our constructions using generalized circulant matrices to take advantage of their efficient representations. However, care must be taken while adding structure since this could potentially damage the security of a construction. Our cryptanalysis in Section~\ref{sec:cryptanalysis} will therefore consider our constructions with structured matrices.
