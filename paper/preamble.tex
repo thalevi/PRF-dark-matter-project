@@ -210,3 +210,9 @@
 \patchcmd{\paragraph}{\itshape}{\bfseries\boldmath}{}{}
 \captionsetup[table]{skip=5pt}
 \fi
+
+\iffull
+\makeatletter
+\def\blfootnote{\xdef\@thefnmark{}\@footnotetext}
+\makeatother
+\fi
