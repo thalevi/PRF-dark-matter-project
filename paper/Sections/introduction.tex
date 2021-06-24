@@ -170,7 +170,6 @@ with any particular key. This reduces the probability of bad events such as coll
 between the input and the structured circulant matrix $\mat{K}$.
 More details about such inputs are given in the security analysis.
 
-
 \paragraph{Concrete parameters.}
 In Table~\ref{table:concrete} we summarize the recommended
 concrete parameters for our constructions
@@ -181,6 +180,10 @@ sizes, while for wPRFs we use a larger secret.
 This is a result of different tradeoffs between security and performance.
 For example, we could have set $n = s$ for the \ttwPRF, but cryptanalysis would
 force setting $m$ to be much larger than $2s$ and result in less efficient protocols.
+A lower bound on $m$ in case $n=s$ is deduced by a subset-sum attack which resembles the one 
+on the \ttOWF construction. Yet, optimizations that exploit the additional data available 
+may be possible. While we do not expect security to degrade sharply in this case,
+we leave the concrete analysis for this parameter setting to future work.
 On the other hand, setting $n = 2s$ for the \ttOWF would also require
 doubling the size of the output,\footnote{
 Otherwise, each output would have $2^s$ preimages and there would be no security advantage.}
@@ -302,7 +305,7 @@ operation. When compared to the \ttOWF, \textsc{Rain} currently results in
 shorter signatures, but is tightly coupled to that application, and
 \textsc{Rain}-like primitives would not be efficient in the other applications
 of this paper, since general-purpose MPC protocols for these primitives are
-relatively inefficient.
+relatively inefficient, either due to high nonlinear depth or (for MPC with no honest majority) due to arithmetic operations over large moduli. 
 \fi
 
 \paragraph{Oblivious pseudorandom functions.}
@@ -320,7 +323,7 @@ Motivated by the latter goal, recent works~\cite{grassi2016-mpcfriendly,seres202
 \yuval{Added the following paragraph. Let's try to better connect this section with the protocols section, reminding readers which applications each protocol is useful for. }
 
 \paragraph{Fully distributed wPRF.} Unlike the OPRF setting, in which one party holds the PRF key and another holds the input, there are settings in which both the input and the key need to be distributed between two or more parties. In this setting, most of the techniques for efficient OPRF protocols (including the DDH-based protocols discussed above) do not apply.
-One motivating application for fully distributed wPRF, which was already discussed in~\cite{boneh2018-darkmatter}, is a distributed implementation of {\em searchable symmetric encryption} (SSE) service. In distributed SSE, a client can obtain a decryption key of database entries matching a chosen keyword $w$ by interacting with two or more servers, while keeping the keyword $w$ secret.  To this end, the client secret-shares $w$ between the servers, who also hold shares of a wPRF key. Following interaction between the servers, the servers reveal the wPRF output to the client. This output can be used by the client to decrypt database entries associated with keyword $w$.
+One motivating application for fully distributed wPRF,  already considered in~\cite{IshaiKLO16,boneh2018-darkmatter}, is a distributed implementation of {\em searchable symmetric encryption} (SSE) service. In distributed SSE, a client can obtain a decryption key of database entries matching a chosen keyword $w$ by interacting with two or more servers, while keeping the keyword $w$ secret.  To this end, the client secret-shares $w$ between the servers, who also hold shares of a wPRF key. Following interaction between the servers, the servers reveal the wPRF output to the client. This output can be used by the client to decrypt database entries associated with keyword $w$.
 
 \paragraph{Secret-output wPRF.} Our \ttwPRF candidate is well suited for applications that have privately held secret-shared inputs but require a public output that is delivered in the clear to one or more parties. However, it is insufficient for applications in which the output of the function needs to itself be kept secret and reused as the input to a subsequent PRF invocation.
 
