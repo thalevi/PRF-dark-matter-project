@@ -2,7 +2,7 @@ PROJECT_NAME="main"
 
 .DEFAULT_GOAL := pdf
 
-full:
+full: clean_all
 	pdflatex ${PROJECT_NAME}
 	bibtex ${PROJECT_NAME}||true
 	pdflatex ${PROJECT_NAME}

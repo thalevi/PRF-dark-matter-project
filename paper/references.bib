@@ -68,8 +68,9 @@
     title = {Shorter Signatures Based on Tailor-Made Minimalist Symmetric-Key Crypto},
     howpublished = {Cryptology ePrint Archive, Report 2021/692},
     year = {2021},
-    note = {\url{https://eprint.iacr.org/2021/692}},
 }
+note = {\url{https://eprint.iacr.org/2021/692}},
+
 
 @misc{LibSodium,
     title = {{libsodium 1.0.18-stable}},
@@ -99,7 +100,7 @@
     year = {2003},
     journal = {J. Cryptology},
     volume = {16},
-    issue = {3},
+    number = {3},
     pages = {185--215}
 }
 
@@ -247,7 +248,7 @@ booktitle = {EUROCRYPT},
   title = {How to Generate Cryptographically Strong Sequences of Pseudorandom Bits},
   journal = {SICOMP},
   volume = {13},
-  issue = {4},
+  number = {4},
   pages = {850--864},
   year = {1984}
 }
@@ -298,7 +299,7 @@ title = {Improving the Performance of the Picnic Signature Scheme},
 year = {2020},
 journal = {TCHES},
 volume = {2020},
-issue = {4},
+number = {4},
 pages = {154--188},
 }
 
@@ -496,8 +497,6 @@ pages = {1607--1626},
                Henry Corrigan{-}Gibbs and
                Niv Gilboa and
                Yuval Ishai},
-  editor    = {Alexandra Boldyreva and
-               Daniele Micciancio},
   title     = {Zero-Knowledge Proofs on Secret-Shared Data via Fully Linear PCPs},
   booktitle = {CRYPTO},
   pages     = {67--97},
@@ -589,17 +588,6 @@ pages = {1607--1626},
   year      = {2018},
 }}
 
-@inproceedings{BBCGI19,
-  author    = {Dan Boneh and
-               Elette Boyle and
-               Henry Corrigan{-}Gibbs and
-               Niv Gilboa and
-               Yuval Ishai},
-  title     = {Zero-Knowledge Proofs on Secret-Shared Data via Fully Linear PCPs},
-  booktitle = {{CRYPTO} 2019, Part {III}},
-  pages     = {67--97},
-  year      = {2019},
-}
 
 @inproceedings{BGIN19,
   author    = {Elette Boyle and
@@ -639,23 +627,12 @@ pages = {1607--1626},
   year      = {1986}
 }
 
-
-@inproceedings{GMW,
-  author    = {Oded Goldreich and
-               Silvio Micali and
-               Avi Wigderson},
-  title     = {How to Play any Mental Game or {A} Completeness Theorem for Protocols
-               with Honest Majority},
-  booktitle = {{ACM} Symposium on Theory of Computing},
-  year      = {1987}
-}
-
 @inproceedings{MQref,
   author    = {Tsutomu Matsumoto and
                Hideki Imai},
   title     = {Public Quadratic Polynominal-Tuples for Efficient Signature-Verification
                and Message-Encryption},
-  booktitle = {{EUROCRYPT} '88},
+  booktitle = {{EUROCRYPT}},
   pages     = {419--453},
   year      = {1988},
 }
@@ -679,7 +656,7 @@ pages = {1607--1626},
                Akshay Kamath and
                Alon Rosen},
   title     = {Candidate weak pseudorandom functions in AC mod 2},
-  booktitle = {{ITCS} 14},
+  booktitle = {{ITCS}},
   pages     = {251--260},
   year      = {2014},
 }
@@ -700,10 +677,6 @@ pages = {1607--1626},
 @inproceedings{DoernerS17,
   author    = {Jack Doerner and
                Abhi Shelat},
-  editor    = {Bhavani M. Thuraisingham and
-               David Evans and
-               Tal Malkin and
-               Dongyan Xu},
   title     = {Scaling {ORAM} for Secure Computation},
   booktitle = {CCS},
   pages     = {523--535},
@@ -721,6 +694,7 @@ pages = {1607--1626},
   title     = {Function Secret Sharing for Mixed-Mode and Fixed-Point Secure Computation},
   booktitle   = {EUROCRYPT},
   year      = {2021},
+  pages = {871--900}
 }
 
 @inproceedings{SchoppmannGR019,
@@ -739,7 +713,6 @@ pages = {1607--1626},
                Joe Kilian and
                Kobbi Nissim and
                Erez Petrank},
-  editor    = {Dan Boneh},
   title     = {Extending Oblivious Transfers Efficiently},
   booktitle = {CRYPTO},
   pages     = {145--161},
@@ -752,7 +725,6 @@ pages = {1607--1626},
       year={2021},
       eprint={2103.02668},
       archivePrefix={arXiv},
-      primaryClass={cs.CR}
 }
 
 @inproceedings{IshaiKLO16,
@@ -762,7 +734,15 @@ pages = {1607--1626},
                Rafail Ostrovsky},
   title     = {Private Large-Scale Databases with Distributed Searchable Symmetric
                Encryption},
-  booktitle = {{CT-RSA} 2016},
+  booktitle = {{CT-RSA}},
   pages     = {90--107},
   year      = {2016},
+}
+
+@inproceedings{CCS:KatKolWan18,
+  author = {Jonathan Katz and Vladimir Kolesnikov and Xiao Wang},
+  title = {Improved Non-Interactive Zero Knowl- edge with Applications to Post-Quantum Signatures},
+  booktitle = {CCS},
+  year = {2018},
+  pages = {525--537},
 }
