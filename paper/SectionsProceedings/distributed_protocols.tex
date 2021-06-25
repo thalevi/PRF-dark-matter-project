@@ -502,7 +502,7 @@ To compute a secure multiplication $\mat{K}x$ where $\mat{K}$ and $x$ are both s
 \fi
 
 \subsubsection{$(2,3)$-correlations from OT correlations}
-We provide a new technique to generate the correlations needed for the $\prot_\Convert^{(2,3)}$ protocol. The key technique we use is to convert OT correlations to the types of correlations our protocols require. Since prior work~\cite{boyle2019-pcg,yang2020-ferret} has shown how to efficiently create OT-correlations, this implies that the correlations required for our protocols can also be efficiently generated.  
+We provide a new technique to generate the correlations needed for the $\prot_\Convert^{(2,3)}$ protocol. The key technique we use is to convert OT correlations to the types of correlations our protocols require. Since prior work~\cite{boyle2019-pcg,BCGIKRS19,yang2020-ferret} has shown how to efficiently create OT-correlations, this implies that the correlations required for our protocols can also be efficiently generated.  
 \iffull
 We start by recalling OT correlations in the 2-party setting.
 \mypara{1-out-of-2 OT correlation over $\Z_3$.} An OT correlation over $\Z_3$ has the following form: $\party_1$ holds $(z_0, z_1)$ and $\party_2$ holds $(c, z_c)$ where $z_0, z_1 \getsr \Z_3$, $c \in \Z_2$ and $z_c = z_0$ if $c=0$ and $z_c = z_1$ if $c=1$. We refer to $((z_0,z_1), (c, z_c))$ as an OT correlation pair.
