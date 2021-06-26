@@ -937,7 +937,7 @@ and when $(n,m,t) = (256, 906, 162)$ the total is 1943 bits (L5 security: 256-bi
 Picnic at the same security level, which communicates 1161--1328 bits at L1
 and 2295--2536 bits at L5, depending on whether LowMC uses a full or partial S-box layer~\cite{kales2020-picnic}.
 
-\paragraph{Signature scheme}
+\paragraph{Signature scheme.}
 Given the MPC protocol above, we can compute the values $\hat{x}$, $\aux$ and
 $\msgs$ for the \ttOWF and neatly drop it into the KKW proof system used in
 Picnic.  The signature generation and verification algorithms for the
@@ -976,7 +976,7 @@ attacks~\cite{dinur2019-picnic-attacks}. Also, hashing the public key when compu
 challenge, and prefixing the inputs to $\hash$ in each use for domain
 separation should also be done, as in~\cite{picnic-spec}.
 
-\paragraph{Signature size}
+\paragraph{Signature size.}
 The size of the signature in bits is:
 \begin{align*}
 \textunderbrace{\secpar\tau\log_2\left(\frac{M}{\tau}\right)}{initial seeds} +
@@ -1003,7 +1003,7 @@ near the bend of the curve with moderate computation costs. This part of the cur
 similar as in Picnic, and we present some options from it in \cref{table:sig-sizes}.
 
 \begin{figure}[p]
- \begin{minipage}[t]{1.1\textwidth}
+ \begin{minipage}[t]{\textwidth}
  \begin{protocolbox}{\ttOWF Signatures}
  \begin{description}
     \item[Inputs] Both signer and verifier have $\sfF$, $y = \sfF(x)$, the

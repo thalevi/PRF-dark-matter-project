@@ -528,7 +528,7 @@ For a 1-out-of-2 OT correlation over $\Z_3$, $\party_1$ holds $(z_0, z_1)$ and $
 \paragraph{Conversion technique.}
 Recall that for the $\Z_2 \to \Z_3$ conversion protocol $\prot_{\Convert}^{(2,3)}$, as preprocessing, a dealer provides the parties with shares of a bit-vector both over $\Z_2$ and $\Z_3$. For simplicity, we first consider the correlated randomness for a single element. To convert the sharing for a single bit, the dealer provides the following correlated randomness to the parties: $\party_1$ is given $(w_1, r_1)$ and $\party_2$ is given $(w_2, r_2)$ such that $w_1, w_2 \in \Z_2; r_1, r_2 \in \Z_3$ and $(w_1 + w_2) \bmod 2 = (r_1 + r_2) \bmod 3$. We refer to $((w_1, r_1), (w_2, r_2))$ as a $(2,3)$-correlation pair.
 
-We now show how to convert an OT-correlation into a $(2,3)$-correlation. Suppose for now that we have the ability to ``throw'' away OT-correlations where $z_0 = z_1$. We will get rid of this assumption later by communicating a single message from $\party_1$ to $\party_2$ which will intuitively detail which OT correlations to discard.
+We now show, in Protocol~\ref{prot:ot-to-23}, how to convert an OT-correlation into a $(2,3)$-correlation. Suppose for now that we have the ability to ``throw'' away OT-correlations where $z_0 = z_1$. We will get rid of this assumption later by communicating a single message from $\party_1$ to $\party_2$ which will intuitively detail which OT correlations to discard.
 
 \begin{protocol}
 Given a (1-out-of-2) OT correlation $((z_0,z_1), (c, z_c))$ over $\Z_3$ where $z_0 \neq z_1$, to generate a $(2,3)$-correlation, the parties proceed as follows:
@@ -567,7 +567,7 @@ The communication can be compressed using the binary entropy function $\textsf{H
 \fi
 \subsubsection{$(3,2)$-correlations from OT correlations}
 
-We now show how to convert OT-correlations to the correlations we require for the $\prot_{\Convert}^{(3,2)}$ protocol. For this, we will need 1-out-of-3 OT correlations for 2-bit strings. Formally, in such a correlation, $\party_1$ receives $(z_0, z_1, z_2)$ where each $z_j$ is a 2-bit string, while $\party_2$ receives $(c, z_c)$ where $c \in \Z_3$ and $z_c$ is the corresponding $z_j$ indexed by $j = c$. As before, these OT correlations can also be efficiently generated and compressed using existing work~\cite{boyle2019-pcg,yang2020-ferret}.
+We now show, in Protocol~\ref{prot:ot-to-32}, how to convert OT-correlations to the correlations we require for the $\prot_{\Convert}^{(3,2)}$ protocol. For this, we will need 1-out-of-3 OT correlations for 2-bit strings. Formally, in such a correlation, $\party_1$ receives $(z_0, z_1, z_2)$ where each $z_j$ is a 2-bit string, while $\party_2$ receives $(c, z_c)$ where $c \in \Z_3$ and $z_c$ is the corresponding $z_j$ indexed by $j = c$. As before, these OT correlations can also be efficiently generated and compressed using existing work~\cite{boyle2019-pcg,yang2020-ferret}.
 
 Now, to convert a single $\Z_2$ element to $\Z_3$, our protocol requires the following correlated randomness: $\party_i$ is given $(\tilde{x}_i, u_i, v_i)$ where $\tilde{x}_i \in \Z_3$, $u_i,v_i \in \Z_2$ such that the following holds. Define $\tilde{x} = \tilde{x}_1 + \tilde{x} \bmod 3$, $u = u_1 + u_2 \bmod 2$, and $v = v_1 + v_2 \bmod 2$. Then, $u = \tilde{x} \bmod 2$ and $v = (\tilde{x} + 1 \bmod 3) \bmod 2$. We call this sharing between the two protocol parties a $(3,2)$-correlation pair.
 

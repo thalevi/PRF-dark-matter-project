@@ -89,9 +89,11 @@ and the \ttOWF MPC has been described in \cref{sec:distributed_protocols}.
 \iffull 
 \begin{table}[t]
 \resizebox{\textwidth}{!}{ 
-\begin{tabular}{l|l|l}
-OWF Params      & KKW params        & Sig. size (KB)\\
-$(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
+\begin{tabular}{|c|c|c|}
+\hline
+OWF Params      & KKW params        & \multirow{2}{*}{Sig. size (KB)}\\
+$(n,m,t)$       & $(N, M, \tau)$    &   \\
+\hline\hline
 $(128,453,81)$  & $(16, 150, 51)$   & 13.30 \\
                 & $(16, 168, 45)$   & 12.48 \\ 
                 & $(16, 250, 36)$   & \textbf{11.54} \\
@@ -103,9 +105,11 @@ Picnic2-L1      & $(64, 343, 27)$   & 12.36 \\ \hline
 \end{tabular}
 
 \quad
-\begin{tabular}{l|l|l}
-OWF Params      & KKW params        & Sig. size (KB)\\
-$(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
+\begin{tabular}{|c|c|c|}
+\hline
+OWF Params      & KKW params        & \multirow{2}{*}{Sig. size (KB)}\\
+$(n,m,t)$       & $(N, M, \tau)$    &   \\
+\hline\hline
 $(256,906,162)$ & $(16, 324, 92)$   & 50.19 \\ 
                 & $(16, 400, 79)$   & 47.08 \\ 
                 & $(16, 604, 68)$   & \textbf{45.82} \\ 
@@ -120,7 +124,6 @@ Picnic2-L5      & $(64, 604, 58)$   & 46.18 \\ \hline
 \ttOWF, compared to Picnic using LowMC.  The left table shows
 security level L1 (128 bits) with $N=16$ and $N=64$ parties, and the right table shows level L5 (256 bits).}
 \end{table}
-
 \fi
 
 
@@ -154,7 +157,7 @@ $\prot_{\Convert}^{(2,3)}$
 described in \cref{sec:distributed_protocols} we have an $N$-party protocol for
 the \ttOWF. The most challenging and costly step (in terms of communication) is
 the conversion gate, all other operations are done locally by the parties.  In
-\cref{appendix:picnic} we describe this protocol in full detail.  
+\cref{appendix:picnic}, we describe this protocol in full detail.  
 
 \paragraph{Sign and verify.} 
 The signature generation and verification algorithms for the
@@ -176,7 +179,7 @@ the preprocessing phase only, by recomputing the preprocessing phase as the prov
 }}
 
 \paragraph{Parameter selection and signature size.}
-In \cref{appendix:picnic} we give the formula for estimating signature size.
+In \cref{appendix:picnic}, we give the formula for estimating signature size.
 The impact of OWF choice is limited to one term, which is the sum of
 the sizes of the MPC inputs, broadcast messages, and auxiliary values produced
 by preprocessing.  Selecting the KKW parameters $(M, N, \tau)$ once the MPC costs
