@@ -1,0 +1,73 @@
+%!TEX root = ../main.tex
+\section{Implementation and Evaluation}
+\label{sec:implementation_and_eval}
+We implemented our 2-party protocols to compute the \ttwPRF candidate (Construction~\ref{construction:23-central-wprf}) both in the distributed and oblivious evaluation settings. Our implementations are in C++. For the \ttwPRF construction, we used the parameters $n = m = 256$ and $t = 81$. The implemented 23-constructions use a Toeplitz matrix in $\Z_2^{256 \times 256}$ as the key, take as input a vector in $\Z_2^{256}$ and output a vector in $\Z_3^{81}$. The correlated randomness was implemented as if provided by a trusted third party. See Section~\ref{subsec:preprocessing} for concretely efficient protocols for securely generating the correlated randomness, which we did not implement but give efficiency estimates based on prior works. 
+
+
+\mypara{Optimizations.}
+We start with a centralized implementation of the 23-wPRF. We find optimizations that provide a roughly 25x better performance over a na\"ive implementation. We use three major optimizations in our implementation. First, we use \textit{bit packing} for $\Z_2$ vectors through which we can pack several elements in a machine word and operate on them together in an SIMD manner. Second, we use \textit{bit slicing} for $\Z_3$ vectors by representing them as a pair of $\Z_2$ vectors. All operations on the $\Z_3$ vectors can now be translated to operations on the $\Z_2$ vectors. Finally, we use a lookup table optimization for the final $\Z_3$ linear mapping (i.e., multiplication by $\mat{B}$). For this, we split the 256-column matrix $\mat{B}$ into 16 pieces with 16 columns each and store multiplications with all $\Z_3^{16}$ vectors for each piece. The size for each piece was decided as a tradeoff between the lookup table size and the computational efficiency. We provide benchmarks for our optimizations in Table~\ref{table:optimization_benchmarks}.
+
+%--------------------------------------%
+
+\subsection{Performance Benchmarks}
+\label{subsec:performance}
+\mypara{Experimental setup.}
+We ran all our experiments on a t2.medium AWS EC2 instance with 4GiB RAM (architecture: x86-64 Intel(R) Xeon(R) CPU E5-2686 v4 @ 2.30GHz) running on Ubuntu 18.04. The performance benchmarks and timing results we provide are averaged over 1000 runs. For the distributed construction benchmarks, both parties were run on the same instance. We separately report the computational runtime for the parties, and analytically compute the communication costs. 
+
+\begin{table}[!t]
+	{
+		\centering
+        \resizebox{0.7\textwidth}{!}{
+		\begin{tabular}{|c|c|c|c|c|}
+			
+			\hline
+			\multicolumn{3}{|c|}{Optimization} &  \multirow{2}{*}{Runtime ($\mu$s)} & \multirow{2}{*}{Evaluations / sec} \\
+			Packing & Bit Slicing & Lookup Table &  & \\
+			\hline\hline
+			\multicolumn{3}{|c|}{Baseline implementation} & 156.41 & 6K\\
+			\checkmark & & & 26.84 & 37K\\
+			\checkmark & \checkmark & & 18.5 & 65K \\
+			\checkmark & \checkmark & \checkmark & 6.08 & 165K \\
+			\hline
+		\end{tabular}
+        }
+		\caption{Centralized 23-wPRF benchmarks for a baseline implementation and for different optimization techniques. Packing was done into 64-bit sized words (for both $\Z_2$ and $\Z_3$ vectors). For the lookup table optimization, a table with $81 \times 2^{20}$ $\Z_3$ elements, or roughly of size $135$MB, was preprocessed. Runtimes are all given in microseconds ($\mu$s).
+		}
+		\label{table:optimization_benchmarks}
+	}
+\end{table}
+
+
+\mypara{Distributed wPRF evaluation.}
+We implement our 2-party semi-honest distributed protocol for evaluating the \ttwPRF construction and report timings for our implementation. Since this candidate was first proposed in~\cite{boneh2018-darkmatter}, we also implement their protocol as a comparison point. For both protocols, we use the parameters $n=m=256$, $t=81$ for the PRF and use the same optimizations for an accurate comparison. We found that our protocol is better in all metrics. For a single evaluation, our protocol requires $12.12~\mu$s, 662 bits of preprocessing, and 1536 bits of online communication. On the other hand, the protocol from~\cite{boneh2018-darkmatter} requires $28.02\mu$s, 3533 bits of preprocessing, and 2612 bits of online communication for one evaluation.
+
+\begin{table}[!t]
+{
+\centering
+\resizebox{0.9\textwidth}{!}{%
+    \begin{tabular}{|ccc|c|c|c|c|c|c|}%8 columns    
+        \hline
+        \multicolumn{3}{|c|}{\multirow{2}{*}{Protocol}} & \multicolumn{2}{c|}{Runtime ($\mu$s)} & \multirow{2}{*}{Preprocessing (bits)} & \multicolumn{2}{c|}{Communication (bits)}\\
+        & && Client & Server & & Client & Server\\
+        \hline\hline
+        \multirow{2}{*}{\xspace$\prot_1^\textsf{oprf}$} &\quad\quad& Key Update & - & 0.65 & 256 & - & 256 \\
+        && Evaluation & 8.54 & 9.45 & 2092 & 512 & 385 \\
+        \hline
+        \multirow{2}{*}{\xspace$\prot_2^\textsf{oprf}$} && Key Update & - & 3.16 & 256 & - & 256\\
+        && Evaluation & 7.91 & 8.21 & 1836 & 256 & 385 \\
+        \hline
+        \multicolumn{3}{|c|}{DDH-based OPRF} & 57.38 & 28.69 & - & 256 & 256\\
+        \hline
+    \end{tabular}}
+    \caption{Comparison of protocols for (semi-honest) OPRF evaluation in the preprocessing model. Runtimes in microseconds ($\mu$s) are provided separately for refreshing the key (Key Update) and for evaluating an input (Evaluation). Communication and preprocessing are also provided separately for the two stages.}
+    \label{table:oprf_comparison}
+}
+\end{table}
+
+
+\mypara{OPRF evaluation.}
+In Table~\ref{table:oprf_comparison}, we provide performance benchmarks for both our oblivious protocols (see Section~\ref{subsec:oprf_protocol}) for the \ttwPRF construction. We also compare our results to the standard DDH-based OPRF (details in the full version~\cite{fullversion}). For our timing results, we report both the server and client runtimes (averages over 1000 runs). For each construction, we also include the size of the preprocessed correlated randomness, and the online communication cost. All constructions are parameterized appropriately to provide 128-bit security.
+
+For our constructions, we report separately, the timings for refreshing the key and evaluating the input. For the comparison with the DDH-based OPRF construction, we use the libsodium library~\cite{LibSodium} for the elliptic curve scalar multiplication operation. We use the Curve25519 elliptic curve, which has a 256-bit key size, and provides 128 bits of security. 
+
+

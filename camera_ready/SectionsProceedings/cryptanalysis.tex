@@ -1,0 +1,51 @@
+%!TEX root = ../main.tex
+\section{Cryptanalysis}
+\label{sec:cryptanalysis}
+
+\newcommand{\zerovec}{\textbf{0}}
+
+We give a summary of cryptanalysis of our constructions, focusing on the main attacks that influence our parameters and defer details to the full version~~\cite{fullversion}.
+
+\subsection{Summary of Security Evaluation of the \ttOWF}
+
+The attacker is given $\hat{y} \in \Z_3^t$ and tries to invert it. Our most interesting attack on the \ttOWF is based on a reduction to subset-sum.
+
+\mypara{Reduction to subset-sum.}
+For a vector $w \in \Z_2^m$, there is an $(m -n) \times m$ (parity check) matrix $\mat{P}$ such that there exists $x \in \Z_2^n$ for which $\mat{A}x = w$ if and only if $\mat{P} w=\zerovec$. Assume that $\hat{y}$ is the output of the \ttOWF on $x \in \Z_2^n$, and let $w = \mat{A}x$. Then, $w$ satisfies the conditions $\mat{P} w = \zerovec$ (over $\Z_2$) and $\mat{B}w = \hat{y}$ (over $\Z_3$). We attempt to find such $w$ by a reduction to subset-sum, as detailed below. Suppose we find a set $J \subseteq [m]$ such that
+$$
+\left( \sum_{j \in J} \mat{P}e_j  \bmod 2, \sum_{j \in J} \mat{B}e_j  \bmod 3 \right) = (\zerovec,\hat{y})
+$$
+where $e_i \in \{0,1\}^m$ is the $i$'th unit vector. Then, the preimage $x$ can be computed by solving the linear equation system $\mat{A}x = \sum_{j \in J} e_j  \bmod 2$.
+
+Thus, we have reduced the problem to subset-sum with $m$ binary variables
+$(\epsilon_1, \ldots, \epsilon_m) \in \{0,1\}^m$, where we associate $\epsilon_i = 1$
+with $(\mat{P}e_i, \mat{B}e_i) \in \Z_2^{m-n} \times \Z_3^t,$ and define the target as $(\zerovec,\hat{y}) \in \Z_2^{m-n} \times \Z_3^t$. We further note that the parity check matrix $\mat{P}$ defines the linear code spanned by the columns of $\mat{A}$. Therefore, the reduction is bi-directional, implying that inverting the \ttOWF is equivalent to solving this special type of subset-sum problem.
+
+
+\mypara{Solving the subset-sum problem.}
+We can now apply the advanced subset-sum algorithm by Howgrave{-}Graham and Joux~\cite{Howgrave-GrahamJ10} and the more recent ones~\cite{BeckerCJ11,BonnetainBSS20}, which are based on the \emph{representation technique}. These algorithms were mostly designed to solve subset-sum problems over the integers. Below, we describe the main ideas of these algorithms and explain how to apply them to the special subset-sum problem we consider.
+
+In the subset-sum problem over the integers, we are given $m$ positive integers $(a_1,a_2,\ldots,a_m)$ and a positive integer $S$ such that $S = \sum_{i=1}^{m} \epsilon_i a_i$ for $\epsilon_i \in \{0,1\}$. The goal is to recover the unknown coefficients $\epsilon_i$. A standard meet-in-the-middle approach for solving the problem has time complexity of about $2^{m/2}$. The representation technique gives an improved algorithm as briefly summarized below.
+
+Assume that a solution to the subset-sum problem is chosen uniformly from $\{0,1\}^m$ and the parameters are set such that the instance has about one solution on average. Effectively, this means that the density of the problem $d = \tfrac{n}{\log \max(\{a_i\}_{i=1}^{m})}$ is set to 1. The main idea of the basic algorithm of Howgrave{-}Graham and Joux~\cite{Howgrave-GrahamJ10} is to split the problem into two parts by writing $S = \sigma_1 + \sigma_2$, where $\sigma_1 = \sum_{i=1}^{m} \alpha_i a_i$, $\sigma_2 = \sum_{i=1}^{m} \beta_i a_i$ and $(\alpha_i,\beta_i) \in \{(0,0),(0,1),(1,0)\}$. Thus, $\epsilon_i = \alpha_i + \beta_i$ for each $i$ is a solution to the problem. Note that each coefficient $\epsilon_i$ with value 1 can be split into $(0,1)$, or $(1,0)$. Thus, assuming that the solution has Hamming weight\footnote{In general, one may guess the Hamming weight of the solution and repeat the algorithm accordingly a polynomial number of times.} of $m/2$ (which occurs with probability $\Omega(1/\sqrt{m})$), it has $2^{m/2}$ different \emph{representations}. Consequently, we may focus on finding only one of these representations by solving two subset-sum problems of Hamming weight $m/4$. Focusing on a single representation of the solution beats the standard meet-in-the-middle approach which requires time $2^{m/2}$.
+
+\mypara{Adaptation of previous subset-sum algorithms.}
+The algorithm of~\cite{Howgrave-GrahamJ10} can be easily adapted to our specialized subset-sum problem (although it is not defined over the integers). Moreover the improved algorithm of~\cite{BeckerCJ11} considers additional representations of the solution by allowing $\alpha_i$ and $\beta_i$ to also take the value -1 (implying that $\epsilon_i = 0$ can be decomposed into $(\alpha_i,\beta_i) \in \{(0,0),(-1,1),(1,-1)\}$). In our case, we associate $\alpha_i = -1$ with $(\mat{P}(-e_i), \mat{B}(-e_i)) = (\mat{P}e_i, 2 \cdot \mat{B}e_i)  \in \Z_2^{m-n} \times \Z_3^t$. Finally, the recent improved algorithm of~\cite{BonnetainBSS20} considers representations over $\{-1,0,1,2\}$ and we can adapt this to our setting in a similar way. In terms of complexity, ignoring polynomial factors in $m$, the attack of~\cite{Howgrave-GrahamJ10} runs in time $2^{0.337m}$ and uses $2^{0.256m}$ memory, while the complexity of attack of~\cite{BonnetainBSS20} requires $2^{0.283m}$ time and memory. Thus, conservatively ignoring polynomial factors, for $s$-bit security we require $0.283m \geq s$, or $m \geq 3.53 s$.
+
+
+\subsection{Summary of Security Evaluation of the \ttwPRF}
+For the \ttwPRF, the attacker obtains several samples $(x_1,\mat{B},y_1) ,\ldots, (x_{2^r}, \mat{B},y_{2^r})$ and tries to mount a key recovery and/or a distinguishing attack. We restrict the number of samples produced with a single secret to $2^{40}$. We set the parameters such that $n - \log 3 \cdot t \geq s$, and thus there are $2^s$ keys on average that are consistent with a single sample. Therefore, any key recovery attack faster than $2^s$ will use at least two samples. Particularly, the subset-sum attack can also be applied to the \ttwPRF, but it is not clear how to use it efficiently on more than one sample (without strong relations between them).
+
+The most important distinguishing attack looks for a bias in a linear combination of the output over $\Z_3$. Given a single sample $(x,\mat{B},y)$, assume there exist $v \in \Z_3^m$ and $u \in \Z_3^t$ such that $u \mat{B} = v$ and the Hamming weight of $v$ is $\ell$. As $y = \mat{B}w \bmod 3$, the attacker computes $uy \bmod 3 = vw \bmod 3$ and thus obtains the value of a linear combination $\bmod$ 3 of $\ell$ entries of $w \in \{0,1\}^m$. Since $w \in \Z_2^m$, this linear combination is biased, and the strength of the bias depends on how small $\ell$ is. The bias can be amplified using several samples. Consequently, we require that the rows of $\mat{B}$ do not span a vector of low Hamming weight. This analysis is probabilistic and leads to a lower bound on $m$.
+
+Another important attack we consider exploits the fact that $\mat{K}$ is circulant and preserves symmetric properties of the input $x$ (e.g., the two halves of $x$ are equal). This attack imposes a lower bound on $n$ so that such a symmetric vector is not found in the data, except with negligible probability. We leave it as an open problem to extend this basic attack.
+
+Overall, we set $n=m=2s$ and $t = s/\log 3$. These are somewhat aggressive parameters as the security margin against the above attacks in rather narrow. A choice of $n=m=2.5s$ is more conservative.
+
+\subsection{Summary of Security Evaluation of the LPN-PRG}
+The attacker is given a single sample $\mat{A},\mat{B},y$ and tries to mount a key recovery and/or a distinguishing attack. The construction differs from the alternative wPRF construction from~\cite{boneh2018-darkmatter} in two ways. The first transformation generates $t = 2n$ samples using a public matrix. Similarly to~\cite{boneh2018-darkmatter}, each sample can be viewed as an LPN sample, i.e., a noisy linear equation over $\Z_2$ in the bits of the seed (although the noise is generated deterministically). However, in~\cite{boneh2018-darkmatter} $\mat{A}$ is a random matrix, whereas we use a (structured) Toeplitz matrix which may weaken the construction. On the other hand, the second transformation $\mat{B}$ ``compresses'' the samples and generally strengthens the construction.
+
+A significant consideration in selecting the parameters is that the rows of $\mat{B}$ do not span a low Hamming weight vector, imposing a lower bound on $m$. Thus, only dense linear combinations of samples are available at the output, accumulating the noise. This should defeat standard attacks against LPN. Overall, setting $n=s, m = 3s, t = 2s$ seems to provide sufficient resistance against the considered attacks.
+
+\subsection{Summary of Security Evaluation of the LPN-wPRF}
+The attacks we consider against this primitive include a union of some of the attacks considered for the LPN-PRG and for the \ttwPRF constructions with some adjustments. Overall, we propose to set $n=m= 2s$ and $t =s$.

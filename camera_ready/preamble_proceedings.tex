@@ -1,0 +1,150 @@
+%!TEX root = ../main.tex
+
+%--------------------------------------------------------------%
+%-----------------------Common Packages------------------------%
+%--------------------------------------------------------------%
+\usepackage[dvipsnames]{xcolor}
+\usepackage{amsfonts,amssymb,amsmath}
+\usepackage{mathtools}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage[pdfauthor={},pdfpagelabels=true,linktocpage=true,hidelinks,linktoc=all,colorlinks]{hyperref}
+\usepackage[capitalize]{cleveref}
+
+\usepackage{tikz}
+\usetikzlibrary{shapes, positioning, patterns, math}
+
+\usepackage{stmaryrd}
+\usepackage{graphicx}
+\usepackage{calc}
+\usepackage{multirow,makecell,ctable}
+\usepackage[most]{tcolorbox}
+\usepackage{varwidth}
+\usepackage{xspace}
+
+
+%--------------------------------------------------------------%
+%---------------------------Notation---------------------------%
+%--------------------------------------------------------------%
+
+% Standard math notation
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\F}{\mathbb{F}}
+
+\newcommand{\ceil}[1]{\left\lceil {#1} \right\rceil}
+\newcommand{\floor}[1]{\left\lfloor {#1} \right\rfloor}
+\newcommand{\abs}[1]{\left| {#1} \right|}
+\newcommand{\len}[1]{\left| {#1} \right|}
+
+\newcommand{\xor}{\oplus}
+
+\newcommand{\figref}[1]{Figure~\protect\ref{#1.fig}}
+
+\newcommand*\BitAnd{\mathbin{\&}}
+\newcommand*\BitOr{\mathbin{|}}
+\newcommand*\ShiftLeft{\ll}
+\newcommand*\ShiftRight{\gg}
+\newcommand*\BitNeg{\ensuremath{\mathord{\sim}}}
+
+% Crypto Notation
+\newcommand{\secparam}{\lambda}
+\newcommand{\bits}{\{0,1\}}
+\newcommand{\keyspace}{\mathcal{K}}
+\newcommand{\inspace}{\mathcal{X}}
+\newcommand{\outspace}{\mathcal{Y}}
+\newcommand{\advA}{\mathcal{A}}
+\newcommand{\getsr}{\xleftarrow{\$}}
+\newcommand{\Funcs}{\mathsf{Funcs}}
+
+%-------General notation---------
+\newcommand{\mat}[1]{\MakeUppercase{\mathbf{#1}}}
+\newcommand{\thtext}{\textnormal{th}}
+\newcommand{\sfF}{\mathsf{F}}
+%--------------------------------------------------------------%
+
+
+
+%--------------------------------------------------------------%
+%-----------------------Specific Commands----------------------%
+%--------------------------------------------------------------%
+% MPC
+\newcommand{\pzero}{\textnormal{P}_0}
+\newcommand{\pone}{\textnormal{P}_1}
+\newcommand{\ptwo}{\textnormal{P}_2}
+\newcommand{\partyi}{\textnormal{P}_i}
+\newcommand{\party}{\textnormal{P}}
+\newcommand{\parties}{\mathcal{P}}
+
+\newcommand{\share}[1]{\left\llbracket #1 \right\rrbracket}
+\newcommand{\sharei}[1]{\share{#1}^{(i)}}
+
+% Primitives and Constructions
+\newcommand{\PRFfunc}{\mathsf{F}_\secparam}
+\newcommand{\OWFfunc}{\mathsf{F}_\secparam}
+
+\newcommand{\ttOWF}{$(2,3)$\textnormal{-OWF}\xspace}
+\newcommand{\ttwPRF}{$(2,3)$\textnormal{-wPRF}\xspace}
+
+\newcommand{\prot}{\boldsymbol{\pi}}
+\newcommand{\LMap}{\textnormal{\textsf{Lin}}}
+\newcommand{\Add}{\textnormal{\textsf{Add}}}
+\newcommand{\BLMap}{\textnormal{\textsf{BL}}}
+\newcommand{\Convert}{\textnormal{\textsf{Convert}}}
+\newcommand{\gateset}{\textnormal{\textsf{Gates}}}
+
+\newcommand{\randval}[1]{\tilde{#1}}
+\newcommand{\masked}[1]{\hat{#1}}
+
+\newcommand{\Gin}{\mathbb{G}^{\textsf{in}}}
+\newcommand{\Gout}{\mathbb{G}^{\textsf{out}}}
+
+%--------------------------------------------------------------%
+
+
+
+
+
+%--------------------------------------------------------------%
+%-----------------------LaTeX Formatting-----------------------%
+%--------------------------------------------------------------%
+% Environments
+\newtheorem{construction}[theorem]{Construction}
+\newtheorem{protocol}[theorem]{Protocol}
+
+% Boxes
+\newcommand{\boxsize}{0.95}
+\newcommand{\finalsize}{0.87}
+\newcommand{\figtextsize}{\small}
+\newcommand{\protbox}[2]{\centering\resizebox{\finalsize\textwidth}{!}{\centering\fbox{\figtextsize\hbox{\quad\begin{minipage}{\boxsize\columnwidth}\begin{center}{\bf #1}\end{center}#2\end{minipage}\quad}}}}
+
+\newcommand{\lncsresize}[1]{\resizebox{\textwidth}{!}{#1}}
+
+\newcommand{\bigboxplus}{
+  \mathop{
+    \vphantom{\bigoplus} 
+    \mathchoice
+      {\vcenter{\hbox{\resizebox{\widthof{$\displaystyle\bigoplus$}}{!}{$\boxplus$}}}}
+      {\vcenter{\hbox{\resizebox{\widthof{$\bigoplus$}}{!}{$\boxplus$}}}}
+      {\vcenter{\hbox{\resizebox{\widthof{$\scriptstyle\oplus$}}{!}{$\boxplus$}}}}
+      {\vcenter{\hbox{\resizebox{\widthof{$\scriptscriptstyle\oplus$}}{!}{$\boxplus$}}}}
+  }\displaylimits 
+}
+
+\newcommand{\dash}{\textnormal{-}}
+\newcommand{\fig}{Fig.}
+
+% TikZ Styles
+\tikzset{twostyle/.style={fill=blue!15}}
+\tikzset{threestyle/.style={pattern=north west lines, pattern color=orange}}
+
+% Sections
+ \setcounter{secnumdepth}{3}
+\makeatletter
+\renewcommand\subsubsection{\@startsection{subsubsection}{3}{0mm}{-0.5\baselineskip}{0.5\baselineskip}{\normalfont\normalsize\bfseries}}
+\makeatother
+
+\setitemize{label=$\bullet$}
+\newcommand{\mypara}[1]{\smallskip\noindent\textbf{#1}}
+\captionsetup[table]{skip=5pt}

@@ -1,0 +1,26 @@
+%!TEX root = ../../main.tex
+
+\scalebox{0.8}{
+\begin{tikzpicture}
+     \begin{scope}
+        \draw[twostyle] (-0.74,0.65) -- (0.74,1.05) -- (0.74,-1.05) -- (-0.74,-0.65) -- (-0.74,-0.55) -- (0.5,-0.55) -- (0.5,0.55) -- (-0.74,0.55) -- cycle;
+         \draw (-0.8,0.65) node[left] {$\mat{K}$};
+         \draw (-0.8,-0.65) node[left] {$x$};
+    \end{scope}
+    \begin{scope}[shift={(0.95,0)}]
+    \tikzmath{\sidelen=0.6;\maxnum=4;}
+    \foreach \num in {0,...,\maxnum} {
+        \tikzmath{\yshift=(\num-(\maxnum)/2)*(\sidelen + 0.3);}
+        \node [draw,regular polygon, regular polygon sides=3,scale=0.5,shift={(0,\yshift)},rotate=90] {};
+    }
+    \end{scope}
+    \begin{scope}[shift={(1.85,0)}]
+    \node [draw,trapezium,minimum height=1.48cm,trapezium left angle=75,trapezium right angle=75, rotate=-90,threestyle] {\rotatebox{90}{$\mat{B}$}};
+    \draw (0.75,0) node[right] {$y$};
+    \end{scope}
+    
+    \begin{scope}[shift={(0,-1.5)}]
+        \draw (0,0) node[right] {\ttwPRF};
+    \end{scope}
+\end{tikzpicture}
+}

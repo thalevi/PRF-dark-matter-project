@@ -1,0 +1,80 @@
+%!TEX root = ../main.tex
+
+\newcommand{\secpar}{\lambda}
+\newcommand{\bmat}[1]{\ensuremath{\mathbf{#1}}}
+\newcommand{\matA}{\bmat{A}}
+\newcommand{\matB}{\bmat{B}}
+
+\section{Application: Signatures with the \ttOWF}
+\label{sec:applications}
+
+Here we describe a signature scheme using the \ttOWF. Our presentation is tailored to the \ttOWF, but we note that this approach is general.  All of the candidate primitives in this paper would be a suitable choice of $\sfF$ (note that they are all OWFs when the input is chosen at random) and we evaluated them all before settling on \ttOWF, which gives the shortest signatures.
+
+Abstractly, a signature scheme can be built from any OWF $\sfF$ and an MPC protocol to evaluate it, by setting the public key to $y = \sfF(x)$ for a random secret $x$, and then proving knowledge of $x$, using a proof system based on the MPC-in-the-head paradigm~\cite{ishai2007-zkmpc}. To make the proof non-interactive, typically the Fiat-Shamir transform is used, and the message to be signed is bound to the proof by including it in the hash when computing the challenge. In addition to assuming the OWF is secure, the only other assumption required is a secure hash function. As no additional number-theoretic assumptions are required, these types of signatures are often proposed as secure post-quantum
+schemes. 
+
+Concretely, our design follows the Picnic signature scheme~\cite{chase2017-picnic}, specifically the variant instantiated with the KKW proof system~\cite{CCS:KatKolWan18} (named Picnic2 and Picnic3).  We chose to use the KKW, rather than ZKB++ proof system since our MPC protocol to evaluate the \ttOWF is most efficient with a pre-processing phase, and KKW generally produces shorter signatures.  We replace the LowMC block cipher~\cite{albrecht2015-lowmc} in Picnic with the \ttOWF, and make the corresponding changes to the MPC protocol. 
+
+This is the first signature scheme based on the hardness of inverting the \ttOWF (or similar function), a function with a simple mathematical description, making it an accessible target for cryptanalysis, especially when compared to block ciphers.  Arguably, the simplicity of the OWF can lead to simpler implementations: the MPC protocol is simpler, and no large precomputed constants are required. 
+
+Our presentation is somewhat brief here as many parts are identical to Picnic. More details can be found in the full version. 
+
+
+\begin{table}[t]
+\resizebox{\textwidth}{!}{ 
+\begin{tabular}{|c|c|c|}
+\hline
+OWF Params      & KKW params        & \multirow{2}{*}{Sig. size (KB)}\\
+$(n,m,t)$       & $(N, M, \tau)$    &   \\
+\hline\hline
+$(128,453,81)$  & $(16, 150, 51)$   & 13.30 \\
+                & $(16, 168, 45)$   & 12.48 \\ 
+                & $(16, 250, 36)$   & \textbf{11.54} \\
+Picnic3-L1      & $(16, 250, 36)$   & 12.60 \\ \hline
+$(128,453,81)$  & $(64, 151, 45)$   & 13.59 \\
+                & $(64, 209, 34)$   & 11.70 \\ 
+                & $(64, 343, 27)$   & \textbf{10.66} \\
+Picnic2-L1      & $(64, 343, 27)$   & 12.36 \\ \hline
+\end{tabular}
+
+\quad
+\begin{tabular}{|c|c|c|}
+\hline
+OWF Params      & KKW params        & \multirow{2}{*}{Sig. size (KB)}\\
+$(n,m,t)$       & $(N, M, \tau)$    &   \\
+\hline\hline
+$(256,906,162)$ & $(16, 324, 92)$   & 50.19 \\ 
+                & $(16, 400, 79)$   & 47.08 \\ 
+                & $(16, 604, 68)$   & \textbf{45.82} \\ 
+Picnic3-L5      & $(16, 604, 68)$   & 48.72 \\ \hline
+$(256,906,162)$ & $(64, 322, 82)$   & 51.23 \\
+                & $(64, 518, 60)$   & 44.04 \\ 
+                & $(64, 604, 57)$   & \textbf{43.45} \\ 
+Picnic2-L5      & $(64, 604, 58)$   & 46.18 \\ \hline
+\end{tabular}
+ }
+\caption{ \label{table:sig-sizes}Signature size estimates for Picnic using
+\ttOWF, compared to Picnic using LowMC.  The left table shows
+security level L1 (128 bits) with $N=16$ and $N=64$ parties, and the right table shows level L5 (256 bits).}
+\end{table}
+
+\mypara{Parameters.} Let $\secpar$ be a security parameter.  The
+\ttOWF parameters are denoted $(n, m, t)$.  The KKW parameters $(N, M,
+\tau)$ denote the number of parties $N$, the total number of MPC instances $M$,
+and the number $\tau$ of MPC instances where the verifier checks the online
+phase of simulation.  The scheme also requires a cryptographic hash function. 
+
+\mypara{Key generation.}
+The signer chooses a random $x \in \Z_2^n$ as secret key, and a random seed $s \in \{0,1\}^{\secpar}$ such that $s$ expands to matrices $\matA \in \Z_2^{m\times n}$ and $\matB\in \Z_3^{m\times t}$ that are full rank (using a suitable cryptographic
+function, such as the SHAKE extendable output function~\cite{sp800-185}). Compute $y = \sfF(x)$ and set $(y, s)$ as the public key. Recall that the \ttOWF is defined as $y = \sfF(x)$ where $x \in \Z_2^{n}$ and $y\in \Z_3^{t}$, and is computed as $y = \mat{B}(\mat{A}x)$ where $\mat{A}x$ is first cast to $\Z_3$. 
+
+\mypara{MPC protocol.}
+By combining the protocols for the gates $\prot_{\Add}^{3}$, $\prot_{\LMap}^{\mat{A},2}$, $\prot_{\LMap}^{\mat{B},3}$, and $\prot_{\Convert}^{(2,3)}$ described in \cref{sec:distributed_protocols}, we have an $N$-party protocol for the \ttOWF. The most challenging and costly step (in terms of communication) is the conversion gate, all other operations are done locally by the parties.
+
+\mypara{Sign and verify.} 
+The prover simulates the preprocessing and online phase for all $M$ MPC instances, and commits to the preprocessing values, and MPC inputs and outputs. Then she is challenged to open $\tau$ of the $M$ MPC instances. The verifier will check the simulation of the online phase for these instances, by re-computing all values as the prover did for $N-1$ of the parties, and for remaining unopened party, the prover will provide the missing broadcast messages and commitments so that the verifier may complete the simulation and recompute all commitments.  For the $M-\tau$ instances not chosen by the challenge, the verifier will check the preprocessing phase only, by recomputing the preprocessing phase as the prover did. 
+
+\mypara{Parameter selection and signature size.}
+The impact of OWF choice is limited to one term, which is the sum of the sizes of the MPC inputs, broadcast messages, and auxiliary values produced by preprocessing. Selecting the KKW parameters $(M, N, \tau)$ once the MPC costs are known follows the approach in Picnic: a range of options are possible, and we try to select parameters that balance speed (mostly dependent on the number of MPC executions and number of parties) and size. Since the MPC costs of the \ttOWF are very close to those of LowMC, the options follow a similar curve. 
+
+\cref{table:sig-sizes} gives some options with $N=16, 64$ parties, providing 128 and 256 bits of security. For each category, we highlight the row of \ttOWF parameters that are a direct comparison to Picnic.  Signatures using the \ttOWF are slightly shorter (five to fifteen percent) than Picnic using LowMC. 
