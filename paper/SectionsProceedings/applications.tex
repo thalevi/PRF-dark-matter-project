@@ -1,48 +1,9 @@
 %!TEX root = ../main.tex
 
-\newcommand{\secpar}{\kappa}
-\newcommand{\aux}{\textsf{aux}}
-\newcommand{\com}{\textsf{com}}
-\newcommand{\CCC}{\mathcal{C}}
-\newcommand{\PPP}{\mathcal{P}}
-\newcommand{\ch}{\textsf{ch}}
-\newcommand{\hash}{\textsf{H}}
-\newcommand{\state}{\textsf{state}}
-\newcommand{\seed}{\textsf{seed}}
-\newcommand{\msgs}{\textsf{msgs}}
-\newcommand{\Msg}{\textsf{Msg}}
-\newcommand{\Expand}{\textsf{Expand}}
-\newcommand{\algcomment}[1]{{\color{Gray}{\qquad//#1}}}
+\newcommand{\secpar}{\lambda}
 \newcommand{\bmat}[1]{\ensuremath{\mathbf{#1}}}
 \newcommand{\matA}{\bmat{A}}
 \newcommand{\matB}{\bmat{B}}
-
- \newtcolorbox{titlebox}[5]{
-    enhanced,
-    colframe=black,
-    colback=white,
-    boxrule={#3},
-    arc={#2},
-    auto outer arc,
-    pad at break*=0pt,
-    vfill before first,
-    before={\par\medskip\noindent},
-    after={\par\medskip},
-    top=12pt, left=4pt, enlarge top by=7pt,%enlarge bottom by=7pt,%
-    title={\rule[-.3\baselineskip]{0pt}{\baselineskip}\normalsize\sffamily\bfseries #1}, 
-    varwidth boxed title*=-30pt, 
-    attach boxed title to top left={yshift=-10pt,xshift=10pt}, 
-    coltitle=black,
-    boxed title style={colback=white,boxrule={#5},arc={#4},auto outer arc}
- }
-
- \newenvironment{systembox}[1]
- {\vspace{\baselineskip}\begin{titlebox}{Functionality \normalfont #1}{2.5pt}{1pt}{3.5pt}{1pt}}
- {\end{titlebox}}
-
- \newenvironment{protocolbox}[1]
- {\begin{titlebox}{ #1}{0.5pt}{0.5pt}{1pt}{0.75pt}}
- {\end{titlebox}}
 
 \section{Application: Signatures with the \ttOWF}
 \label{sec:applications}
@@ -56,7 +17,7 @@ Concretely, our design follows the Picnic signature scheme~\cite{chase2017-picni
 
 This is the first signature scheme based on the hardness of inverting the \ttOWF (or similar function), a function with a simple mathematical description, making it an accessible target for cryptanalysis, especially when compared to block ciphers.  Arguably, the simplicity of the OWF can lead to simpler implementations: the MPC protocol is simpler, and no large precomputed constants are required. 
 
-Our presentation is somewhat brief here as many details are identical to Picnic.
+Our presentation is somewhat brief here as many parts are identical to Picnic. More details can be found in the full version. 
 
 
 \begin{table}[t]
@@ -96,43 +57,6 @@ Picnic2-L5      & $(64, 604, 58)$   & 46.18 \\ \hline
 \ttOWF, compared to Picnic using LowMC.  The left table shows
 security level L1 (128 bits) with $N=16$ and $N=64$ parties, and the right table shows level L5 (256 bits).}
 \end{table}
-
-\iffalse
-\begin{table}[t]
-\resizebox{\textwidth}{!}{ 
-\begin{tabular}{l|l|l}
-OWF Params      & KKW params        & Sig. size (KB)\\
-$(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
-$(128,453,81)$  & $(16, 150, 51)$   & 13.30 \\
-                & $(16, 168, 45)$   & 12.48 \\ 
-                & $(16, 250, 36)$   & \textbf{11.54} \\
-Picnic3-L1      & $(16, 250, 36)$   & 12.60 \\ \hline
-$(128,453,81)$  & $(64, 151, 45)$   & 13.59 \\
-                & $(64, 209, 34)$   & 11.70 \\ 
-                & $(64, 343, 27)$   & \textbf{10.66} \\
-Picnic2-L1      & $(64, 343, 27)$   & 12.36 \\ \hline
-\end{tabular}
-
-\quad
-\begin{tabular}{l|l|l}
-OWF Params      & KKW params        & Sig. size (KB)\\
-$(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
-$(256,906,162)$ & $(16, 324, 92)$   & 50.19 \\ 
-                & $(16, 400, 79)$   & 47.08 \\ 
-                & $(16, 604, 68)$   & \textbf{45.82} \\ 
-Picnic3-L5      & $(16, 604, 68)$   & 48.72 \\ \hline
-$(256,906,162)$ & $(64, 322, 82)$   & 51.23 \\
-                & $(64, 518, 60)$   & 44.04 \\ 
-                & $(64, 604, 57)$   & \textbf{43.45} \\ 
-Picnic2-L5      & $(64, 604, 58)$   & 46.18 \\ \hline
-\end{tabular}
- }
-\caption{ \label{table:sig-sizes}Signature size estimates for Picnic using
-\ttOWF, compared to Picnic using LowMC.  The left table shows
-security level L1 (128 bits) with $N=16$ and $N=64$ parties, and the right table shows level L5 (256 bits).}
-\end{table}
-\fi
-
 
 \mypara{Parameters.} Let $\secpar$ be a security parameter.  The
 \ttOWF parameters are denoted $(n, m, t)$.  The KKW parameters $(N, M,
@@ -150,58 +74,7 @@ By combining the protocols for the gates $\prot_{\Add}^{3}$, $\prot_{\LMap}^{\ma
 \mypara{Sign and verify.} 
 The prover simulates the preprocessing and online phase for all $M$ MPC instances, and commits to the preprocessing values, and MPC inputs and outputs. Then she is challenged to open $\tau$ of the $M$ MPC instances. The verifier will check the simulation of the online phase for these instances, by re-computing all values as the prover did for $N-1$ of the parties, and for remaining unopened party, the prover will provide the missing broadcast messages and commitments so that the verifier may complete the simulation and recompute all commitments.  For the $M-\tau$ instances not chosen by the challenge, the verifier will check the preprocessing phase only, by recomputing the preprocessing phase as the prover did. 
 
-\newcommand{\textunderbrace}[2]{{%
-  \underbrace{#1}_{\text{#2}}
-}}
-
 \mypara{Parameter selection and signature size.}
-In \cref{appendix:picnic} we give the formula for estimating signature size.
-The impact of OWF choice is limited to one term, which is the sum of
-the sizes of the MPC inputs, broadcast messages, and auxiliary values produced
-by preprocessing.  Selecting the KKW parameters $(M, N, \tau)$ once the MPC costs
-are known follows the approach in Picnic: a range of options are possible, and
-we try to select parameters that balance speed (mostly dependent on the number of MPC executions and number of 
-parties) and size.  Since the MPC costs of the \ttOWF are very close to those
-of LowMC, the options follow a similar curve. 
+The impact of OWF choice is limited to one term, which is the sum of the sizes of the MPC inputs, broadcast messages, and auxiliary values produced by preprocessing. Selecting the KKW parameters $(M, N, \tau)$ once the MPC costs are known follows the approach in Picnic: a range of options are possible, and we try to select parameters that balance speed (mostly dependent on the number of MPC executions and number of parties) and size. Since the MPC costs of the \ttOWF are very close to those of LowMC, the options follow a similar curve. 
 
-\cref{table:sig-sizes} gives some options with $N=16, 64$ parties,
-providing 128 and 256 bits of security. For each category, we highlight the row
-of \ttOWF parameters that are a direct comparison to Picnic.  Signatures using
-the \ttOWF are slightly shorter (five to fifteen percent) than Picnic using
-LowMC. 
-
-
-% \begin{table}[t]
-% \begin{centering}
-% \begin{tabular}{l|l|l}
-% OWF Params      & KKW params        & Sig. size (KB)\\
-% $(n,m,t)$       & $(N, M, \tau)$    &   \\\hline
-% $(128,453,81)$  & $(16, 150, 51)$   & 13.30 \\
-%                 & $(16, 168, 45)$   & 12.48 \\ 
-%                 & $(16, 250, 36)$   & \textbf{11.54} \\
-%                 & $(16, 303, 34)$   & 11.49 \\  
-% Picnic3-L1      & $(16, 250, 36)$   & 12.60 \\ \hline
-% $(128,453,81)$  & $(64, 151, 45)$   & 13.59 \\
-%                 & $(64, 209, 34)$   & 11.70 \\ 
-%                 & $(64, 343, 27)$   & \textbf{10.66} \\
-%                 & $(64, 515, 24)$   & 10.35 \\ 
-% Picnic2-L1      & $(64, 343, 27)$   & 12.36 \\ \hline \hline
-% $(256,906,162)$ & $(16, 324, 92)$   & 50.19 \\ 
-%                 & $(16, 400, 79)$   & 47.08 \\ 
-%                 & $(16, 604, 68)$   & \textbf{45.82} \\ 
-% Picnic3-L5      & $(16, 604, 68)$   & 48.72 \\ \hline
-% $(256,906,162)$ & $(64, 322, 82)$   & 51.23 \\
-%                 & $(64, 518, 60)$   & 44.04 \\ 
-%                 & $(64, 604, 57)$   & \textbf{43.45} \\ 
-% Picnic2-L5      & $(64, 604, 58)$   & 46.18 \\ \hline
-% \end{tabular}
-% \caption{ \label{table:sig-sizes}Signature size estimates for Picnic using
-% \ttOWF, compared to Picnic using LowMC.  The first half of the table shows
-% security level L1 (128 bits) with $N=16$ and $N=64$ parties, and the second
-% half shows level L5 (256 bits).}
-% \end{centering}
-% \end{table}
-
-
-
-
+\cref{table:sig-sizes} gives some options with $N=16, 64$ parties, providing 128 and 256 bits of security. For each category, we highlight the row of \ttOWF parameters that are a direct comparison to Picnic.  Signatures using the \ttOWF are slightly shorter (five to fifteen percent) than Picnic using LowMC. 

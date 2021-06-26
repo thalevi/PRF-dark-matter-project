@@ -12,14 +12,14 @@ The attacker is given $\hat{y} \in \Z_3^t$ and tries to invert it. Our most inte
 
 \mypara{Reduction to subset-sum.}
 For a vector $w \in \Z_2^m$, there is an $(m -n) \times m$ (parity check) matrix $\mat{P}$ such that there exists $x \in \Z_2^n$ for which $\mat{A}x = w$ if and only if $\mat{P} w=\zerovec$. Assume that $\hat{y}$ is the output of the \ttOWF on $x \in \Z_2^n$, and let $w = \mat{A}x$. Then, $w$ satisfies the conditions $\mat{P} w = \zerovec$ (over $\Z_2$) and $\mat{B}w = \hat{y}$ (over $\Z_3$). We attempt to find such $w$ by a reduction to subset-sum, as detailed below. Suppose we find a set $J \subseteq [m]$ such that
-$$\left( \sum_{j \in J} \mat{P}e_j  \bmod 2, \sum_{j \in J} \mat{B}e_j  \bmod 3 \right) = (\zerovec,\hat{y}),$$
+$$
+\left( \sum_{j \in J} \mat{P}e_j  \bmod 2, \sum_{j \in J} \mat{B}e_j  \bmod 3 \right) = (\zerovec,\hat{y})
+$$
 where $e_i \in \{0,1\}^m$ is the $i$'th unit vector. Then, the preimage $x$ can be computed by solving the linear equation system $\mat{A}x = \sum_{j \in J} e_j  \bmod 2$.
 
 Thus, we have reduced the problem to subset-sum with $m$ binary variables
 $(\epsilon_1, \ldots, \epsilon_m) \in \{0,1\}^m$, where we associate $\epsilon_i = 1$
-with $(\mat{P}e_i, \mat{B}e_i) \in \Z_2^{m-n} \times \Z_3^t,$ and define the target as $(\zerovec,\hat{y}) \in \Z_2^{m-n} \times \Z_3^t$.
-
-We further note that the parity check matrix $\mat{P}$ defines the linear code spanned by the columns of $\mat{A}$. Therefore, the reduction is bi-directional, implying that inverting the \ttOWF is equivalent to solving this special type of subset-sum problem.
+with $(\mat{P}e_i, \mat{B}e_i) \in \Z_2^{m-n} \times \Z_3^t,$ and define the target as $(\zerovec,\hat{y}) \in \Z_2^{m-n} \times \Z_3^t$. We further note that the parity check matrix $\mat{P}$ defines the linear code spanned by the columns of $\mat{A}$. Therefore, the reduction is bi-directional, implying that inverting the \ttOWF is equivalent to solving this special type of subset-sum problem.
 
 
 \mypara{Solving the subset-sum problem.}
@@ -43,7 +43,7 @@ Another important attack we consider exploits the fact that $\mat{K}$ is circula
 Overall, we set $n=m=2s$ and $t = s/\log 3$. These are somewhat aggressive parameters as the security margin against the above attacks in rather narrow. A choice of $n=m=2.5s$ is more conservative.
 
 \subsection{Summary of Security Evaluation of the LPN-PRG}
-The attacker is given a single sample $\mat{A},\mat{B},y$ and tries to mount a key recovery and/or a distinguishing attack. The construction differs from the alternative wPRF construction from~\cite{boneh2018-darkmatter} in two ways. The first transformation generates $t = 2n$ samples using a public matrix. Similarly to~\cite{boneh2018-darkmatter}, each sample can be viewed as an LPN sample, namely, a noisy linear equation over $\Z_2$ in the bits of the seed (although the noise is generated deterministically). However, in~\cite{boneh2018-darkmatter} $\mat{A}$ is a random matrix, whereas we use a (structured) Toeplitz matrix. This may be considered as weakening of the construction. On the other hand, the second transformation $\mat{B}$ ``compresses'' the samples and generally strengthens the construction.
+The attacker is given a single sample $\mat{A},\mat{B},y$ and tries to mount a key recovery and/or a distinguishing attack. The construction differs from the alternative wPRF construction from~\cite{boneh2018-darkmatter} in two ways. The first transformation generates $t = 2n$ samples using a public matrix. Similarly to~\cite{boneh2018-darkmatter}, each sample can be viewed as an LPN sample, i.e., a noisy linear equation over $\Z_2$ in the bits of the seed (although the noise is generated deterministically). However, in~\cite{boneh2018-darkmatter} $\mat{A}$ is a random matrix, whereas we use a (structured) Toeplitz matrix which may weaken the construction. On the other hand, the second transformation $\mat{B}$ ``compresses'' the samples and generally strengthens the construction.
 
 A significant consideration in selecting the parameters is that the rows of $\mat{B}$ do not span a low Hamming weight vector, imposing a lower bound on $m$. Thus, only dense linear combinations of samples are available at the output, accumulating the noise. This should defeat standard attacks against LPN. Overall, setting $n=s, m = 3s, t = 2s$ seems to provide sufficient resistance against the considered attacks.
 

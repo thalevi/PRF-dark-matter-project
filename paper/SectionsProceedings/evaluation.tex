@@ -1,7 +1,7 @@
 %!TEX root = ../main.tex
 \section{Implementation and Evaluation}
 \label{sec:implementation_and_eval}
-We implemented our 2-party protocols to compute the \ttwPRF candidate (Construction~\ref{construction:23-central-wprf}) both in the distributed setting (Section~\ref{subsec:2pc-wprf}), and the oblivious evaluation setting. Our implementations are in C++. For the \ttwPRF construction, we used the parameters $n = m = 256$ and $t = 81$. The implemented 23-constructions use a Toeplitz matrix in $\Z_2^{256 \times 256}$ as the key, take as input a vector in $\Z_2^{256}$ and output a vector in $\Z_3^{81}$. The correlated randomness was implemented as if provided by a trusted third party. See Section~\ref{subsec:preprocessing} for concretely efficient protocols for securely generating the correlated randomness, which we did not implement but give efficiency estimates based on prior works. 
+We implemented our 2-party protocols to compute the \ttwPRF candidate (Construction~\ref{construction:23-central-wprf}) both in the distributed and oblivious evaluation settings. Our implementations are in C++. For the \ttwPRF construction, we used the parameters $n = m = 256$ and $t = 81$. The implemented 23-constructions use a Toeplitz matrix in $\Z_2^{256 \times 256}$ as the key, take as input a vector in $\Z_2^{256}$ and output a vector in $\Z_3^{81}$. The correlated randomness was implemented as if provided by a trusted third party. See Section~\ref{subsec:preprocessing} for concretely efficient protocols for securely generating the correlated randomness, which we did not implement but give efficiency estimates based on prior works. 
 
 
 \mypara{Optimizations.}
@@ -17,7 +17,7 @@ We ran all our experiments on a t2.medium AWS EC2 instance with 4GiB RAM (archit
 \begin{table}[!t]
 	{
 		\centering
-        \iffull\else\resizebox{0.7\textwidth}{!}{\fi
+        \resizebox{0.7\textwidth}{!}{
 		\begin{tabular}{|c|c|c|c|c|}
 			
 			\hline
@@ -30,7 +30,7 @@ We ran all our experiments on a t2.medium AWS EC2 instance with 4GiB RAM (archit
 			\checkmark & \checkmark & \checkmark & 6.08 & 165K \\
 			\hline
 		\end{tabular}
-        \iffull\else}\fi
+        }
 		\caption{Centralized 23-wPRF benchmarks for a baseline implementation and for different optimization techniques. Packing was done into 64-bit sized words (for both $\Z_2$ and $\Z_3$ vectors). For the lookup table optimization, a table with $81 \times 2^{20}$ $\Z_3$ elements, or roughly of size $135$MB, was preprocessed. Runtimes are all given in microseconds ($\mu$s).
 		}
 		\label{table:optimization_benchmarks}

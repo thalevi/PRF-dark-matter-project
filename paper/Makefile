@@ -1,4 +1,4 @@
-PROJECT_NAME="main"
+PROJECT_NAME="main_proceedings"
 
 .DEFAULT_GOAL := pdf
 
