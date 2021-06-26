@@ -24,11 +24,7 @@ We make use of five types of basic operations, or ``gates,'' which we detail bel
 \end{itemize}
 
 
-\noindent The $\LMap$ and the $\BLMap$ gates will behave very differently in the context of distributed protocols. For $\LMap$, the matrix $\mat{A}$ will be publicly available to all parties, while the input $x$ will be secret shared. On the other hand, for $\BLMap$, both the key $\mat{K}$ and the input $x$ will be secret shared. We call this gate \textit{bilinear} because its output is linear in both of its (secret-shared) inputs. Also note that although the $\Convert_{(2,3)}$ gate is effectively a no-op in a centralized evaluation, in the distributed setting, the gate will be used to convert an additive sharing over $\Z_2$ to an additive sharing over $\Z_3$.
-
-As described previously, for the (bi)linear maps, we focus only on constructions that use mod-2 and mod-3 maps. In \fig~\ref{fig:graphical_gates}, we provide a pictorial representation for each circuit gate. We will connect these pieces together to also provide clean visual representations for all our constructions. 
-
-The homomorphic properties of linear secret sharing directly imply that $\LMap$ and $\textsf{Add}$ can be computed locally on shared inputs without any preprocessing or communication. For the other gates, we provide protocols to evaluate them in a distributed setting (i.e., where all inputs/outputs are secret shared) in Section~\ref{sec:distributed_protocols}.
+\noindent The $\LMap$ and the $\BLMap$ gates will behave very differently in the context of distributed protocols. For $\LMap$, the matrix $\mat{A}$ will be publicly available to all parties, while the input $x$ will be secret shared. On the other hand, for $\BLMap$, both the key $\mat{K}$ and the input $x$ will be secret shared. We call this gate \textit{bilinear} because its output is linear in both of its (secret-shared) inputs. Also note that although the $\Convert_{(2,3)}$ gate is effectively a no-op in a centralized evaluation, in the distributed setting, the gate will be used to convert an additive sharing over $\Z_2$ to an additive sharing over $\Z_3$. \fig~\ref{fig:graphical_gates} pictorially represents each circuit gate.
 
 \input{Figures/tikzfigs/graphical_gates.tex}
 
@@ -53,7 +49,7 @@ The candidate constructions we introduce follow one of two broad styles which we
     \]
     The output $y$ is then computed as $y = \mat{B}w \bmod 2$. The upshot of this style is that the input and the output are both over $\Z_2$. Intuitively, each intermediate vector bit can be thought of as a deterministic Learning-Parity-with-Noise (LPN) instance with a noise rate of $1/3$. The noise is deterministically generated and is dependent on the input $x$ and a specific column of $\mat{A}$. The noise for the $i^\thtext$ instance will be $1$ if and only if $\left<\mat{A}_i, x\right> = 1$.
 
-    \hspace*{1em} A similar construction was considered in~\cite{boneh2018-darkmatter} but only for a single-bit output. Specifically, they considered $\mat{A} \in \Z_2^{1 \times n}$ and output the single bit $w$. In our construction, we additionally apply a compressive linear map (using $\mat{B}$) to get the final output. This is done to resist standard attacks on LPN (see Section~\ref{sec:cryptanalysis} and Appendix~\ref{appendix:cryptanalysis} for details).
+    \hspace*{1em} A similar construction was considered in~\cite{boneh2018-darkmatter} but only for a single-bit output. Specifically, they considered $\mat{A} \in \Z_2^{1 \times n}$ and output the single bit $w$. In our construction, we additionally apply a compressive linear map (using $\mat{B}$) to get the final output. This is done to resist standard attacks on LPN (see Section~\ref{sec:cryptanalysis} for details).
 \end{itemize}
 
 
